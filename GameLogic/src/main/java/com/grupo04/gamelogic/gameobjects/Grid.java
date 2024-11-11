@@ -1,15 +1,16 @@
 package com.grupo04.gamelogic.gameobjects;
 
-import com.grupo04.androidengine.IEngine;
-import com.grupo04.androidengine.graphics.IGraphics;
-import com.grupo04.androidengine.ec.IScene;
-import com.grupo04.androidengine.utilities.Color;
-import com.grupo04.androidengine.ec.GameObject;
-import com.grupo04.androidengine.utilities.Pair;
-import com.grupo04.androidengine.utilities.Vector;
-import com.grupo04.androidengine.audio.IAudio;
-import com.grupo04.androidengine.audio.ISound;
+import com.grupo04.engine.interfaces.IEngine;
+import com.grupo04.engine.interfaces.IGraphics;
+import com.grupo04.engine.utilities.Color;
+import com.grupo04.gamelogic.GameObject;
+import com.grupo04.engine.utilities.Pair;
+import com.grupo04.engine.utilities.Vector;
+import com.grupo04.engine.interfaces.IAudio;
+import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.gamelogic.BubbleColors;
+import com.grupo04.gamelogic.Scene;
+import com.grupo04.gamelogic.SceneManager;
 import com.grupo04.gamelogic.scenes.GameOverScene;
 import com.grupo04.gamelogic.scenes.VictoryScene;
 
@@ -21,11 +22,11 @@ import java.util.List;
 
 public class Grid extends GameObject {
     // Linea del final del nivel
-    final int lineThickness = 1;
-    final Color lineColor = new Color(0, 0, 0, 255);
+    private final int lineThickness;
+    private final Color lineColor;
 
     // Matriz de burbujas con los colores de las mismas
-    private final int[][] bubbles;
+    private int[][] bubbles;
     // Numero de filas y columnas
     private final int rows;
     private final int cols;
@@ -35,11 +36,11 @@ public class Grid extends GameObject {
     private int totalBubbles;
     // Indica cuantas bolas hay de cada color en el mapa
     // Se usa para saber de que color puede ser la bola que se lanza
-    private final int[] colorCount;
+    private int[] colorCount;
     // 5 puntos por cada burbuja en un grupo de 3 y 10 puntos por cada burbuja en un grupo de 10 o mas
 
     // Radio de las burbujas
-    private int r;
+    private final int r;
     // Radio de los hexagonos de la cuadricula
     private final float hexagonRadius;
     // Offsets para las paredes y la cabecera
@@ -85,17 +86,21 @@ public class Grid extends GameObject {
     private ISound attachSound;
     private ISound explosionSound;
 
-    private final BubbleColors bubbleColors;
+    private BubbleColors bubbleColors;
 
     private WeakReference<Text> scoreText;
     private WeakReference<ImageToggleButton> showGridButton;
 
     // DEBUG DE LAS CELDAS
-    private int currI = -1, currJ = -1;
+    private int currI;
+    private int currJ;
 
     public Grid(int width, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, int cols, int initRows,
                 int bubblesToExplode, int greatScore, int smallScore, BubbleColors bubbleColors, float fallingSpeed, float shrinkSpeed) {
         super();
+
+        this.lineThickness = 1;
+        this.lineColor = new Color(0, 0, 0, 255);
 
         this.cols = cols;
         this.rows = rows;
@@ -172,6 +177,10 @@ public class Grid extends GameObject {
 
         this.scoreText = null;
         this.showGridButton = null;
+
+        // DEBUG
+        this.currI = -1;
+        this.currJ = -1;
     }
 
     public Grid(int width, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, int cols, int initRows,
@@ -316,9 +325,12 @@ public class Grid extends GameObject {
                 this.audio.stopSound(this.attachSound);
                 this.audio.stopSound(this.explosionSound);
                 // Se hace un fade in y cuando acaba la animacion se cambia a la escena de game over
-                this.scene.setFade(IScene.Fade.IN, 0.25);
+                this.scene.setFade(Scene.Fade.IN, 0.25);
                 this.scene.setFadeCallback(() -> {
-                    this.engine.changeScene(new GameOverScene(this.engine));
+                    SceneManager sceneManager = this.scene.getSceneManager();
+                    if (sceneManager != null) {
+                        sceneManager.changeScene(new GameOverScene(this.engine));
+                    }
                 });
             }
         }
@@ -473,8 +485,8 @@ public class Grid extends GameObject {
         this.audio = this.engine.getAudio();
         this.attachSound = this.audio.newSound("ballAttach.wav");
         this.explosionSound = this.audio.newSound("ballExplosion.wav");
-        this.scoreText = new WeakReference<Text>((Text) this.scene.getHandler("scoreText"));
-        this.showGridButton = new WeakReference<ImageToggleButton>((ImageToggleButton) this.scene.getHandler("showGridButton"));
+        this.scoreText = new WeakReference<>((Text) this.scene.getHandler("scoreText"));
+        this.showGridButton = new WeakReference<>((ImageToggleButton) this.scene.getHandler("showGridButton"));
     }
 
     @Override
@@ -570,10 +582,28 @@ public class Grid extends GameObject {
             this.audio.stopSound(this.explosionSound);
 
             // Se hace un fade in y cuando acaba la animacion se cambia a la escena de victoria
-            this.scene.setFade(IScene.Fade.IN, 0.25);
+            this.scene.setFade(Scene.Fade.IN, 0.25);
             this.scene.setFadeCallback(() -> {
-                this.engine.changeScene(new VictoryScene(this.engine, this.score));
+                SceneManager sceneManager = this.scene.getSceneManager();
+                if (sceneManager != null) {
+                    sceneManager.changeScene(new VictoryScene(this.engine, this.score));
+                }
             });
         }
+    }
+
+    @Override
+    public void dereference() {
+        super.dereference();
+
+        this.bubbleColors = null;
+        this.bubbles = null;
+        this.colorCount = null;
+        this.fallingBubbles.clear();
+        this.visited = null;
+        this.collidedBubbles.clear();
+        this.showGridButton = null;
+        this.attachSound = null;
+        this.explosionSound = null;
     }
 }

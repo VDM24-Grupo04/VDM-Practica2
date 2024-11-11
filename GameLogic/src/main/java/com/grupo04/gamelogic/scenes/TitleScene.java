@@ -1,29 +1,29 @@
 package com.grupo04.gamelogic.scenes;
 
-import com.grupo04.androidengine.IEngine;
-import com.grupo04.androidengine.utilities.Color;
-import com.grupo04.androidengine.ec.Scene;
-import com.grupo04.androidengine.utilities.Vector;
+import com.grupo04.engine.interfaces.IEngine;
+import com.grupo04.engine.utilities.Color;
+import com.grupo04.gamelogic.Scene;
+import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.gameobjects.TextButton;
 import com.grupo04.gamelogic.gameobjects.Text;
 
 public class TitleScene extends Scene {
-    final String TEXT_FONT = "TheMeshroomRegular.ttf";
-    final Color TEXT_COLOR = new Color(0, 0, 0);
-    final float TEXT_SIZE = 55;
-    final float[] TEXT_INDENTING = new float[]{-15f, 15f};
-    final float TEXT_LINE_SPACING = -15f;
-
-    final String BUTTON_SOUND = "button.wav";
-    final float BUTTON_WIDTH = 205f;
-    final float BUTTON_HEIGHT = 55f;
-    final float BUTTON_ARC = 25f;
-    final Color BUTTON_BASE_COLOR = new Color(252, 228, 5);
-    final Color BUTTON_OVER_COLOR = new Color(226, 205, 5);
-    final String BUTTON_FONT = "kimberley.ttf";
-
     public TitleScene(IEngine engine) {
-        super(engine, 400, 600, new Color(255, 255, 255));
+        super(engine, 400, 600);
+
+        String TEXT_FONT = "TheMeshroomRegular.ttf";
+        Color TEXT_COLOR = new Color(0, 0, 0);
+        float TEXT_SIZE = 55;
+        float[] TEXT_INDENTING = new float[]{-15f, 15f};
+        float TEXT_LINE_SPACING = -15f;
+
+        String BUTTON_SOUND = "button.wav";
+        float BUTTON_WIDTH = 205f;
+        float BUTTON_HEIGHT = 55f;
+        float BUTTON_ARC = 25f;
+        Color BUTTON_BASE_COLOR = new Color(252, 228, 5);
+        Color BUTTON_OVER_COLOR = new Color(226, 205, 5);
+        String BUTTON_FONT = "kimberley.ttf";
 
         Text title = new Text(new Vector(this.worldWidth / 2f, 2f * this.worldHeight / 7f), new String[]{"Puzzle", "Booble"},
                 TEXT_FONT, TEXT_SIZE, false, false, TEXT_COLOR,
@@ -38,7 +38,9 @@ public class TitleScene extends Scene {
                     // acaba la animacion se cambia a la escena de juego
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
-                        this.engine.changeScene(new GameScene(this.engine));
+                        if (this.sceneManager != null) {
+                            this.sceneManager.changeScene(new GameScene(this.engine));
+                        }
                     });
                 });
         addGameObject(playButton);

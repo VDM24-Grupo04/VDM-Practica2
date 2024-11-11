@@ -1,6 +1,6 @@
 package com.grupo04.gamelogic;
 
-import com.grupo04.androidengine.utilities.Color;
+import com.grupo04.engine.utilities.Color;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -13,7 +13,7 @@ public class BubbleColors {
             new Color(245, 225, 85)     // Amarillo
     };
     private static final Random randomNumbers = new Random();
-    private HashMap<Integer, Color> availableColors = new HashMap<Integer, Color>();
+    private final HashMap<Integer, Color> availableColors = new HashMap<>();
 
     public int getColorCount() {
         return colors.length;

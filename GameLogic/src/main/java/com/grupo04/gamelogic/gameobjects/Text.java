@@ -1,11 +1,11 @@
 package com.grupo04.gamelogic.gameobjects;
 
-import com.grupo04.androidengine.IEngine;
-import com.grupo04.androidengine.graphics.IFont;
-import com.grupo04.androidengine.graphics.IGraphics;
-import com.grupo04.androidengine.utilities.Color;
-import com.grupo04.androidengine.ec.GameObject;
-import com.grupo04.androidengine.utilities.Vector;
+import com.grupo04.engine.interfaces.IEngine;
+import com.grupo04.engine.interfaces.IFont;
+import com.grupo04.engine.interfaces.IGraphics;
+import com.grupo04.engine.utilities.Color;
+import com.grupo04.gamelogic.GameObject;
+import com.grupo04.engine.utilities.Vector;
 
 public class Text extends GameObject {
     private Vector pos;
@@ -36,7 +36,6 @@ public class Text extends GameObject {
     private float fullHeight;
     // Calcular la posicion de cada linea de texto
     private Vector textPos;
-
 
     private boolean paramsToBeCalculated;
     private IGraphics graphics;
@@ -166,5 +165,11 @@ public class Text extends GameObject {
 
     public void setTextLine(String text) {
         setTextLine(text, 0);
+    }
+
+    @Override
+    public void dereference() {
+        super.dereference();
+        this.font = null;
     }
 }

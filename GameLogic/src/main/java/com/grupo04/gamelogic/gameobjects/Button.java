@@ -1,12 +1,12 @@
 package com.grupo04.gamelogic.gameobjects;
 
-import com.grupo04.androidengine.IEngine;
-import com.grupo04.androidengine.utilities.Callback;
-import com.grupo04.androidengine.ec.GameObject;
-import com.grupo04.androidengine.utilities.Vector;
-import com.grupo04.androidengine.audio.IAudio;
-import com.grupo04.androidengine.audio.ISound;
-import com.grupo04.androidengine.input.ITouchEvent;
+import com.grupo04.engine.interfaces.IEngine;
+import com.grupo04.engine.utilities.Callback;
+import com.grupo04.gamelogic.GameObject;
+import com.grupo04.engine.utilities.Vector;
+import com.grupo04.engine.interfaces.IAudio;
+import com.grupo04.engine.interfaces.ISound;
+import com.grupo04.engine.interfaces.ITouchEvent;
 
 import java.util.List;
 
@@ -28,7 +28,9 @@ public abstract class Button extends GameObject {
         }
     }
 
-    public ISound getOnClickSound() { return this.onClickSound; }
+    public ISound getOnClickSound() {
+        return this.onClickSound;
+    }
 
     protected void setOnClick(Callback callback) {
         this.onClick = callback;
@@ -75,5 +77,14 @@ public abstract class Button extends GameObject {
                 }
             }
         }
+    }
+
+    @Override
+    public void dereference() {
+        super.dereference();
+
+        this.audio = null;
+        this.onClick = null;
+        this.onClickSound = null;
     }
 }

@@ -1,10 +1,10 @@
 package com.grupo04.gamelogic.gameobjects;
 
-import com.grupo04.androidengine.IEngine;
-import com.grupo04.androidengine.graphics.IGraphics;
-import com.grupo04.androidengine.graphics.IImage;
-import com.grupo04.androidengine.utilities.Callback;
-import com.grupo04.androidengine.utilities.Vector;
+import com.grupo04.engine.interfaces.IEngine;
+import com.grupo04.engine.interfaces.IGraphics;
+import com.grupo04.engine.interfaces.IImage;
+import com.grupo04.engine.utilities.Callback;
+import com.grupo04.engine.utilities.Vector;
 
 public class ImageButton extends Button {
     private IImage image;
@@ -33,5 +33,11 @@ public class ImageButton extends Button {
     @Override
     public void render(IGraphics graphics) {
         graphics.drawImage(this.image, this.pos, (int) this.width, (int) this.height);
+    }
+
+    @Override
+    public void dereference() {
+        super.dereference();
+        this.image = null;
     }
 }

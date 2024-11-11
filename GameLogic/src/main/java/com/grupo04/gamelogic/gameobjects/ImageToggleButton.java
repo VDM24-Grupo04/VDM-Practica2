@@ -1,9 +1,9 @@
 package com.grupo04.gamelogic.gameobjects;
 
-import com.grupo04.androidengine.IEngine;
-import com.grupo04.androidengine.graphics.IGraphics;
-import com.grupo04.androidengine.graphics.IImage;
-import com.grupo04.androidengine.utilities.Vector;
+import com.grupo04.engine.interfaces.IEngine;
+import com.grupo04.engine.interfaces.IGraphics;
+import com.grupo04.engine.interfaces.IImage;
+import com.grupo04.engine.utilities.Vector;
 
 public class ImageToggleButton extends ToggleButton {
     private IImage image;
@@ -47,5 +47,13 @@ public class ImageToggleButton extends ToggleButton {
     @Override
     public void render(IGraphics graphics) {
         graphics.drawImage(this.image, this.pos, (int) this.width, (int) this.height);
+    }
+
+    @Override
+    public void dereference() {
+        super.dereference();
+        this.image = null;
+        this.uncheckedImage = null;
+        this.checkedImage = null;
     }
 }

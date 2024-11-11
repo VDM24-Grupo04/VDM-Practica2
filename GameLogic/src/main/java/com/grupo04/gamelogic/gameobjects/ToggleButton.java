@@ -1,6 +1,6 @@
 package com.grupo04.gamelogic.gameobjects;
 
-import com.grupo04.androidengine.utilities.Vector;
+import com.grupo04.engine.utilities.Vector;
 
 public abstract class ToggleButton extends Button {
     protected boolean checked;

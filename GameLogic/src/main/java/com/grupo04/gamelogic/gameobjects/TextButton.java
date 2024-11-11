@@ -1,12 +1,12 @@
 package com.grupo04.gamelogic.gameobjects;
 
-import com.grupo04.androidengine.IEngine;
-import com.grupo04.androidengine.graphics.IFont;
-import com.grupo04.androidengine.graphics.IGraphics;
-import com.grupo04.androidengine.utilities.Callback;
-import com.grupo04.androidengine.utilities.Color;
-import com.grupo04.androidengine.utilities.Vector;
-import com.grupo04.androidengine.input.ITouchEvent;
+import com.grupo04.engine.interfaces.IEngine;
+import com.grupo04.engine.interfaces.IFont;
+import com.grupo04.engine.interfaces.IGraphics;
+import com.grupo04.engine.utilities.Callback;
+import com.grupo04.engine.utilities.Color;
+import com.grupo04.engine.utilities.Vector;
+import com.grupo04.engine.interfaces.ITouchEvent;
 
 import java.util.List;
 
@@ -95,5 +95,11 @@ public class TextButton extends Button {
         graphics.setColor(this.fontColor);
         graphics.setFont(this.font);
         graphics.drawText(this.text, this.pos);
+    }
+
+    @Override
+    public void dereference() {
+        super.dereference();
+        this.font = null;
     }
 }
