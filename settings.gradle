@@ -19,7 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Practica1"
+rootProject.name = "Practica2"
 include ':AndroidGame'
 include ':Engine'
 include ':GameLogic'
