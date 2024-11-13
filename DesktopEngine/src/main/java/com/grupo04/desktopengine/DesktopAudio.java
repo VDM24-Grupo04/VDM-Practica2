@@ -31,8 +31,8 @@ public class DesktopAudio extends Audio {
         public void setSoundName(String soundName) { this.soundName = soundName; }
     }
 
-    final private PriorityQueue<ClipEntry> playingPool;
-    final private HashSet<DesktopSound> pausedPool;
+    private final PriorityQueue<ClipEntry> playingPool;
+    private final HashSet<DesktopSound> pausedPool;
 
     public DesktopAudio(int maxStreams) {
         // La condición de prioridad es el valor

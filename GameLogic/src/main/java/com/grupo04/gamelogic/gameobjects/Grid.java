@@ -3,6 +3,7 @@ package com.grupo04.gamelogic.gameobjects;
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.utilities.Color;
+import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.GameObject;
 import com.grupo04.engine.utilities.Pair;
 import com.grupo04.engine.utilities.Vector;
@@ -10,7 +11,6 @@ import com.grupo04.engine.interfaces.IAudio;
 import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.gamelogic.BubbleColors;
 import com.grupo04.gamelogic.Scene;
-import com.grupo04.gamelogic.SceneManager;
 import com.grupo04.gamelogic.scenes.GameOverScene;
 import com.grupo04.gamelogic.scenes.VictoryScene;
 
@@ -277,6 +277,10 @@ public class Grid extends GameObject {
         } else {
             this.score += bubblesToEraseSize * this.smallScore;
         }
+        updateScoreText();
+    }
+
+    private void updateScoreText() {
         Text scoreTextRef = this.scoreText.get();
         if (scoreTextRef != null) {
             scoreTextRef.setTextLine("Score: " + this.score);
@@ -327,9 +331,9 @@ public class Grid extends GameObject {
                 // Se hace un fade in y cuando acaba la animacion se cambia a la escena de game over
                 this.scene.setFade(Scene.Fade.IN, 0.25);
                 this.scene.setFadeCallback(() -> {
-                    SceneManager sceneManager = this.scene.getSceneManager();
-                    if (sceneManager != null) {
-                        sceneManager.changeScene(new GameOverScene(this.engine));
+                    GameManager gameManager = this.scene.getGameManager();
+                    if (gameManager != null) {
+                        gameManager.changeScene(new GameOverScene(this.engine));
                     }
                 });
             }
@@ -486,6 +490,7 @@ public class Grid extends GameObject {
         this.attachSound = this.audio.newSound("ballAttach.wav");
         this.explosionSound = this.audio.newSound("ballExplosion.wav");
         this.scoreText = new WeakReference<>((Text) this.scene.getHandler("scoreText"));
+        updateScoreText();
         this.showGridButton = new WeakReference<>((ImageToggleButton) this.scene.getHandler("showGridButton"));
     }
 
@@ -584,9 +589,9 @@ public class Grid extends GameObject {
             // Se hace un fade in y cuando acaba la animacion se cambia a la escena de victoria
             this.scene.setFade(Scene.Fade.IN, 0.25);
             this.scene.setFadeCallback(() -> {
-                SceneManager sceneManager = this.scene.getSceneManager();
-                if (sceneManager != null) {
-                    sceneManager.changeScene(new VictoryScene(this.engine, this.score));
+                GameManager gameManager = this.scene.getGameManager();
+                if (gameManager != null) {
+                    gameManager.changeScene(new VictoryScene(this.engine, this.score));
                 }
             });
         }
@@ -606,4 +611,7 @@ public class Grid extends GameObject {
         this.attachSound = null;
         this.explosionSound = null;
     }
+
+    public void setScore(int score) { this.score = score; }
+    public int getScore() { return this.score; }
 }

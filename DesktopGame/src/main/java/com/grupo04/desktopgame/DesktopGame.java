@@ -1,8 +1,7 @@
 package com.grupo04.desktopgame;
 
 import com.grupo04.desktopengine.DesktopEngine;
-import com.grupo04.gamelogic.SceneManager;
-import com.grupo04.gamelogic.scenes.TitleScene;
+import com.grupo04.gamelogic.GameManager;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -25,13 +24,14 @@ public class DesktopGame {
         window.setVisible(true);
 
         // Creacion del motor
-        DesktopEngine engine = new DesktopEngine(window, 5);
+        DesktopEngine desktopEngine = new DesktopEngine(window, 5);
 
         // Creacion de la escena
-        SceneManager sceneManager = new SceneManager(engine);
-        engine.setScene(sceneManager);
-        sceneManager.pushScene(new TitleScene(engine));
+        String fileName = "game.json";
+        GameManager gameManager = new GameManager(desktopEngine, fileName);
+        desktopEngine.setScene(gameManager);
+        desktopEngine.setOnShutDown(gameManager::writeInfo);
 
-        engine.onResume();
+        desktopEngine.onResume();
     }
 }

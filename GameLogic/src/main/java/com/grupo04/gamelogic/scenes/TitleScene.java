@@ -9,7 +9,7 @@ import com.grupo04.gamelogic.gameobjects.Text;
 
 public class TitleScene extends Scene {
     public TitleScene(IEngine engine) {
-        super(engine, 400, 600);
+        super(-1, engine, 400, 600);
 
         String TEXT_FONT = "TheMeshroomRegular.ttf";
         Color TEXT_COLOR = new Color(0, 0, 0);
@@ -38,8 +38,8 @@ public class TitleScene extends Scene {
                     // acaba la animacion se cambia a la escena de juego
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
-                        if (this.sceneManager != null) {
-                            this.sceneManager.changeScene(new GameScene(this.engine));
+                        if (this.gameManager != null) {
+                            this.gameManager.changeScene(new GameScene(this.engine));
                         }
                     });
                 });

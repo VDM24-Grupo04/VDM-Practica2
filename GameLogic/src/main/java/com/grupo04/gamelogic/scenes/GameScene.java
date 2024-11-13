@@ -13,8 +13,10 @@ import com.grupo04.gamelogic.gameobjects.Text;
 import com.grupo04.gamelogic.gameobjects.Walls;
 
 public class GameScene extends Scene {
+    private final Grid grid;
+
     public GameScene(IEngine engine) {
-        super(engine, 400, 600, "background.jpg");
+        super(-2, engine, 400, 600, "background.jpg");
 
         int n_COLS = 10;
         int INIT_ROWS = 5;
@@ -57,8 +59,8 @@ public class GameScene extends Scene {
                     this.setFadeCallback(() -> {
                         TitleScene scene = new TitleScene(this.engine);
                         scene.setFade(Fade.OUT, 0.25);
-                        if (this.sceneManager != null) {
-                            this.sceneManager.changeScene(scene);
+                        if (this.gameManager != null) {
+                            this.gameManager.changeScene(scene);
                         }
                     });
                 });
@@ -81,7 +83,7 @@ public class GameScene extends Scene {
         Walls walls = new Walls(WALL_THICKNESS, HEADER_WIDTH, this.worldWidth, this.worldHeight);
         addGameObject(walls);
 
-        Grid grid = new Grid(this.worldWidth, WALL_THICKNESS, HEADER_WIDTH, (int) r, bubbleOffset, rows, n_COLS,
+        this.grid = new Grid(this.worldWidth, WALL_THICKNESS, HEADER_WIDTH, (int) r, bubbleOffset, rows, n_COLS,
                 INIT_ROWS, BUBBLES_TO_EXPLODE, GREAT_SCORE, SMALL_SCORE, bubbleColors);
         addGameObject(grid, "grid");
 
@@ -89,4 +91,8 @@ public class GameScene extends Scene {
                 (int) r, bubbleOffset, rows, bubbleColors);
         addGameObject(currentBubble);
     }
+
+    public int getScore() { return this.grid.getScore(); }
+    public void setScore(int score) { this.grid.setScore(score); }
+    //public Color[][] getCurrentGrid() { return this.grid.getCurrentGrid(); }
 }

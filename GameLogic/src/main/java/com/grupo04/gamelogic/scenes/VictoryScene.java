@@ -9,10 +9,14 @@ import com.grupo04.gamelogic.gameobjects.TextButton;
 import com.grupo04.gamelogic.gameobjects.Text;
 
 public class VictoryScene extends Scene {
-    final private ISound winSound;
+    private final ISound winSound;
+
+    private final int score;
 
     public VictoryScene(IEngine engine, int score) {
-        super(engine, 400, 600, new Color(255, 255, 255));
+        super(-3, engine, 400, 600, new Color(255, 255, 255));
+
+        this.score = score;
 
         Color TEXT_COLOR = new Color(0, 0, 0);
 
@@ -35,7 +39,7 @@ public class VictoryScene extends Scene {
                 TITLE_FONT, TITLE_SIZE, false, false, TEXT_COLOR);
         addGameObject(title);
 
-        Text scoreText = new Text(new Vector(this.worldWidth / 2f, 3f * this.worldHeight / 7f), Integer.toString(score),
+        Text scoreText = new Text(new Vector(this.worldWidth / 2f, 3f * this.worldHeight / 7f), Integer.toString(this.score),
                 SCORE_TEXT_FONT, SCORE_TEXT_SIZE, false, false, TEXT_COLOR);
         addGameObject(scoreText);
 
@@ -52,8 +56,8 @@ public class VictoryScene extends Scene {
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
                         this.engine.getAudio().stopSound(this.winSound);
-                        if (this.sceneManager != null) {
-                            this.sceneManager.changeScene(new GameScene(this.engine));
+                        if (this.gameManager != null) {
+                            this.gameManager.changeScene(new GameScene(this.engine));
                         }
                     });
                 });
@@ -73,8 +77,8 @@ public class VictoryScene extends Scene {
                         TitleScene scene = new TitleScene(this.engine);
                         scene.setFade(Fade.OUT, 0.25);
                         this.engine.getAudio().stopSound(this.winSound);
-                        if (this.sceneManager != null) {
-                            this.sceneManager.changeScene(scene);
+                        if (this.gameManager != null) {
+                            this.gameManager.changeScene(scene);
                         }
                     });
                 });
@@ -82,4 +86,6 @@ public class VictoryScene extends Scene {
 
         setFade(Fade.OUT, 0.25);
     }
+
+    public int getScore() { return this.score; }
 }

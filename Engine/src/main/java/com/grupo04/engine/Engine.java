@@ -7,6 +7,15 @@ import com.grupo04.engine.interfaces.IScene;
 import com.grupo04.engine.interfaces.ITouchEvent;
 import com.grupo04.engine.utilities.Vector;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 // La interfaz runnable se trata de una interfaz que cuenta con un solo metodo a implementar (run)
@@ -186,6 +195,40 @@ public abstract class Engine implements IEngine, Runnable {
         return this.audio;
     }
 
-    public void shutdown() {
+    @Override
+    public void writeFile(FileOutputStream file, JSONObject info) {
+        if (file != null) {
+            try {
+                file.write(info.toString().getBytes());
+            } catch (IOException e) {
+                System.err.println("Error while writing in file: " + e.getMessage());
+            }
+        }
     }
+
+    @Override
+    public JSONObject readFile(FileInputStream file) {
+        if (file != null) {
+            JSONObject jsonObject = null;
+            StringBuilder stringBuilder = new StringBuilder();
+            String line;
+
+            try {
+                InputStreamReader inputStreamReader = new InputStreamReader(file, StandardCharsets.UTF_8);
+                BufferedReader reader = new BufferedReader(inputStreamReader);
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                jsonObject = new JSONObject(stringBuilder.toString());
+            } catch (IOException e) {
+                System.err.println("Error while reading file: " + e.getMessage());
+            } catch (JSONException e) {
+                System.err.println("Error parsing JSON: " + e.getMessage());
+            }
+            return jsonObject;
+        }
+        return null;
+    }
+
+    public abstract void shutdown();
 }

@@ -16,6 +16,12 @@ import java.util.List;
 public abstract class Scene implements IScene {
     public enum Fade {NONE, IN, OUT}
 
+    // Las escenas de TitleScene, VictoryScene, GameOverScene y el modo aventura/normal
+    // de nuestro juego pueden tener valores especificos como -4,-3,-2,-1 por ejemplo
+    // pero para el modo por niveles habria que gestionarlo también.
+    // Se podría usar un String y conllevaria hacer if-elses en vez de switch-cases
+    private int id;
+
     private boolean alive;
     private final HashSet<GameObject> gameObjects;
     private final HashMap<String, GameObject> handlers;
@@ -34,9 +40,11 @@ public abstract class Scene implements IScene {
     protected int worldWidth;
     protected int worldHeight;
 
-    protected SceneManager sceneManager;
+    protected GameManager gameManager;
 
-    protected Scene(IEngine engine, int worldWidth, int worldHeight) {
+    protected Scene(int id, IEngine engine, int worldWidth, int worldHeight) {
+        this.id = id;
+
         this.alive = true;
         this.gameObjects = new HashSet<>();
         this.handlers = new HashMap<>();
@@ -57,25 +65,25 @@ public abstract class Scene implements IScene {
         this.fadePos = new Vector(this.worldWidth / 2.0f, this.worldHeight / 2.0f);
         this.bgImagePos = new Vector(this.worldWidth / 2.0f, this.worldHeight / 2.0f);
 
-        this.sceneManager = null;
+        this.gameManager = null;
     }
 
     // Color del fondo de la ventana
-    protected Scene(IEngine engine, int worldWidth, int worldHeight, Color bgColor) {
-        this(engine, worldWidth, worldHeight);
+    protected Scene(int id, IEngine engine, int worldWidth, int worldHeight, Color bgColor) {
+        this(id, engine, worldWidth, worldHeight);
         this.engine.getGraphics().setClearColor(bgColor);
     }
 
     // Fondo del juego (ruta de una imagen)
-    protected Scene(IEngine engine, int worldWidth, int worldHeight, String bgImageFileName) {
-        this(engine, worldWidth, worldHeight);
+    protected Scene(int id, IEngine engine, int worldWidth, int worldHeight, String bgImageFileName) {
+        this(id, engine, worldWidth, worldHeight);
         this.engine.getGraphics().setClearColor(new Color(255, 255, 255));
         this.bgImage = this.engine.getGraphics().newImage(bgImageFileName);
     }
 
     // Color del fondo de la ventana y fondo del juego (ruta de una imagen)
-    protected Scene(IEngine engine, int worldWidth, int worldHeight, Color bgColor, String bgImageFileName) {
-        this(engine, worldWidth, worldHeight);
+    protected Scene(int id, IEngine engine, int worldWidth, int worldHeight, Color bgColor, String bgImageFileName) {
+        this(id, engine, worldWidth, worldHeight);
         this.engine.getGraphics().setClearColor(bgColor);
         this.bgImage = this.engine.getGraphics().newImage(bgImageFileName);
     }
@@ -265,7 +273,6 @@ public abstract class Scene implements IScene {
     public int getWorldWidth() {
         return this.worldWidth;
     }
-
     public int getWorldHeight() {
         return this.worldHeight;
     }
@@ -274,11 +281,11 @@ public abstract class Scene implements IScene {
         return this.engine;
     }
 
-    public void setSceneManager(SceneManager sceneManager) {
-        this.sceneManager = sceneManager;
+    public void setGameManager(GameManager gameManager) { this.gameManager = gameManager; }
+    public GameManager getGameManager() {
+        return this.gameManager;
     }
 
-    public SceneManager getSceneManager() {
-        return this.sceneManager;
-    }
+    public int getId() { return this.id; }
+    public void setId(int id) { this.id = id; }
 }

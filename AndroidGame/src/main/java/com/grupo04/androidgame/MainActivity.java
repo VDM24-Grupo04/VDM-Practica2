@@ -8,11 +8,11 @@ import android.view.SurfaceView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.grupo04.androidengine.AndroidEngine;
-import com.grupo04.gamelogic.SceneManager;
-import com.grupo04.gamelogic.scenes.TitleScene;
+import com.grupo04.gamelogic.GameManager;
 
 public class MainActivity extends AppCompatActivity {
     private AndroidEngine androidEngine;
+    private GameManager gameManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,12 +26,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(window);
 
         // Creacion del motor
-        this.androidEngine = new AndroidEngine(window, assetManager, 5);
+        this.androidEngine = new AndroidEngine(window, assetManager, this, 5);
 
         // Creacion de la escena
-        SceneManager sceneManager = new SceneManager(this.androidEngine);
-        this.androidEngine.setScene(sceneManager);
-        sceneManager.pushScene(new TitleScene(this.androidEngine));
+        String fileName = "game.json";
+        this.gameManager = new GameManager(this.androidEngine, fileName);
+        this.androidEngine.setScene(this.gameManager);
 
         // Bloquear la orientacion
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -47,5 +47,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         this.androidEngine.onPause();
+        this.gameManager.writeInfo();
     }
 }

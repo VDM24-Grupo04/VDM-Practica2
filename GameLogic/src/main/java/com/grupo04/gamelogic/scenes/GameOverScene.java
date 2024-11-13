@@ -12,7 +12,7 @@ public class GameOverScene extends Scene {
     private ISound loseSound;
 
     public GameOverScene(IEngine engine) {
-        super(engine, 400, 600, new Color(255, 255, 255));
+        super(-4, engine, 400, 600, new Color(255, 255, 255));
 
         String TEXT_FONT = "TheMeshroomRegular.ttf";
         Color TEXT_COLOR = new Color(0, 0, 0);
@@ -44,8 +44,8 @@ public class GameOverScene extends Scene {
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
                         this.engine.getAudio().stopSound(this.loseSound);
-                        if (this.sceneManager != null) {
-                            this.sceneManager.changeScene(new GameScene(this.engine));
+                        if (this.gameManager != null) {
+                            this.gameManager.changeScene(new GameScene(this.engine));
                         }
                     });
                 });
@@ -65,8 +65,8 @@ public class GameOverScene extends Scene {
                         TitleScene scene = new TitleScene(this.engine);
                         scene.setFade(Fade.OUT, 0.25);
                         this.engine.getAudio().stopSound(this.loseSound);
-                        if (this.sceneManager != null) {
-                            this.sceneManager.changeScene(scene);
+                        if (this.gameManager != null) {
+                            this.gameManager.changeScene(scene);
                         }
                     });
                 });
