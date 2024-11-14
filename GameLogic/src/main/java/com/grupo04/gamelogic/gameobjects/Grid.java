@@ -68,6 +68,7 @@ public class Grid extends GameObject {
 
     private final float fallingSpeed;
     private final List<Pair<Vector, Integer>> fallingBubbles;
+    private boolean end;
     private boolean won;
 
     static class AnimCollidedBubbles {
@@ -328,14 +329,8 @@ public class Grid extends GameObject {
             else if (this.bubbles[i][j] >= 0 && gridToWorldPosition(i, j).y + this.r > this.lineEnd.y) {
                 this.audio.stopSound(this.attachSound);
                 this.audio.stopSound(this.explosionSound);
-                // Se hace un fade in y cuando acaba la animacion se cambia a la escena de game over
-                this.scene.setFade(Scene.Fade.IN, 0.25);
-                this.scene.setFadeCallback(() -> {
-                    GameManager gameManager = this.scene.getGameManager();
-                    if (gameManager != null) {
-                        gameManager.changeScene(new GameOverScene(this.engine));
-                    }
-                });
+                this.end = true;
+                this.won = false;
             }
         }
         return hasCollided;
@@ -385,7 +380,8 @@ public class Grid extends GameObject {
             }
             // Si siguen quedando bolas, se comprueba si hay bolas que se pueden caer
             return manageFall(bubblesToFall);
-        } else {
+        }
+        else {
             this.audio.playSound(this.attachSound);
         }
         return false;
@@ -581,19 +577,11 @@ public class Grid extends GameObject {
                     iterator.remove();
                 }
             }
-        } else if (this.won) {
-            this.won = false;
+        }
+        else if (this.won) {
             this.audio.stopSound(this.attachSound);
             this.audio.stopSound(this.explosionSound);
-
-            // Se hace un fade in y cuando acaba la animacion se cambia a la escena de victoria
-            this.scene.setFade(Scene.Fade.IN, 0.25);
-            this.scene.setFadeCallback(() -> {
-                GameManager gameManager = this.scene.getGameManager();
-                if (gameManager != null) {
-                    gameManager.changeScene(new VictoryScene(this.engine, this.score));
-                }
-            });
+            this.end = true;
         }
     }
 
@@ -614,4 +602,6 @@ public class Grid extends GameObject {
 
     public void setScore(int score) { this.score = score; }
     public int getScore() { return this.score; }
+    public boolean hasEnded() { return this.end; }
+    public boolean hasWon() { return this.won; }
 }

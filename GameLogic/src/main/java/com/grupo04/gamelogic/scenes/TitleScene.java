@@ -30,9 +30,26 @@ public class TitleScene extends Scene {
                 TEXT_INDENTING, TEXT_LINE_SPACING);
         addGameObject(title);
 
-        TextButton playButton = new TextButton(new Vector(this.worldWidth / 2f, 3f * this.worldHeight / 5f),
+
+        TextButton adventure = new TextButton(new Vector(this.worldWidth / 2f, 2.5f * this.worldHeight / 5f),
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BUTTON_BASE_COLOR, BUTTON_OVER_COLOR,
-                "Play", BUTTON_FONT, BUTTON_SOUND,
+                "Aventura", BUTTON_FONT, BUTTON_SOUND,
+                () -> {
+                    // Al pulsar el boton se hace un fade in y cuando
+                    // acaba la animacion se cambia a la escena de juego
+                    this.setFade(Fade.IN, 0.25);
+                    this.setFadeCallback(() -> {
+                        if (this.gameManager != null) {
+                            //
+                            //this.gameManager.changeScene(new GameScene(this.engine));
+                        }
+                    });
+                });
+        //addGameObject(adventureButton);
+
+        TextButton quickPlay = new TextButton(new Vector(this.worldWidth / 2f, 2.5f * this.worldHeight / 5f),
+                BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BUTTON_BASE_COLOR, BUTTON_OVER_COLOR,
+                "Aventura", BUTTON_FONT, BUTTON_SOUND,
                 () -> {
                     // Al pulsar el boton se hace un fade in y cuando
                     // acaba la animacion se cambia a la escena de juego
@@ -43,6 +60,6 @@ public class TitleScene extends Scene {
                         }
                     });
                 });
-        addGameObject(playButton);
+       //addGameObject(playButton);
     }
 }

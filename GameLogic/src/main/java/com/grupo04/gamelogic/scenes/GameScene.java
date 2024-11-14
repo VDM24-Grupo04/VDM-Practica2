@@ -1,5 +1,6 @@
 package com.grupo04.gamelogic.scenes;
 
+import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.Scene;
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.utilities.Color;
@@ -14,6 +15,7 @@ import com.grupo04.gamelogic.gameobjects.Walls;
 
 public class GameScene extends Scene {
     private final Grid grid;
+    boolean checkEnded;
 
     public GameScene(IEngine engine) {
         super(-2, engine, 400, 600, "background.jpg");
@@ -39,6 +41,8 @@ public class GameScene extends Scene {
         Color TEXT_COLOR = new Color(0, 0, 0);
         String SCORE_TEXT_FONT = "kimberley.ttf";
         float SCORE_TEXT_SIZE = 35;
+
+        this.checkEnded = true;
 
         // Al iniciar la escena se hace un fade out
         setFade(Fade.OUT, 0.25);
@@ -90,6 +94,36 @@ public class GameScene extends Scene {
         CurrentBubble currentBubble = new CurrentBubble(this.worldWidth, WALL_THICKNESS, HEADER_WIDTH,
                 (int) r, bubbleOffset, rows, bubbleColors);
         addGameObject(currentBubble);
+    }
+
+    @Override
+    public void update(double deltaTime) {
+        super.update(deltaTime);
+
+        if (this.checkEnded && this.grid.hasEnded()) {
+            if (this.grid.hasWon()) {
+                // Se hace un fade in y cuando acaba la animacion se cambia a la escena de victoria
+                this.setFade(Scene.Fade.IN, 0.25);
+                this.setFadeCallback(() -> {
+                    GameManager gameManager = this.getGameManager();
+                    if (gameManager != null) {
+                        gameManager.changeScene(new VictoryScene(this.engine, this.grid.getScore()));
+                    }
+                });
+                this.checkEnded = false;
+            }
+            else {
+                // Se hace un fade in y cuando acaba la animacion se cambia a la escena de game over
+                this.setFade(Scene.Fade.IN, 0.25);
+                this.setFadeCallback(() -> {
+                    GameManager gameManager = this.getGameManager();
+                    if (gameManager != null) {
+                        gameManager.changeScene(new GameOverScene(this.engine));
+                    }
+                });
+                this.checkEnded = false;
+            }
+        }
     }
 
     public int getScore() { return this.grid.getScore(); }
