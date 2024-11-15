@@ -50,6 +50,7 @@ public class GameManager implements IScene {
         // Inicializar la primera escena a partir del "lastScene"
         // No tiene mucho sentido asignar un id a no ser que sea un enum... ???
         switch (this.lastScene) {
+            default:        // Para que inicie en PC
             case -1:
                 TitleScene titleScene = new TitleScene(this.engine);
                 titleScene.setId(-1);
@@ -73,7 +74,8 @@ public class GameManager implements IScene {
                 break;
             // case ...: pushScene(new ShopScene(...)); break;
             // case ...: pushScene(new LevelsScene(...)); break;
-            // default: break; // durante un nivel
+            // durante un nivel
+
         }
     }
 

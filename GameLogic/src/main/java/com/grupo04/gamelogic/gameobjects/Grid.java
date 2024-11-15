@@ -3,16 +3,12 @@ package com.grupo04.gamelogic.gameobjects;
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.utilities.Color;
-import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.GameObject;
 import com.grupo04.engine.utilities.Pair;
 import com.grupo04.engine.utilities.Vector;
 import com.grupo04.engine.interfaces.IAudio;
 import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.gamelogic.BubbleColors;
-import com.grupo04.gamelogic.Scene;
-import com.grupo04.gamelogic.scenes.GameOverScene;
-import com.grupo04.gamelogic.scenes.VictoryScene;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

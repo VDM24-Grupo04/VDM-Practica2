@@ -40,16 +40,16 @@ public class TitleScene extends Scene {
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
                         if (this.gameManager != null) {
-                            //
+                            // Seleccion de niveles
                             //this.gameManager.changeScene(new GameScene(this.engine));
                         }
                     });
                 });
-        //addGameObject(adventureButton);
+        addGameObject(adventure);
 
-        TextButton quickPlay = new TextButton(new Vector(this.worldWidth / 2f, 2.5f * this.worldHeight / 5f),
+        TextButton quickPlay = new TextButton(new Vector(this.worldWidth / 2f, 3.2f * this.worldHeight / 5f),
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BUTTON_BASE_COLOR, BUTTON_OVER_COLOR,
-                "Aventura", BUTTON_FONT, BUTTON_SOUND,
+                "Juego rápido", BUTTON_FONT, BUTTON_SOUND,
                 () -> {
                     // Al pulsar el boton se hace un fade in y cuando
                     // acaba la animacion se cambia a la escena de juego
@@ -60,6 +60,24 @@ public class TitleScene extends Scene {
                         }
                     });
                 });
-       //addGameObject(playButton);
+        addGameObject(quickPlay);
+
+        Color SHOP_BUTTON_BASE_COLOR = new Color(62, 62, 62);
+        Color SHOP_BUTTON_OVER_COLOR = new Color(0, 0, 0);
+        Color SHOP_FONT_COLOR = new Color(252, 228, 5);
+        TextButton shop = new TextButton(new Vector(this.worldWidth / 2f, 3.9f * this.worldHeight / 5f),
+                BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, SHOP_BUTTON_BASE_COLOR, SHOP_BUTTON_OVER_COLOR,
+                "Tienda", BUTTON_FONT, SHOP_FONT_COLOR, true, BUTTON_SOUND,
+                () -> {
+                    // Al pulsar el boton se hace un fade in y cuando
+                    // acaba la animacion se cambia a la escena de juego
+                    this.setFade(Fade.IN, 0.25);
+                    this.setFadeCallback(() -> {
+                        if (this.gameManager != null) {
+                             this.gameManager.changeScene(new ShopScene(this.engine));
+                        }
+                    });
+                });
+        addGameObject(shop);
     }
 }

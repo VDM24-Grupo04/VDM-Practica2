@@ -15,14 +15,14 @@ public abstract class Button extends GameObject {
     private final String onClickSoundPath;
     private ISound onClickSound;
 
-    private Callback onClick;
+    protected Callback onClick;
 
     private final Vector topLeft;
 
     protected Vector pos;
     protected float width, height;
 
-    private void playOnClickSound() {
+    protected void playOnClickSound() {
         if (this.onClickSound != null) {
             this.audio.playSound(this.onClickSound);
         }
