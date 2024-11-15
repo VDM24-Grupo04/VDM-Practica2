@@ -39,7 +39,7 @@ public class GameManager implements IScene {
     private int[][] quickPlayGrid;
     private int quickPlayBubbleColor;
     private int quickPlayScore;
-    // ...
+    // ... (cosmeticos y apariencia)
 
     public GameManager(IEngine engine, String fileName) {
         this.engine = engine;

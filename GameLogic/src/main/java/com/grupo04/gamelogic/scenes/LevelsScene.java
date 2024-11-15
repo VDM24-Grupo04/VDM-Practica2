@@ -62,7 +62,9 @@ public class LevelsScene extends Scene {
         // Botones de niveles...
         // Hacer algo con el indice del ultimo nivel (lastLevel)
         // if i == lastLevel... se le pasa el jsonObject porque contiene la info del ultimo nivel a medias
-        // else se le pasa null donde jsonObject
+        // else se le pasa un jsonObject del nivel indicado tras la lectura del engine
+        // Si se pulsa un nivel diferente a lastLevel teniendo el nivel a medias, no hay que gestionar nada
+        // porque el nuevo nivel clicado le asignara los valores correspondientes al salir
         Vector prueba1ButtonPos = new Vector(this.worldWidth / 2f, 4f * this.worldHeight / 6f);
         TextButton prueba1Button = new TextButton(prueba1ButtonPos,
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BUTTON_BASE_COLOR, BUTTON_OVER_COLOR,
@@ -75,7 +77,7 @@ public class LevelsScene extends Scene {
                         if (this.gameManager != null) {
                             // Cambiar al numero del nivel correspondiente
                             this.gameManager.changeScene(new GameScene(this.engine, jsonObject, 1));
-                            //this.gameManager.changeScene(new GameScene(this.engine, null, i));
+                            //this.gameManager.changeScene(new GameScene(this.engine, otherJsonObject, i));
                         }
                     });
                 });
