@@ -30,7 +30,6 @@ public class DesktopGame {
         String fileName = "game.json";
         GameManager gameManager = new GameManager(desktopEngine, fileName);
         desktopEngine.setScene(gameManager);
-        desktopEngine.setOnShutDown(gameManager::writeInfo);
 
         desktopEngine.onResume();
     }

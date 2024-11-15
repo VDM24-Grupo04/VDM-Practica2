@@ -7,9 +7,11 @@ import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.gameobjects.TextButton;
 import com.grupo04.gamelogic.gameobjects.Text;
 
+import org.json.JSONObject;
+
 public class TitleScene extends Scene {
     public TitleScene(IEngine engine) {
-        super(-1, engine, 400, 600);
+        super(engine, 400, 600);
 
         String TEXT_FONT = "TheMeshroomRegular.ttf";
         Color TEXT_COLOR = new Color(0, 0, 0);
@@ -30,7 +32,6 @@ public class TitleScene extends Scene {
                 TEXT_INDENTING, TEXT_LINE_SPACING);
         addGameObject(title);
 
-
         TextButton adventure = new TextButton(new Vector(this.worldWidth / 2f, 2.5f * this.worldHeight / 5f),
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BUTTON_BASE_COLOR, BUTTON_OVER_COLOR,
                 "Aventura", BUTTON_FONT, BUTTON_SOUND,
@@ -40,8 +41,8 @@ public class TitleScene extends Scene {
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
                         if (this.gameManager != null) {
-                            // Seleccion de niveles
-                            //this.gameManager.changeScene(new GameScene(this.engine));
+                            // Le pasamos el jsonObject del modo de Aventura
+                            this.gameManager.changeScene(new LevelsScene(this.engine, this.gameManager.getAdventureJSONObj(), this.gameManager.getLastLevel()));
                         }
                     });
                 });
@@ -56,7 +57,9 @@ public class TitleScene extends Scene {
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
                         if (this.gameManager != null) {
-                            this.gameManager.changeScene(new GameScene(this.engine));
+                            // Le pasamos el jsonObject del modo de Juego Rapido
+                            // con id = 0
+                            this.gameManager.changeScene(new GameScene(this.engine, this.gameManager.getQuickPlayJSONObj(), 0));
                         }
                     });
                 });
@@ -74,7 +77,7 @@ public class TitleScene extends Scene {
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
                         if (this.gameManager != null) {
-                             this.gameManager.changeScene(new ShopScene(this.engine));
+                             this.gameManager.changeScene(new ShopScene(this.engine, this.gameManager.getCoins()));
                         }
                     });
                 });

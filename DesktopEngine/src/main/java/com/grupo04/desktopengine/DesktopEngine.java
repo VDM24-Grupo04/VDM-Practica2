@@ -14,12 +14,9 @@ import javax.swing.JFrame;
 
 public class DesktopEngine extends Engine {
     private DesktopAudio desktopAudio;
-    private Callback onShutDown;
 
     public DesktopEngine(JFrame window, int maxStreams) {
         super();
-
-        this.onShutDown = null;
 
         // Intentamos crear el buffer strategy con 2 buffers
         int attempts = 100;
@@ -50,16 +47,12 @@ public class DesktopEngine extends Engine {
     // Cierra todos los clips que estuvieran abiertos cuando se cierra el juego en Desktop
     @Override
     public void shutdown() {
+        super.shutdown();
+
         if (this.desktopAudio != null) {
             this.desktopAudio.closeAllClips();
         }
-
-        if (this.onShutDown != null) {
-            this.onShutDown.call();
-        }
     }
-
-    public void setOnShutDown(Callback onShutDown) { this.onShutDown = onShutDown; }
 
     @Override
     public FileInputStream getFileInputStream(String fileName) {

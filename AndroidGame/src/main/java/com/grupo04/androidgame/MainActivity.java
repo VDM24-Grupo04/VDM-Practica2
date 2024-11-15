@@ -47,6 +47,5 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         this.androidEngine.onPause();
-        this.gameManager.writeInfo();
     }
 }

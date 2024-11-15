@@ -6,6 +6,7 @@ import android.view.SurfaceView;
 
 import com.grupo04.engine.Engine;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,11 +26,20 @@ public class AndroidEngine extends Engine {
     }
 
     @Override
-    public void shutdown() {
+    public void onPause() {
+        this.shutdown();
+        super.onPause();
     }
 
     @Override
     public FileInputStream getFileInputStream(String fileName) {
+        File file = new File(context.getFilesDir(), fileName);
+        if (!file.exists()) {
+            System.out.println("File not found: " + fileName);
+            return null;
+        }
+
+        // Si el archivo existe
         try {
             return this.context.openFileInput(fileName);
         } catch (IOException e) {

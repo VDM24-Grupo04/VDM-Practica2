@@ -1,19 +1,20 @@
 package com.grupo04.gamelogic;
 
+import static com.grupo04.engine.utilities.JSONConverter.convertLinkedListToJSONArray;
+import static com.grupo04.engine.utilities.JSONConverter.convertMatrixToJSONArray;
+
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IScene;
 import com.grupo04.engine.interfaces.ITouchEvent;
-import com.grupo04.gamelogic.scenes.GameOverScene;
-import com.grupo04.gamelogic.scenes.GameScene;
 import com.grupo04.gamelogic.scenes.TitleScene;
-import com.grupo04.gamelogic.scenes.VictoryScene;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -24,15 +25,21 @@ public class GameManager implements IScene {
     private final Stack<Scene> aliveScenes;
 
     // Todos los datos del juego
-//    public enum SCENES { TITLE_SCENE, VICTORY_SCENE, GAMEOVER_SCENE, GAME_SCENE }; // DUDOSO
+    private JSONObject mainJsonObject;
+    private JSONObject adventureJsonObject;
+    private JSONObject quickPlayJsonObject;
     private final String fileName;
 
-    private int lastScene;
-    private int lastScore; // Usaremos lastScore para el numero tanto en GameScene como en VictoryScene
-//    private int coins;
-//    private int numUnlockedLevels;
-//    private int lastPlayingLevel; // Para el ultimo nivel jugado a medias, si se juega otro se omite
-//    ...
+    private int coins;
+    // Para el ultimo nivel jugado a medias, si se juega otro se omite
+    private int lastLevel;
+    private int[][] adventureGrid;
+    private LinkedList<Integer> adventureBubbleColors;
+    private int adventureScore;
+    private int[][] quickPlayGrid;
+    private int quickPlayBubbleColor;
+    private int quickPlayScore;
+    // ...
 
     public GameManager(IEngine engine, String fileName) {
         this.engine = engine;
@@ -40,43 +47,23 @@ public class GameManager implements IScene {
         this.aliveScenes = new Stack<>();
         this.fileName = fileName;
 
-        this.lastScene = -1;
-        this.lastScore = 0;
+        // Inicializar las variables como los valores
+        // sin que haya guardado ningun dato
+        this.coins = 0;
+        this.lastLevel = 1;
+        this.adventureGrid = null;
+        this.adventureBubbleColors = null;
+        this.adventureScore = 0;
+        this.quickPlayGrid = null;
+        this.quickPlayBubbleColor = -1;
+        this.quickPlayScore = 0;
         // ...
+    }
 
-        // Si eso moverlo a un init()
+    @Override
+    public void init() {
         readInfo();
-
-        // Inicializar la primera escena a partir del "lastScene"
-        // No tiene mucho sentido asignar un id a no ser que sea un enum... ???
-        switch (this.lastScene) {
-            default:        // Para que inicie en PC
-            case -1:
-                TitleScene titleScene = new TitleScene(this.engine);
-                titleScene.setId(-1);
-                pushScene(titleScene);
-                break;
-            case -2:
-                GameScene gameScene = new GameScene(this.engine);
-                gameScene.setId(-2);
-                gameScene.setScore(this.lastScore);
-                pushScene(gameScene);
-                break;
-            case -3:
-                VictoryScene victoryScene = new VictoryScene(this.engine, this.lastScore);
-                victoryScene.setId(-3);
-                pushScene(victoryScene);
-                break;
-            case -4:
-                GameOverScene gameOverScene = new GameOverScene(this.engine);
-                gameOverScene.setId(-4);
-                pushScene(gameOverScene);
-                break;
-            // case ...: pushScene(new ShopScene(...)); break;
-            // case ...: pushScene(new LevelsScene(...)); break;
-            // durante un nivel
-
-        }
+        pushScene(new TitleScene(this.engine));
     }
 
     public void popScene() {
@@ -142,6 +129,10 @@ public class GameManager implements IScene {
             while (!this.scenes.empty()) {
                 Scene scene = this.scenes.peek();
                 if (!scene.isAlive()) {
+                    // Cada vez que se vaya a quitar una escena de la pila
+                    // se llama a su shutdown para asignar los valores a medias
+                    // en caso de ser GameScene o ShopScene
+                    scene.shutdown();
                     scene.dereference();
                     hasDeadScenes = true;
                 } else {
@@ -166,67 +157,92 @@ public class GameManager implements IScene {
         }
     }
 
-    private void assignReadInfo(JSONObject jsonObject) {
-        if (jsonObject != null) {
+    public void readInfo() {
+        FileInputStream file = this.engine.getFileInputStream(this.fileName);
+        this.mainJsonObject = this.engine.readFile(file);
+        if (this.mainJsonObject != null) {
+            this.adventureJsonObject = this.mainJsonObject.getJSONObject("adventure");
+            this.quickPlayJsonObject = this.mainJsonObject.getJSONObject("quickPlay");
+
             try {
-                this.lastScene = (int)jsonObject.get("lastScene");
-                this.lastScore = (int)jsonObject.get("lastScore");
+                // Leer todas las variables comunes del jsonObject y asignar
+                this.coins = (int)this.mainJsonObject.get("coins");
+                this.lastLevel = (int)this.mainJsonObject.get("lastLevel");
                 // ...
+                // Para el resto de variables como grid o bubble color se encargan
+                // los objetos Grid y CurrentBubble
             } catch (Exception e) {
                 System.err.println("Error while reading info");
             }
         }
     }
 
-    public void readInfo() {
-        FileInputStream file = this.engine.getFileInputStream(this.fileName);
-        JSONObject jsonObject = this.engine.readFile(file);
-        assignReadInfo(jsonObject);
-    }
-
-    // Habria tambien que asignar la informacion cada vez que se modificase
-    // el numero de monedas, la ultima escena a medias, etc.
-    // Para el numero de monedas cada vez que se incrementase o se comprase algo en la tienda
-    // Para la ultima escena a medias, si se ha salido cuando estaba en un nivel o al salir del juego
-    // ...
-    private void assignWriteInfo() {
-        Scene scene = this.scenes.peek();
-        this.lastScene = scene.getId();
-        switch (this.lastScene) {
-            case -2:
-                GameScene gameScene = (GameScene) scene;
-                this.lastScore = gameScene.getScore();
-                break;
-            case -3:
-                VictoryScene victoryScene = (VictoryScene) scene;
-                this.lastScore = victoryScene.getScore();
-                break;
-//                case ...:
-//                    ShopScene shopScene = (ShopScene) scene;
-//                    this.coins = shopScene.getCoins();
-//                break;
-//                case ...:
-//                    LevelsScene levelsScene = (LevelsScene) scene;
-//                    this.numUnlockedLevels = scene.getNumUnlockedLevels();
-//                    ...
-//                    break;
-            // default: break; // durante un nivel
-        }
-    }
-
     public void writeInfo() {
         try {
-            assignWriteInfo();
+            // Guardar todas las variables y escribir
+            if (this.mainJsonObject == null) {
+                this.mainJsonObject = new JSONObject();
+            }
+            this.mainJsonObject.clear();
+            // Variables comunes
+            this.mainJsonObject.put("coins", this.coins);
+            this.mainJsonObject.put("lastLevel", this.lastLevel);
 
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("lastScene", this.lastScene);
-            jsonObject.put("lastScore", this.lastScore);
+            if (this.adventureJsonObject == null) {
+                this.adventureJsonObject = new JSONObject();
+            }
+            if (this.quickPlayJsonObject == null) {
+                this.quickPlayJsonObject = new JSONObject();
+            }
+
+            if (this.adventureGrid != null) {
+                this.adventureJsonObject.put("grid", convertMatrixToJSONArray(this.adventureGrid));
+            }
+            if (this.adventureBubbleColors != null) {
+                this.adventureJsonObject.put("colors", convertLinkedListToJSONArray(this.adventureBubbleColors));
+            }
+            this.adventureJsonObject.put("score", this.adventureScore);
+            if (this.quickPlayGrid != null && this.quickPlayBubbleColor != -1) {
+                this.quickPlayJsonObject.put("grid", convertMatrixToJSONArray(this.quickPlayGrid));
+                this.quickPlayJsonObject.put("color", this.quickPlayBubbleColor);
+            }
+            this.quickPlayJsonObject.put("score", this.quickPlayScore);
             // ...
 
+            this.mainJsonObject.put("adventure", this.adventureJsonObject);
+            this.mainJsonObject.put("quickPlay", this.quickPlayJsonObject);
+
             FileOutputStream file = this.engine.getFileOutputStream(this.fileName);
-            this.engine.writeFile(file, jsonObject);
+            this.engine.writeFile(file, this.mainJsonObject);
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            System.err.println("Error while writing info to system: " + e.getMessage());
         }
     }
+
+    @Override
+    public void shutdown() {
+        for (Scene scene : this.scenes) {
+            // De normal debería haber solo una escena en la pila de escenas
+            // pero si hay mas, se deberia considerar recorrerla de final a principio
+            // y no asi porque cuando mas arriba en la pila, mas reciente es la escena
+            scene.shutdown();
+        }
+
+        this.writeInfo();
+    }
+
+    public JSONObject getAdventureJSONObj() { return this.adventureJsonObject; }
+    public JSONObject getQuickPlayJSONObj() { return this.quickPlayJsonObject; }
+
+    public void setCoins(int coins) { this.coins = coins; }
+    public int getCoins() { return this.coins; }
+    public void setLastLevel(int lastLevel) { this.lastLevel = lastLevel; }
+    public int getLastLevel() { return this.lastLevel; }
+    public void setAdventureGrid(int[][] grid) { this.adventureGrid = grid; }
+    public void setAdventureBubbleColors(LinkedList<Integer> colors) { this.adventureBubbleColors = colors; }
+    public void setAdventureScore(int score) { this.adventureScore = score; }
+    public void setQuickPlayGrid(int[][] grid) { this.quickPlayGrid = grid; }
+    public void setQuickPlayBubbleColor(int color) { this.quickPlayBubbleColor = color; }
+    public void setQuickPlayScore(int score) { this.quickPlayScore = score; }
+    // ...
 }

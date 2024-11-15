@@ -1,5 +1,7 @@
 package com.grupo04.gamelogic.gameobjects;
 
+import static com.grupo04.engine.utilities.JSONConverter.convertJSONArrayToMatrix;
+
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.utilities.Color;
@@ -9,6 +11,8 @@ import com.grupo04.engine.utilities.Vector;
 import com.grupo04.engine.interfaces.IAudio;
 import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.gamelogic.BubbleColors;
+
+import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -92,7 +96,7 @@ public class Grid extends GameObject {
     private int currI;
     private int currJ;
 
-    public Grid(int width, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, int cols, int initRows,
+    public Grid(JSONObject jsonObject, int width, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, int cols, int initRows,
                 int bubblesToExplode, int greatScore, int smallScore, BubbleColors bubbleColors, float fallingSpeed, float shrinkSpeed) {
         super();
 
@@ -101,10 +105,6 @@ public class Grid extends GameObject {
 
         this.cols = cols;
         this.rows = rows;
-        this.bubbles = new int[this.rows][this.cols];
-        for (int[] row : this.bubbles) {
-            Arrays.fill(row, -1);
-        }
 
         this.r = r;
         this.hexagonRadius = (float) Math.ceil((this.r / (Math.sqrt(3) / 2.0f)));
@@ -116,6 +116,16 @@ public class Grid extends GameObject {
         this.totalBubbles = 0;
         this.colorCount = new int[bubbleColors.getColorCount()];
         bubbleColors.reset();
+
+        this.bubbles = new int[this.rows][this.cols];
+        // Si hay informacion guardada (ya sea del modo normal o modo nivel cargado)
+        if (jsonObject != null && jsonObject.has("grid")) {
+            this.bubbles = convertJSONArrayToMatrix(jsonObject.getJSONArray("grid"));
+        } else {
+            for (int[] row : this.bubbles) {
+                Arrays.fill(row, -1);
+            }
+        }
         for (int i = 0; i < initRows; i++) {
             // En las filas impares hay una bola menos
             int bPerRow = (i % 2 == 0) ? this.cols : (this.cols - 1);
@@ -124,9 +134,16 @@ public class Grid extends GameObject {
             // Se generan las burbujas de la fila
             for (int j = 0; j < bPerRow; ++j) {
                 int color = bubbleColors.generateRandomColor();
+                // Si ya estan asignados los colores
+                if (jsonObject != null && jsonObject.has("grid")) {
+                    color = this.bubbles[i][j];
+                } else {
+                    this.bubbles[i][j] = color;
+                }
                 bubbleColors.addColor(color);
-                this.bubbles[i][j] = color;
-                this.colorCount[color]++;
+                if (color >= 0 && color < bubbleColors.getColorCount()) {
+                    this.colorCount[color]++;
+                }
             }
         }
 
@@ -152,7 +169,11 @@ public class Grid extends GameObject {
         this.evenAdjacentCells.add(new Pair<>(1, 0));       // Abajo derecha
 
         this.bubblesToExplode = bubblesToExplode;
-        this.score = 0;
+        if (jsonObject != null && jsonObject.has("score")) {
+            this.score = (int)jsonObject.get("score");
+        } else {
+            this.score = 0;
+        }
         this.greatScore = greatScore;
         this.smallScore = smallScore;
 
@@ -180,9 +201,9 @@ public class Grid extends GameObject {
         this.currJ = -1;
     }
 
-    public Grid(int width, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, int cols, int initRows,
+    public Grid(JSONObject jsonObject, int width, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, int cols, int initRows,
                 int bubblesToExplode, int greatScore, int smallScore, BubbleColors bubbleColors) {
-        this(width, wallThickness, headerOffset, r, bubbleOffset, rows, cols, initRows,
+        this(jsonObject, width, wallThickness, headerOffset, r, bubbleOffset, rows, cols, initRows,
                 bubblesToExplode, greatScore, smallScore, bubbleColors, 350f, 60f);
     }
 
@@ -491,12 +512,14 @@ public class Grid extends GameObject {
         super.render(graphics);
 
         // Recorre la matriz y pinta las bolas si el color en la posicion i,j de la matriz es >= 0
-        for (int i = 0; i < this.rows; i++) {
-            int bPerRow = (i % 2 == 0) ? this.cols : (this.cols - 1);
-            for (int j = 0; j < bPerRow; ++j) {
-                if (this.bubbles[i][j] >= 0) {
-                    graphics.setColor(this.bubbleColors.getColor(this.bubbles[i][j]));
-                    graphics.fillCircle(gridToWorldPosition(i, j), this.r);
+        if (this.bubbles != null) {
+            for (int i = 0; i < this.rows; i++) {
+                int bPerRow = (i % 2 == 0) ? this.cols : (this.cols - 1);
+                for (int j = 0; j < bPerRow; ++j) {
+                    if (this.bubbles[i][j] >= 0) {
+                        graphics.setColor(this.bubbleColors.getColor(this.bubbles[i][j]));
+                        graphics.fillCircle(gridToWorldPosition(i, j), this.r);
+                    }
                 }
             }
         }
@@ -596,8 +619,8 @@ public class Grid extends GameObject {
         this.explosionSound = null;
     }
 
-    public void setScore(int score) { this.score = score; }
-    public int getScore() { return this.score; }
     public boolean hasEnded() { return this.end; }
     public boolean hasWon() { return this.won; }
+    public int getScore() { return this.score; }
+    public int[][] getBubbles() { return this.bubbles;}
 }

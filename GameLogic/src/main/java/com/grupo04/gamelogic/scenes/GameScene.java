@@ -13,12 +13,20 @@ import com.grupo04.gamelogic.gameobjects.ImageToggleButton;
 import com.grupo04.gamelogic.gameobjects.Text;
 import com.grupo04.gamelogic.gameobjects.Walls;
 
+import org.json.JSONObject;
+
 public class GameScene extends Scene {
+    private final int id;
+    private final JSONObject jsonObject;
     private final Grid grid;
+    private final CurrentBubble currentBubble;
     boolean checkEnded;
 
-    public GameScene(IEngine engine) {
-        super(-2, engine, 400, 600, "background.jpg");
+    public GameScene(IEngine engine, JSONObject jsonObject, int id) {
+        super(engine, 400, 600, "background.jpg");
+
+        this.jsonObject = jsonObject;
+        this.id = id;
 
         int n_COLS = 10;
         int INIT_ROWS = 5;
@@ -70,7 +78,11 @@ public class GameScene extends Scene {
                 });
         addGameObject(menuButton);
 
-        Text scoreText = new Text(new Vector(this.worldWidth / 2f, HEADER_WIDTH / 2f), "Score: 0",
+        String text = "Score: 0";
+        if (this.jsonObject != null && this.jsonObject.has("score")) {
+            text = "Score: " + this.jsonObject.get("score");
+        }
+        Text scoreText = new Text(new Vector(this.worldWidth / 2f, HEADER_WIDTH / 2f), text,
                 SCORE_TEXT_FONT, SCORE_TEXT_SIZE, false, false, TEXT_COLOR);
         addGameObject(scoreText, "scoreText");
 
@@ -87,11 +99,11 @@ public class GameScene extends Scene {
         Walls walls = new Walls(WALL_THICKNESS, HEADER_WIDTH, this.worldWidth, this.worldHeight);
         addGameObject(walls);
 
-        this.grid = new Grid(this.worldWidth, WALL_THICKNESS, HEADER_WIDTH, (int) r, bubbleOffset, rows, n_COLS,
+        this.grid = new Grid(jsonObject, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH, (int) r, bubbleOffset, rows, n_COLS,
                 INIT_ROWS, BUBBLES_TO_EXPLODE, GREAT_SCORE, SMALL_SCORE, bubbleColors);
         addGameObject(grid, "grid");
 
-        CurrentBubble currentBubble = new CurrentBubble(this.worldWidth, WALL_THICKNESS, HEADER_WIDTH,
+        this.currentBubble = new CurrentBubble(jsonObject, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH,
                 (int) r, bubbleOffset, rows, bubbleColors);
         addGameObject(currentBubble);
     }
@@ -107,10 +119,9 @@ public class GameScene extends Scene {
                 this.setFadeCallback(() -> {
                     GameManager gameManager = this.getGameManager();
                     if (gameManager != null) {
-                        gameManager.changeScene(new VictoryScene(this.engine, this.grid.getScore()));
+                        gameManager.changeScene(new VictoryScene(this.engine, this.grid.getScore(), this.jsonObject, this.id));
                     }
                 });
-                this.checkEnded = false;
             }
             else {
                 // Se hace un fade in y cuando acaba la animacion se cambia a la escena de game over
@@ -118,15 +129,29 @@ public class GameScene extends Scene {
                 this.setFadeCallback(() -> {
                     GameManager gameManager = this.getGameManager();
                     if (gameManager != null) {
-                        gameManager.changeScene(new GameOverScene(this.engine));
+                        gameManager.changeScene(new GameOverScene(this.engine, this.jsonObject, this.id));
                     }
                 });
-                this.checkEnded = false;
             }
+
+            this.checkEnded = false;
         }
     }
 
-    public int getScore() { return this.grid.getScore(); }
-    public void setScore(int score) { this.grid.setScore(score); }
-    //public Color[][] getCurrentGrid() { return this.grid.getCurrentGrid(); }
+    @Override
+    public void shutdown() {
+        // Si es un nivel
+        if (this.id != 0) {
+            this.gameManager.setLastLevel(this.id);
+            this.gameManager.setAdventureGrid(this.grid.getBubbles());
+            this.gameManager.setAdventureBubbleColors(this.currentBubble.getAdventureModeColors());
+            this.gameManager.setAdventureScore(this.grid.getScore());
+        }
+        // Si es modo Juego Rapido
+        else {
+            this.gameManager.setQuickPlayGrid(this.grid.getBubbles());
+            this.gameManager.setQuickPlayBubbleColor(this.currentBubble.getColor());
+            this.gameManager.setQuickPlayScore(this.grid.getScore());
+        }
+    }
 }

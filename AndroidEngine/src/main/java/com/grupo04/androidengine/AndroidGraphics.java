@@ -243,11 +243,13 @@ public class AndroidGraphics extends Graphics {
     @Override
     public void setFont(IFont font) {
         AndroidFont androidFont = (AndroidFont) font;
-        // Se establece el tamano de letra
-        this.paint.setTextSize(androidFont.getSize());
-        this.paint.setStyle(Paint.Style.FILL);
-        // Se establece el tipo de letra
-        this.paint.setTypeface(androidFont.getFont());
+        if (androidFont != null) {
+            // Se establece el tamano de letra
+            this.paint.setTextSize(androidFont.getSize());
+            this.paint.setStyle(Paint.Style.FILL);
+            // Se establece el tipo de letra
+            this.paint.setTypeface(androidFont.getFont());
+        }
     }
 
     @Override

@@ -183,7 +183,12 @@ public abstract class Engine implements IEngine, Runnable {
     }
 
     @Override
-    public void setScene(IScene scene) { this.scene = scene; }
+    public void setScene(IScene scene) {
+        this.scene = scene;
+        if (this.scene != null) {
+            this.scene.init();
+        }
+    }
 
     @Override
     public IGraphics getGraphics() {
@@ -230,5 +235,9 @@ public abstract class Engine implements IEngine, Runnable {
         return null;
     }
 
-    public abstract void shutdown();
+    public void shutdown() {
+        if (this.scene != null) {
+            this.scene.shutdown();
+        }
+    }
 }

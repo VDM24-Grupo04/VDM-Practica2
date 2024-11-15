@@ -9,17 +9,21 @@ import com.grupo04.gamelogic.Scene;
 import com.grupo04.gamelogic.gameobjects.shopItems.ShopColor;
 
 public class ShopScene extends Scene {
+    private int coins;
 
-    public ShopScene(IEngine engine) {
-        super(-5, engine, 400, 600, new Color(255, 255, 255));
+    public ShopScene(IEngine engine, int coins) {
+        super(engine, 400, 600, new Color(255, 255, 255));
+
+        this.coins = coins;
 
         // Al iniciar la escena se hace un fade out
         setFade(Fade.OUT, 0.25);
-
     }
 
     @Override
     public void init() {
+        super.init();
+
         String BUTTON_SOUND = "button.wav";
         float BUTTON_WIDTH = 100f;
         float BUTTON_HEIGHT = 100f;
@@ -27,11 +31,16 @@ public class ShopScene extends Scene {
 
         IImage coinImg = graphics.newImage("close.png");
 
-         ShopColor shopColor = new ShopColor(new Vector(100f, 100f), BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_SOUND,
+        ShopColor shopColor = new ShopColor(new Vector(100f, 100f), BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_SOUND,
                  50, coinImg, new Color(255, 255, 0));
         addGameObject(shopColor);
 
-        super.init();
+        // Decrementar coins cada vez que se pulse algo para comprar...
+    }
+
+    @Override
+    public void shutdown() {
+        // o llamarlo cada vez que se gastan monedas
+        this.gameManager.setCoins(this.coins);
     }
 }
-

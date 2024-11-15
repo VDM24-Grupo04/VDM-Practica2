@@ -48,6 +48,8 @@ public class BubbleColors {
     }
 
     public void addColor(int i) {
-        availableColors.put(i, colors[i]);
+        if (i >= 0 && i < colors.length) {
+            availableColors.put(i, colors[i]);
+        }
     }
 }

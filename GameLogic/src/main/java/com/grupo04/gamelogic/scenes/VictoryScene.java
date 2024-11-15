@@ -8,13 +8,15 @@ import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.gamelogic.gameobjects.TextButton;
 import com.grupo04.gamelogic.gameobjects.Text;
 
+import org.json.JSONObject;
+
 public class VictoryScene extends Scene {
     private final ISound winSound;
 
     private final int score;
 
-    public VictoryScene(IEngine engine, int score) {
-        super(-3, engine, 400, 600, new Color(255, 255, 255));
+    public VictoryScene(IEngine engine, int score, JSONObject jsonObject, int id) {
+        super(engine, 400, 600, new Color(255, 255, 255));
 
         this.score = score;
 
@@ -57,7 +59,7 @@ public class VictoryScene extends Scene {
                     this.setFadeCallback(() -> {
                         this.engine.getAudio().stopSound(this.winSound);
                         if (this.gameManager != null) {
-                            this.gameManager.changeScene(new GameScene(this.engine));
+                            this.gameManager.changeScene(new GameScene(this.engine, jsonObject, id));
                         }
                     });
                 });
@@ -86,6 +88,4 @@ public class VictoryScene extends Scene {
 
         setFade(Fade.OUT, 0.25);
     }
-
-    public int getScore() { return this.score; }
 }

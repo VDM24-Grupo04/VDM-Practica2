@@ -1,5 +1,7 @@
 package com.grupo04.gamelogic.gameobjects;
 
+import static com.grupo04.engine.utilities.JSONConverter.convertJSONArrayToLinkedList;
+
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.gamelogic.GameObject;
@@ -9,10 +11,17 @@ import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.engine.interfaces.ITouchEvent;
 import com.grupo04.gamelogic.BubbleColors;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.lang.ref.WeakReference;
+import java.util.LinkedList;
 import java.util.List;
 
 public class CurrentBubble extends GameObject {
+    private boolean isAdventureMode;
+    private LinkedList<Integer> adventureModeColors;
+
     private final int lineLength;
     private final int lineThickness;
     private final Color lineColor;
@@ -38,7 +47,7 @@ public class CurrentBubble extends GameObject {
 
     private BubbleColors bubbleColors;
 
-    public CurrentBubble(int w, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, BubbleColors bubbleColors) {
+    public CurrentBubble(JSONObject jsonObject, int w, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, BubbleColors bubbleColors) {
         super();
 
         this.lineLength = 100;
@@ -62,7 +71,31 @@ public class CurrentBubble extends GameObject {
         this.dir = new Vector(0, 0);
 
         this.bubbleColors = bubbleColors;
-        reset();
+
+        // Hacer algo con el jsonObject dependiendo de si es modo Aventura o modo Juego Rapido
+        // Si es modo Aventura obtiene un array de colores
+        // Si es modo Juego rapido obtiene un int del ultimo color
+        this.isAdventureMode = false;
+        if (jsonObject != null) {
+            // Si es modo Aventura coge el primer color que le corresponde del array
+            if (jsonObject.has("colors")) {
+                this.isAdventureMode = true;
+                this.adventureModeColors = convertJSONArrayToLinkedList(jsonObject.getJSONArray("colors"));
+            }
+            // Si es modo Juego Rapido coge el color que le corresponde
+            else if (jsonObject.has("color")) {
+                // Coge el objeto con clave "quickPlay" del cual coge el int del color
+                this.color = (int)jsonObject.get("color");
+                resetPhysics();
+            } else {
+                reset();
+            }
+        }
+        // Si jsonObject es null indica que si o si es Juego Rapido porque si fuese modo Aventura
+        // se hubiese pasado un jsonObject con los colores iniciales
+        else {
+            reset();
+        }
     }
 
     @Override
@@ -171,10 +204,23 @@ public class CurrentBubble extends GameObject {
 
     // Recoloca la bola en la posicion inicial, reinicia su direccion, y genera un nuevo color
     public void reset() {
+        resetPhysics();
+
+        // Si es modo Aventura coge el primer color del array de colores
+        if (this.isAdventureMode) {
+            this.color = this.adventureModeColors.getFirst();
+            this.adventureModeColors.pop();
+        }
+        // Si es modo Juego rapido obtiene un int del ultimo color asignado
+        else {
+            this.color = this.bubbleColors.getRandomColor();
+        }
+    }
+
+    private void resetPhysics() {
         this.dir.x = 0;
         this.dir.y = 0;
         this.pos = initPos;
-        this.color = this.bubbleColors.getRandomColor();
         this.dragging = false;
         this.shot = false;
     }
@@ -188,4 +234,7 @@ public class CurrentBubble extends GameObject {
         this.throwSound = null;
         this.bounceSound = null;
     }
+
+    public int getColor() { return this.color; }
+    public LinkedList<Integer> getAdventureModeColors() { return this.adventureModeColors; }
 }
