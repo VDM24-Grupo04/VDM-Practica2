@@ -25,6 +25,7 @@ public interface IGraphics {
 
     IFont newFont(String name, float size, boolean bold, boolean italic);
     void setFont(IFont font);
+    void drawText(String text, Vector position, boolean centerX, boolean centerY);
     void drawText(String text, Vector position);
     int getTextWidth(String text);
     int getTextHeight(String text);

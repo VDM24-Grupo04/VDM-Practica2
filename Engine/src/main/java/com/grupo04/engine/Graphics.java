@@ -107,7 +107,12 @@ public abstract class Graphics implements IGraphics {
     public abstract void setFont(IFont font);
 
     @Override
-    public abstract void drawText(String text, Vector position);
+    public abstract void drawText(String text, Vector position, boolean centerX, boolean centerY);
+
+    @Override
+    public void drawText(String text, Vector position) {
+        drawText(text, position, true, true);
+    }
 
     @Override
     public abstract int getTextWidth(String text);

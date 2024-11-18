@@ -17,7 +17,7 @@ public abstract class Button extends GameObject {
 
     protected Callback onClick;
 
-    private final Vector topLeft;
+    protected final Vector topLeft;
 
     protected Vector pos;
     protected float width, height;

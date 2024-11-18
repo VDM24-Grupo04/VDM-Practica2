@@ -259,10 +259,19 @@ public class AndroidGraphics extends Graphics {
 
     // Al contrario que en desktop, en android si se puede conseguir el alto del texto actual que se va a pintar.
     @Override
-    public void drawText(String text, Vector position) {
+    public void drawText(String text, Vector position, boolean centerX, boolean centerY) {
         this.paint.getTextBounds(text, 0, text.length(), this.rect);
-        this.paint.setTextAlign(Paint.Align.CENTER);
-        float y = position.y - this.rect.centerY();
+        if (centerX) {
+            this.paint.setTextAlign(Paint.Align.CENTER);
+        }
+        else {
+            this.paint.setTextAlign(Paint.Align.LEFT);
+        }
+
+        float y = position.y;
+        if (centerY) {
+            y -= this.rect.centerY();
+        }
         this.canvas.drawText(text, position.x, y, this.paint);
     }
 

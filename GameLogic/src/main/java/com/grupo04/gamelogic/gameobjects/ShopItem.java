@@ -6,6 +6,7 @@ import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.interfaces.ITouchEvent;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
+import com.grupo04.gamelogic.GameManager;
 
 import java.util.List;
 
@@ -14,49 +15,54 @@ public abstract class ShopItem extends Button {
     private int price;          // Precio
     private Vector pricePos;    // Posicion del texto del precio
     private IFont priceFont;    // IFont que usara el texto
-    private String PRICE_FONT = "kimberley.ttf";    // Nombre del archivi de fuente que usara priceFont
-    private final int PRICE_SIZE = 20;              // Tamano de la fuente
+    private Color priceColor;
     private final int PRICE_OFFSET = 10;            // Separacion entre el texto y el cuadro con el objeto
-    private Color PRICE_COLOR = new Color(0, 0, 0);     // Color del texto
 
     private IImage coinImage;       // Imagen de la moneda
     private Vector coinImagePos;    // Posicion de la imagen de la moneda
-    private final float COIN_SIZE = PRICE_SIZE;     // Tamano de la imagen de la moneda
+    private float coinSize;     // Tamano de la imagen de la moneda
 
     private boolean bought;         // Si se ha comprado el objeto o no
     private boolean selected;       // Si el objeto esta seleccionado o no
-    private Color SELECTED_COLOR = new Color(0, 255, 0);        // Color del borde seleccionado
-    protected final int BORDER_RADIUS = 25;         // Radio del rectangulo del borde
+    private Color selectedColor;
+    protected int BORDER_RADIUS = 25;         // Radio del rectangulo del borde
     protected final int BORDER_THICKNESS = 3;       // Grosor del rectanguglo del borde
 
     private final double DOUBLE_TOUCH_THRESHOLD = 0.5;      // Tiempo en segundos maximo para detectar dobles pulsaciones
     private boolean hasTouched;     // Si se ha pulsado una vez (para detectar una segunda pulsacion)
     private double touchTimer;      // Tiempo desde la primera pulsacion
 
-    public ShopItem(Vector pos, float width, float height, String onClickSoundPath, int price, IImage coinImage) {
-        super(pos, width, height, onClickSoundPath, ()-> { });
+    GameManager gameManager;
+
+    public ShopItem(float width, float height, String onClickSoundPath,
+                    int price, IFont priceFont, Color priceColor,
+                    IImage coinImage, int coinSize, Color selectedColor) {
+        super(new Vector(0, 0), width, height, onClickSoundPath, ()-> { });
 
         this.price = price;
+        this.priceFont = priceFont;
+        this.priceColor = priceColor;
+
         this.coinImage = coinImage;
+        this.coinSize = coinSize;
+        this.selectedColor = selectedColor;
+
         this.bought = false;
         this.selected = false;
         this.hasTouched = false;
         this.touchTimer = 0;
 
         // Se crean los vectores de posicion
-        this.pricePos = new Vector(super.pos.x + PRICE_OFFSET, super.pos.y + super.height / 2 + PRICE_OFFSET * 2);
-        this.coinImagePos = new Vector(this.pricePos.x - this.COIN_SIZE * 2, (float) (this.pricePos.y - this.COIN_SIZE * 0.1));
+        this.pricePos = new Vector(0, 0);
+        this.coinImagePos = new Vector(0, 0);
     }
-
 
     @Override
     public void init() {
         super.init();
 
-        // Se crea la fuente
-        this.priceFont = scene.getEngine().getGraphics().newFont(this.PRICE_FONT, this.PRICE_SIZE, true, false);
+        this.gameManager = scene.getGameManager();
     }
-
 
     @Override
     public void update(double deltaTime) {
@@ -82,28 +88,28 @@ public abstract class ShopItem extends Button {
         // Si no se ha comprado el objeto
         if (!bought) {
             // Se pinta el texto del precio
-            graphics.setColor(this.PRICE_COLOR);
+            graphics.setColor(this.priceColor);
             graphics.setFont(this.priceFont);
-            graphics.drawText(((Integer) this.price).toString(), this.pricePos);
+            graphics.drawText(((Integer) this.price).toString(), this.pricePos, false, true);
 
             // Se pinta la imagen de la moneda al lado del texto
-            graphics.drawImage(this.coinImage, this.coinImagePos, (int) COIN_SIZE, (int) COIN_SIZE);
+            graphics.drawImage(this.coinImage, this.coinImagePos, (int) this.coinSize, (int) this.coinSize);
 
             // Se pone el color del borde al por defecto (no esta seleccionado)
-            graphics.setColor(this.PRICE_COLOR);
+            graphics.setColor(this.priceColor);
         }
         // Si no, si se se ha comprado y esta seleccionado, se pone el color del borde al seleccionado
         else if (selected) {
-            graphics.setColor(this.SELECTED_COLOR);
+            graphics.setColor(this.selectedColor);
         }
         // Si no, es que se ha comprado pero no se ha seleccionado y se
         // pone el color del borde al por defecto (no esta seleccionado)
         else {
-            graphics.setColor(this.PRICE_COLOR);
+            graphics.setColor(this.priceColor);
         }
 
         // Dibuja el rectangulo del borde
-        graphics.drawRoundRectangle(super.pos, super.width, super.height, this.BORDER_RADIUS, this.BORDER_THICKNESS);
+        graphics.drawRoundRectangle(this.pos, this.width, this.height, this.BORDER_RADIUS, this.BORDER_THICKNESS);
 
     }
 
@@ -115,10 +121,7 @@ public abstract class ShopItem extends Button {
                 if (withinArea(touchEvent.getPos())) {
                     // Si se ha comprado el objeto, lo selecciona
                     if (this.bought) {
-                        if (!this.selected) {
-                            super.onClick.call();
-                        }
-                        this.selected = true;
+                        setSelected(true);
                     }
                     // Si no,
                     else {
@@ -130,12 +133,12 @@ public abstract class ShopItem extends Button {
                         }
                         // Si no, si se detecta doble pulsacion, intenta comprar el objeto
                         else if (this.touchTimer < this.DOUBLE_TOUCH_THRESHOLD) {
-                            this.bought = this.tryBuying();
+                            this.tryBuying();
                         }
                     }
 
                     // Reproduce el sonido del boton
-                    super.playOnClickSound();
+                    this.playOnClickSound();
                 }
             }
         }
@@ -147,19 +150,45 @@ public abstract class ShopItem extends Button {
 
         this.pricePos = null;
         this.priceFont = null;
-        this.PRICE_COLOR = null;
 
 //        this.coinImage = null;
         this.coinImagePos = null;
-        this.SELECTED_COLOR = null;
     }
 
 
+    // Intenta comprar el objeto
     private boolean tryBuying() {
-        return true;
+        // Si el numero de monedas tras comprar el objeto es >= que 0,
+        // compra el objeto, cambia el numero de monedas y devuelve true
+        if (this.gameManager.getCoins() - this.price >= 0) {
+            this.bought = true;
+            this.gameManager.setCoins(this.gameManager.getCoins() - this.price);
+
+            return true;
+        }
+        return false;
     }
 
-    public void deselect() {
-        this.selected = false;
+    public void setBought(boolean bought) { this.bought = bought; }
+    public void setSelected(boolean selected) {
+        if (!this.selected && selected) {
+            this.onClick.call();
+        }
+        this.selected = selected;
+    }
+
+    // Establece la posicion del boton
+    public void setPos(float x, float y) {
+        // Cambia la posicion y la esquina superior izquierda del padre
+        this.pos.x = x;
+        this.pos.y = y;
+        this.topLeft.x = this.pos.x - (float) this.width / 2;
+        this.topLeft.y = this.pos.y - (float) this.height / 2;
+
+        this.pricePos.x = this.pos.x;
+        this.pricePos.y = this.pos.y + this.height / 2 + PRICE_OFFSET * 2;
+
+        this.coinImagePos.x = this.pricePos.x - this.coinSize;
+        this.coinImagePos.y = (float) (this.pricePos.y);
     }
 }

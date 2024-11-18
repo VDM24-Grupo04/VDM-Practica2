@@ -263,14 +263,22 @@ public class DesktopGraphics extends Graphics {
     // - Leading -> separacion entre el texto si hubiera varias lineas
     // - Height -> ascent + descent + leading
     @Override
-    public void drawText(String text, Vector position) {
+    public void drawText(String text, Vector position, boolean centerX, boolean centerY) {
         FontMetrics fontMetrics = this.graphics2D.getFontMetrics();
 
         float h = fontMetrics.getHeight();
         float ascent = fontMetrics.getAscent();
 
-        float x = position.x - getTextWidth(text) / 2f;
-        float y = position.y - h / 2 + ascent;
+        float x = position.x;
+        float y = position.y;
+
+        if (centerX) {
+            x -= getTextWidth(text) / 2f;
+        }
+        if (centerY) {
+            y -= h / 2;
+            y += ascent;
+        }
         this.graphics2D.drawString(text, x, y);
     }
 

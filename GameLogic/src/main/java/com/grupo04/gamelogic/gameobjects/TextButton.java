@@ -11,7 +11,7 @@ import com.grupo04.engine.interfaces.ITouchEvent;
 import java.util.List;
 
 public class TextButton extends Button {
-    private final float arc;
+    protected final float arc;
     private final Color baseCol;
     private final Color pointerOverCol;
     private Color bgCol;

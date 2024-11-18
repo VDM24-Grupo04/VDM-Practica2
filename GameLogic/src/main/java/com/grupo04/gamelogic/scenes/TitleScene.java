@@ -77,7 +77,7 @@ public class TitleScene extends Scene {
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
                         if (this.gameManager != null) {
-                             this.gameManager.changeScene(new ShopScene(this.engine, this.gameManager.getCoins()));
+                             this.gameManager.changeScene(new ShopScene(this.engine));
                         }
                     });
                 });
