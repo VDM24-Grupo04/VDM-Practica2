@@ -10,9 +10,16 @@ import com.grupo04.gamelogic.Scene;
 import com.grupo04.gamelogic.gameobjects.ImageButton;
 import com.grupo04.gamelogic.gameobjects.ShopItem;
 import com.grupo04.gamelogic.gameobjects.Text;
-import com.grupo04.gamelogic.gameobjects.shopItems.ShopColor;
+import com.grupo04.gamelogic.gameobjects.shopItems.ShopBallSkin;
+import com.grupo04.gamelogic.gameobjects.shopItems.ShopBgColor;
 
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
 public class ShopScene extends Scene {
     private final String BUTTON_SOUND = "button.wav";
@@ -29,17 +36,17 @@ public class ShopScene extends Scene {
     private IFont pricesFont;
     private float itemSize;
     private final int ITEMS_PER_ROW = 4, ITEM_OFFSET = 10;
-    Color SELECTED_COLOR = new Color(0, 255, 0);
-    int coinsImageSize = this.FONT_SIZE;
+    private Color SELECTED_COLOR = new Color(0, 255, 0);
+    private int coinsImageSize = this.FONT_SIZE;
+
     private HashMap<String, ShopItem> items;
+    private List<ShopBgColor> colors;
 
     public ShopScene(IEngine engine) {
         super(engine, 400, 600, new Color(255, 255, 255));
 
-        // Al iniciar la escena se hace un fade out
-        setFade(Fade.OUT, 0.25);
-
-        items = new HashMap<String, ShopItem>();
+        items = new HashMap<>();
+        colors = new ArrayList<>();
     }
 
     @Override
@@ -57,9 +64,12 @@ public class ShopScene extends Scene {
         this.itemSize = freeSpace / this.ITEMS_PER_ROW;
 
         // Anadir los objetos
-        test();
+        readItems();
 
         super.init();
+
+        // Al iniciar la escena se hace un fade out
+        setFade(Fade.OUT, 0.25);
     }
 
     @Override
@@ -135,9 +145,9 @@ public class ShopScene extends Scene {
 
 
     // Anade un objeto a la lista
-    private void addItem(ShopItem item, String id) {
+    private void addItem(String key, ShopItem item) {
         // Si el objeto no esta ya en la lista
-        if (!items.containsKey(id)) {
+        if (!items.containsKey(key)) {
             // Calcula su posicion dependiendo del numero de objetos que haya en la lista antes de anadirlo
             float x = (items.size() % ITEMS_PER_ROW) * (this.itemSize + this.ITEM_OFFSET) + this.HEADER_OFFSET +  this.itemSize / 2;
             float y = (items.size() / ITEMS_PER_ROW) * (this.itemSize + this.FONT_SIZE * 3) + this.HEADER_SIZE * 2.3f + this.itemSize / 2;
@@ -147,52 +157,100 @@ public class ShopScene extends Scene {
 
             // Lo anade a la escena y a la lista de objetos
             addGameObject(item);
-            items.put(id, item);
+            items.put(key, item);
         }
     }
 
-    private void test() {
-        this.gameManager.setCoins(129);
+    private void addBgColor(String key, int r, int g, int b, int a) {
+        Color col = new Color(r, g, b, a);
+        ShopBgColor color = new ShopBgColor(itemSize, itemSize, this.BUTTON_SOUND,
+                50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, col);
+        // Anade la funcion
+        color.setOnSelect(() -> {
+            // Deselecciona el resto de los objetos
+            for (ShopBgColor c : colors) {
+                c.setSelected(false);
+            }
+        });
+        addItem(key, color);
+        colors.add(color);
+    }
 
-        ShopColor shopColor = new ShopColor(itemSize, itemSize, this.BUTTON_SOUND,
-                50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, new Color(255, 255, 0));
-        addItem(shopColor, "1");
+    private void addBallSkin(String key, String imgPath, int id) {
+        IImage img = getEngine().getGraphics().newImage(imgPath);
+        ShopBallSkin skin = new ShopBallSkin(itemSize, itemSize, this.BUTTON_SOUND,
+                50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, img, id);
+        addItem(key, skin);
+    }
 
-        shopColor = new ShopColor(itemSize, itemSize, this.BUTTON_SOUND,
-                50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, new Color(255, 255, 0));
-        addItem(shopColor, "2");
+    private void readItems() {
+        this.gameManager.setCoins(300);
 
-        shopColor = new ShopColor(itemSize, itemSize, this.BUTTON_SOUND,
-                50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, new Color(255, 255, 0));
-        addItem(shopColor, "3");
+        JSONObject allItems = gameManager.getShopJsonObject();
+        JSONObject savedItems = gameManager.getSavedShopJsonObject();
 
-        shopColor = new ShopColor(itemSize, itemSize, this.BUTTON_SOUND,
-                50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, new Color(255, 255, 0));
-        addItem(shopColor, "4");
+        // Si se ha leido el archivo de la tienda y hay progreso de la tienda guardado
+        if (allItems != null) {
+            // Obtiene el array de objetos
+            JSONObject[] objects = (JSONObject[]) allItems.get("items");
 
-        shopColor = new ShopColor(itemSize, itemSize, this.BUTTON_SOUND,
-                50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, new Color(255, 255, 0));
-        addItem(shopColor, "5");
+            // Si el array de objetos es valido
+            if (objects != null) {
+                // Recorre todos los objetos y los anade a la tienda
+                for (JSONObject obj : objects) {
+                    if (Objects.equals((String) obj.get("type"), "bgColor")) {
+                        addBgColor((String) obj.get("key"), (int) obj.get("r"), (int) obj.get("gg"), (int) obj.get("b"), (int) obj.get("a"));
+                    }
+                    else if (Objects.equals((String) obj.get("type"), "skin")) {
+                        addBallSkin((String) obj.get("key"), (String) obj.get("path"), (int) obj.get("colorId"));
+                    }
+                }
+            }
+        }
 
-        shopColor = new ShopColor(itemSize, itemSize, this.BUTTON_SOUND,
-                50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, new Color(255, 255, 0));
-        addItem(shopColor, "6");
+        // Si hay progreso guardado en la tienda
+        if (savedItems != null) {
+            // Recorre todos los objetos guardados
+            Iterator<String> keys = savedItems.keys();
+            while(keys.hasNext()) {
+                String key = keys.next();
 
-        shopColor = new ShopColor(itemSize, itemSize, this.BUTTON_SOUND,
-                50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, new Color(255, 255, 0));
-        addItem(shopColor, "7");
+                // Obtiene los atributos del objeto con la key actual y
+                // si no son nulos y el objeto existe en la tienda
+                JSONObject obj = savedItems.getJSONObject(key);
+                if (obj != null && this.items.containsKey(key)) {
+                    // Obtiene el objeto con esa id de la tienda
+                    ShopItem item = this.items.get(key);
 
-        shopColor = new ShopColor(itemSize, itemSize, this.BUTTON_SOUND,
-                50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, new Color(255, 255, 0));
-        addItem(shopColor, "8");
+                    // Si el objeto leido tiene el atributo bought, se
+                    // pone el valor bought del objeto por el leido
+                    if (obj.get("bought") != null) {
+                        item.setBought((Boolean) obj.get("bought"));
+                    }
 
-        shopColor = new ShopColor(itemSize, itemSize, this.BUTTON_SOUND,
-                50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, new Color(255, 255, 0));
-        addItem(shopColor, "9");
+                    // Si el objeto leido tiene el atributo active y
+                    // el objeto esta activo, se selecciona
+                    if (obj.get("active") != null) {
+                        if ((Boolean) obj.get("active")) {
+                            item.select();
+                        }
+                    }
+                }
+            }
+        }
 
-        shopColor = new ShopColor(itemSize, itemSize, this.BUTTON_SOUND,
-                50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, new Color(255, 255, 0));
-        addItem(shopColor, "10");
+        addBgColor("test1", 244, 20, 2, 255);
+        addBgColor("test2", 123, 67, 222, 255);
+        addBgColor("test3", 31, 64, 64, 255);
+        addBgColor("test4", 235, 122, 0, 255);
+        addBgColor("test5", 123, 67, 222, 255);
+        addBgColor("test6", 244, 20, 2, 255);
+        addBgColor("test7", 235, 122, 0, 255);
+        addBgColor("test8", 31, 64, 64, 255);
+
+        addBallSkin("img0","close.png", 0);
+        addBallSkin("img1","coin.png", 1);
+        addBallSkin("img2","hex_empty.png", 2);
     }
 
 }

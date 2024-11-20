@@ -5,8 +5,10 @@ import static com.grupo04.engine.utilities.JSONConverter.convertMatrixToJSONArra
 
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IGraphics;
+import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.interfaces.IScene;
 import com.grupo04.engine.interfaces.ITouchEvent;
+import com.grupo04.engine.utilities.Color;
 import com.grupo04.gamelogic.scenes.TitleScene;
 
 import org.json.JSONException;
@@ -14,8 +16,10 @@ import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Stack;
 
 public class GameManager implements IScene {
@@ -28,9 +32,13 @@ public class GameManager implements IScene {
     private JSONObject mainJsonObject;
     private JSONObject adventureJsonObject;
     private JSONObject quickPlayJsonObject;
+    private final String shopFileName;
+    private JSONObject shopJsonObject;
+    private JSONObject playerShopJsonObject;
     private final String fileName;
 
     private int coins;
+
     // Para el ultimo nivel jugado a medias, si se juega otro se omite
     private int lastLevel;
     private int[][] adventureGrid;
@@ -39,13 +47,17 @@ public class GameManager implements IScene {
     private int[][] quickPlayGrid;
     private int quickPlayBubbleColor;
     private int quickPlayScore;
-    // ... (cosmeticos y apariencia)
 
-    public GameManager(IEngine engine, String fileName) {
+    // Cosmeticos
+    private Color bgColor;
+    private IImage[] activeSkins;
+
+    public GameManager(IEngine engine, String fileName, String shopFileName) {
         this.engine = engine;
         this.scenes = new Stack<>();
         this.aliveScenes = new Stack<>();
         this.fileName = fileName;
+        this.shopFileName = shopFileName;
 
         // Inicializar las variables como los valores
         // sin que haya guardado ningun dato
@@ -57,7 +69,10 @@ public class GameManager implements IScene {
         this.quickPlayGrid = null;
         this.quickPlayBubbleColor = -1;
         this.quickPlayScore = 0;
-        // ...
+
+        bgColor = null;
+        activeSkins = new IImage[BubbleColors.getTotalColors()];
+        Arrays.fill(activeSkins, null);
     }
 
     @Override
@@ -157,9 +172,14 @@ public class GameManager implements IScene {
         }
     }
 
+
     public void readInfo() {
         FileInputStream file = this.engine.getFileInputStream(this.fileName);
         this.mainJsonObject = this.engine.readFile(file);
+
+        FileInputStream shopFile = this.engine.getFileInputStream(this.shopFileName);
+        this.shopJsonObject = this.engine.readFile(shopFile);
+
         if (this.mainJsonObject != null) {
             this.adventureJsonObject = this.mainJsonObject.getJSONObject("adventure");
             this.quickPlayJsonObject = this.mainJsonObject.getJSONObject("quickPlay");
@@ -174,6 +194,35 @@ public class GameManager implements IScene {
             } catch (Exception e) {
                 System.err.println("Error while reading info");
             }
+
+            // Obtiene la parte de la tienda del archivo de guardado
+//            this.playerShopJsonObject = this.mainJsonObject.getJSONObject("shop");
+
+            // Si se ha leido el archivo de la tienda y hay progreso de la tienda guardado
+            if (this.shopJsonObject != null && this.playerShopJsonObject != null) {
+                // Obtiene el array de objetos
+                JSONObject[] objects = (JSONObject[]) this.shopJsonObject.get("items");
+
+                // Si el array de objetos es valido
+                if (objects != null) {
+                    // Recorre todos los objetos
+                    for (JSONObject obj : objects) {
+                        // Obtiene la id del objeto y el objeto del progreso guardado correspondiente a dicha id
+                        String id = (String) obj.get("id");
+                        JSONObject savedObj = this.playerShopJsonObject.getJSONObject(id);
+
+                        // Si el objeto esta en el progreso guardado
+                        if (savedObj != null) {
+                            // Si el objeto esta activo y es de tipo "bgColor", se cambia el color del fondo al indicado en el objeto
+                            if ((boolean)savedObj.get("active") && Objects.equals((String) savedObj.get("type"), "bgColor")) {
+                                bgColor = new Color((int) savedObj.get("r"), (int) savedObj.get("g"), (int) savedObj.get("b"), (int) savedObj.get("a"));
+                            }
+                        }
+                    }
+                }
+
+            }
+
         }
     }
 
@@ -245,4 +294,12 @@ public class GameManager implements IScene {
     public void setQuickPlayBubbleColor(int color) { this.quickPlayBubbleColor = color; }
     public void setQuickPlayScore(int score) { this.quickPlayScore = score; }
     // ...
+
+    public JSONObject getShopJsonObject() { return this.shopJsonObject; }
+    public JSONObject getSavedShopJsonObject() { return this.playerShopJsonObject; }
+    public void setBgColor(Color c) { this.bgColor = c; }
+    public Color getBgColor() { return this.bgColor; }
+    public void setBallSkin(int i, IImage img) { activeSkins[i] = img; }
+    public IImage getBallSkin(int i) { return activeSkins[i]; }
+
 }

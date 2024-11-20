@@ -4,6 +4,7 @@ import com.grupo04.engine.interfaces.IFont;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.interfaces.ITouchEvent;
+import com.grupo04.engine.utilities.Callback;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.GameManager;
@@ -32,11 +33,14 @@ public abstract class ShopItem extends Button {
     private boolean hasTouched;     // Si se ha pulsado una vez (para detectar una segunda pulsacion)
     private double touchTimer;      // Tiempo desde la primera pulsacion
 
+    protected Callback onSelect, onDeselect;
+
     GameManager gameManager;
 
     public ShopItem(float width, float height, String onClickSoundPath,
                     int price, IFont priceFont, Color priceColor,
-                    IImage coinImage, int coinSize, Color selectedColor) {
+                    IImage coinImage, int coinSize, Color selectedColor)
+    {
         super(new Vector(0, 0), width, height, onClickSoundPath, ()-> { });
 
         this.price = price;
@@ -46,6 +50,9 @@ public abstract class ShopItem extends Button {
         this.coinImage = coinImage;
         this.coinSize = coinSize;
         this.selectedColor = selectedColor;
+
+        this.onSelect = () -> { };
+        this.onDeselect = () -> { };
 
         this.bought = false;
         this.selected = false;
@@ -119,9 +126,18 @@ public abstract class ShopItem extends Button {
             if (touchEvent.getType() == ITouchEvent.TouchEventType.PRESS) {
                 // Si el evento es de pulsacion y esta dentro del area del boton
                 if (withinArea(touchEvent.getPos())) {
-                    // Si se ha comprado el objeto, lo selecciona
+                    // Si se ha comprado el objeto, hace toggle de su estado de seleccion
                     if (this.bought) {
-                        setSelected(true);
+                        setSelected(!this.selected);
+
+                        // Si se ha seleccionado, llama a la funcion de seleccion
+                        if (this.selected) {
+                            this.onSelect.call();
+                        }
+                        // Si no, llama a la funcion de deseleccion
+                        else {
+                            this.onDeselect.call();
+                        }
                     }
                     // Si no,
                     else {
@@ -133,7 +149,12 @@ public abstract class ShopItem extends Button {
                         }
                         // Si no, si se detecta doble pulsacion, intenta comprar el objeto
                         else if (this.touchTimer < this.DOUBLE_TOUCH_THRESHOLD) {
-                            this.tryBuying();
+                            // Si el numero de monedas tras comprar el objeto es >= que 0,
+                            // compra el objeto, cambia el numero de monedas
+                            if (this.gameManager.getCoins() - this.price >= 0) {
+                                this.bought = true;
+                                this.gameManager.setCoins(this.gameManager.getCoins() - this.price);
+                            }
                         }
                     }
 
@@ -155,26 +176,12 @@ public abstract class ShopItem extends Button {
         this.coinImagePos = null;
     }
 
-
-    // Intenta comprar el objeto
-    private boolean tryBuying() {
-        // Si el numero de monedas tras comprar el objeto es >= que 0,
-        // compra el objeto, cambia el numero de monedas y devuelve true
-        if (this.gameManager.getCoins() - this.price >= 0) {
-            this.bought = true;
-            this.gameManager.setCoins(this.gameManager.getCoins() - this.price);
-
-            return true;
-        }
-        return false;
-    }
-
     public void setBought(boolean bought) { this.bought = bought; }
-    public void setSelected(boolean selected) {
-        if (!this.selected && selected) {
-            this.onClick.call();
-        }
-        this.selected = selected;
+    public void setSelected(boolean selected) { this.selected = selected; }
+
+    public void select() {
+        setSelected(true);
+        this.onSelect.call();
     }
 
     // Establece la posicion del boton

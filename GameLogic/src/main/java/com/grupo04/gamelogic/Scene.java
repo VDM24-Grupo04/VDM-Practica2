@@ -20,7 +20,7 @@ public abstract class Scene implements IScene {
     private final HashSet<GameObject> gameObjects;
     private final HashMap<String, GameObject> handlers;
 
-    private IImage bgImage;
+    protected IImage bgImage;
     private final Vector bgImagePos;
 
     private Fade fade;

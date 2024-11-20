@@ -96,6 +96,7 @@ public class LevelsScene extends Scene {
                 });
         addGameObject(prueba1Button);
 
-        setFade(Fade.OUT, 0.0);
+        // Al iniciar la escena se hace un fade out
+        setFade(Fade.OUT, 0.25);
     }
 }

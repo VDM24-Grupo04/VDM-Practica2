@@ -110,16 +110,12 @@ public class CurrentBubble extends GameObject {
     public void render(IGraphics graphics) {
         super.render(graphics);
 
-        // Se dibuja la bola
-        if (this.color >= 0) {
-            graphics.setColor(this.bubbleColors.getColor(this.color));
-            graphics.fillCircle(this.pos, this.r);
+        this.bubbleColors.drawBall(graphics, scene.getGameManager(), this.color, pos, this.r);
 
-            // Si se esta manteniendo pulsado, se dibuja la linea en direccion al lugar que se pulsa
-            if (this.dragging) {
-                graphics.setColor(this.lineColor);
-                graphics.drawLine(this.pos, this.pos.plus(this.dir.getNormalized().times(this.lineLength)), this.lineThickness);
-            }
+        // Si se esta manteniendo pulsado, se dibuja la linea en direccion al lugar que se pulsa
+        if (this.dragging) {
+            graphics.setColor(this.lineColor);
+            graphics.drawLine(this.pos, this.pos.plus(this.dir.getNormalized().times(this.lineLength)), this.lineThickness);
         }
     }
 

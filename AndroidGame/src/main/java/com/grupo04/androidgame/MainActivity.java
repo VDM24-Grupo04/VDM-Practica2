@@ -30,7 +30,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Creacion de la escena
         String fileName = "game.json";
-        this.gameManager = new GameManager(this.androidEngine, fileName);
+        String shopFileName = "shop.json";
+        this.gameManager = new GameManager(this.androidEngine, fileName, shopFileName);
         this.androidEngine.setScene(this.gameManager);
 
         // Bloquear la orientacion

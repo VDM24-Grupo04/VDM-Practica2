@@ -114,22 +114,25 @@ public class Grid extends GameObject {
 
         // Se generan initRows filas iniciales
         this.totalBubbles = 0;
-        this.colorCount = new int[bubbleColors.getColorCount()];
+        this.colorCount = new int[bubbleColors.getTotalColors()];
         bubbleColors.reset();
 
         this.bubbles = new int[this.rows][this.cols];
+        int rws = initRows;
+
         // Si hay informacion guardada (ya sea del modo normal o modo nivel cargado)
         if (jsonObject != null && jsonObject.has("grid")) {
             this.bubbles = convertJSONArrayToMatrix(jsonObject.getJSONArray("grid"));
-        } else {
+            rws = this.bubbles.length;
+        }
+        else {
             for (int[] row : this.bubbles) {
                 Arrays.fill(row, -1);
             }
         }
-        for (int i = 0; i < initRows; i++) {
+        for (int i = 0; i < rws; i++) {
             // En las filas impares hay una bola menos
             int bPerRow = (i % 2 == 0) ? this.cols : (this.cols - 1);
-            this.totalBubbles += bPerRow;
 
             // Se generan las burbujas de la fila
             for (int j = 0; j < bPerRow; ++j) {
@@ -137,12 +140,15 @@ public class Grid extends GameObject {
                 // Si ya estan asignados los colores
                 if (jsonObject != null && jsonObject.has("grid")) {
                     color = this.bubbles[i][j];
-                } else {
+                }
+                else {
                     this.bubbles[i][j] = color;
                 }
+
                 bubbleColors.addColor(color);
-                if (color >= 0 && color < bubbleColors.getColorCount()) {
+                if (color >= 0 && color < bubbleColors.getTotalColors()) {
                     this.colorCount[color]++;
+                    this.totalBubbles++;
                 }
             }
         }
@@ -287,6 +293,7 @@ public class Grid extends GameObject {
     private boolean roofCell(int i, int j) {
         return i == 0 && cellWithinGrid(i, j);
     }
+
 
     private void updateScore(int bubblesToEraseSize) {
         // Si el grupo es mayor que el limite establecido, aumenta la puntuacion
@@ -516,10 +523,7 @@ public class Grid extends GameObject {
             for (int i = 0; i < this.rows; i++) {
                 int bPerRow = (i % 2 == 0) ? this.cols : (this.cols - 1);
                 for (int j = 0; j < bPerRow; ++j) {
-                    if (this.bubbles[i][j] >= 0) {
-                        graphics.setColor(this.bubbleColors.getColor(this.bubbles[i][j]));
-                        graphics.fillCircle(gridToWorldPosition(i, j), this.r);
-                    }
+                    this.bubbleColors.drawBall(graphics, scene.getGameManager(), this.bubbles[i][j], gridToWorldPosition(i, j), this.r);
                 }
             }
         }
@@ -551,17 +555,14 @@ public class Grid extends GameObject {
         // Recorre las bolas que han colisionado y las pintas
         if (!this.collidedBubbles.isEmpty()) {
             for (AnimCollidedBubbles anim : this.collidedBubbles) {
-                graphics.setColor(this.bubbleColors.getColor(anim.color));
-                graphics.fillCircle(anim.pos, anim.radius);
+                this.bubbleColors.drawBall(graphics, scene.getGameManager(), anim.color, anim.pos, (int) anim.radius);
             }
         }
 
         // Recorre las bolas caidas y las pinta
         if (!this.fallingBubbles.isEmpty()) {
             for (Pair<Vector, Integer> bubble : this.fallingBubbles) {
-                graphics.setColor(this.bubbleColors.getColor(bubble.getSecond()));
-                Vector bPos = bubble.getFirst();
-                graphics.fillCircle(bPos, this.r);
+                this.bubbleColors.drawBall(graphics, scene.getGameManager(), bubble.getSecond(), bubble.getFirst(), this.r);
             }
         }
     }
