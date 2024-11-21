@@ -196,7 +196,7 @@ public class GameManager implements IScene {
             }
 
             // Obtiene la parte de la tienda del archivo de guardado
-//            this.playerShopJsonObject = this.mainJsonObject.getJSONObject("shop");
+            // this.playerShopJsonObject = this.mainJsonObject.getJSONObject("shop");
 
             // Si se ha leido el archivo de la tienda y hay progreso de la tienda guardado
             if (this.shopJsonObject != null && this.playerShopJsonObject != null) {
@@ -220,29 +220,21 @@ public class GameManager implements IScene {
                         }
                     }
                 }
-
             }
-
+        } else {
+            this.mainJsonObject = new JSONObject();
+            this.adventureJsonObject = new JSONObject();
+            this.quickPlayJsonObject = new JSONObject();
         }
     }
 
     public void writeInfo() {
         try {
             // Guardar todas las variables y escribir
-            if (this.mainJsonObject == null) {
-                this.mainJsonObject = new JSONObject();
-            }
-            this.mainJsonObject.clear();
+            this.mainJsonObject.keySet().clear();
             // Variables comunes
             this.mainJsonObject.put("coins", this.coins);
             this.mainJsonObject.put("lastLevel", this.lastLevel);
-
-            if (this.adventureJsonObject == null) {
-                this.adventureJsonObject = new JSONObject();
-            }
-            if (this.quickPlayJsonObject == null) {
-                this.quickPlayJsonObject = new JSONObject();
-            }
 
             if (this.adventureGrid != null) {
                 this.adventureJsonObject.put("grid", convertMatrixToJSONArray(this.adventureGrid));
@@ -301,5 +293,4 @@ public class GameManager implements IScene {
     public Color getBgColor() { return this.bgColor; }
     public void setBallSkin(int i, IImage img) { activeSkins[i] = img; }
     public IImage getBallSkin(int i) { return activeSkins[i]; }
-
 }
