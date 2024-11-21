@@ -9,6 +9,7 @@ import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.interfaces.IScene;
 import com.grupo04.engine.interfaces.ITouchEvent;
 import com.grupo04.engine.utilities.Color;
+import com.grupo04.gamelogic.gameobjects.ShopItem;
 import com.grupo04.gamelogic.scenes.TitleScene;
 
 import org.json.JSONException;
@@ -17,6 +18,7 @@ import org.json.JSONObject;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -78,6 +80,7 @@ public class GameManager implements IScene {
     @Override
     public void init() {
         readInfo();
+
         pushScene(new TitleScene(this.engine));
     }
 
@@ -182,7 +185,7 @@ public class GameManager implements IScene {
 
         if (this.mainJsonObject != null) {
             this.adventureJsonObject = this.mainJsonObject.getJSONObject("adventure");
-            this.quickPlayJsonObject = this.mainJsonObject.getJSONObject("quickPlay");
+             this.quickPlayJsonObject = this.mainJsonObject.getJSONObject("quickPlay");
 
             try {
                 // Leer todas las variables comunes del jsonObject y asignar
@@ -196,31 +199,9 @@ public class GameManager implements IScene {
             }
 
             // Obtiene la parte de la tienda del archivo de guardado
-            // this.playerShopJsonObject = this.mainJsonObject.getJSONObject("shop");
+            this.playerShopJsonObject = this.mainJsonObject.getJSONObject("shop");
 
-            // Si se ha leido el archivo de la tienda y hay progreso de la tienda guardado
-            if (this.shopJsonObject != null && this.playerShopJsonObject != null) {
-                // Obtiene el array de objetos
-                JSONObject[] objects = (JSONObject[]) this.shopJsonObject.get("items");
 
-                // Si el array de objetos es valido
-                if (objects != null) {
-                    // Recorre todos los objetos
-                    for (JSONObject obj : objects) {
-                        // Obtiene la id del objeto y el objeto del progreso guardado correspondiente a dicha id
-                        String id = (String) obj.get("id");
-                        JSONObject savedObj = this.playerShopJsonObject.getJSONObject(id);
-
-                        // Si el objeto esta en el progreso guardado
-                        if (savedObj != null) {
-                            // Si el objeto esta activo y es de tipo "bgColor", se cambia el color del fondo al indicado en el objeto
-                            if ((boolean)savedObj.get("active") && Objects.equals((String) savedObj.get("type"), "bgColor")) {
-                                bgColor = new Color((int) savedObj.get("r"), (int) savedObj.get("g"), (int) savedObj.get("b"), (int) savedObj.get("a"));
-                            }
-                        }
-                    }
-                }
-            }
         } else {
             this.mainJsonObject = new JSONObject();
             this.adventureJsonObject = new JSONObject();
@@ -293,4 +274,30 @@ public class GameManager implements IScene {
     public Color getBgColor() { return this.bgColor; }
     public void setBallSkin(int i, IImage img) { activeSkins[i] = img; }
     public IImage getBallSkin(int i) { return activeSkins[i]; }
+
+
+    private void applyShopProgress() {
+        // Si se ha leido el archivo de la tienda y hay progreso de la tienda guardado
+        if (this.shopJsonObject != null && this.playerShopJsonObject != null) {
+            JSONObject items = this.shopJsonObject.getJSONObject("items");
+
+            // Recorre todos los objetos guardados
+            Iterator<String> keys = this.playerShopJsonObject.keys();
+            while(keys.hasNext()) {
+                String key = keys.next();
+
+                // Obtiene los atributos del objeto con la key actual y
+                // si no son nulos y el objeto existe en la tienda
+                JSONObject obj = this.playerShopJsonObject.getJSONObject(key);
+                if (obj != null && items.has(key) && items.has(key)) {
+                    // Si el objeto leido tiene el atributo active y
+                    // el objeto esta activo, se selecciona
+                    if (obj.get("active") != null) {
+                        if ((Boolean) obj.get("active")) {
+                            JSONObject it = items.getJSONObject(key);
+                        }
+                    }
+                }
+        }
+    }
 }

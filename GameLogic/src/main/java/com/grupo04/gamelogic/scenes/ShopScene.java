@@ -199,10 +199,10 @@ public class ShopScene extends Scene {
                 // Recorre todos los objetos y los anade a la tienda
                 for (JSONObject obj : objects) {
                     if (Objects.equals((String) obj.get("type"), "bgColor")) {
-                        addBgColor((String) obj.get("key"), (int) obj.get("r"), (int) obj.get("gg"), (int) obj.get("b"), (int) obj.get("a"));
+                        addBgColor((String) obj.get("id"), (int) obj.get("r"), (int) obj.get("g"), (int) obj.get("b"), (int) obj.get("a"));
                     }
-                    else if (Objects.equals((String) obj.get("type"), "skin")) {
-                        addBallSkin((String) obj.get("key"), (String) obj.get("path"), (int) obj.get("colorId"));
+                    else if (Objects.equals((String) obj.get("type"), "ballSkin")) {
+                        addBallSkin((String) obj.get("id"), (String) obj.get("path"), (int) obj.get("colorId"));
                     }
                 }
             }
@@ -248,9 +248,10 @@ public class ShopScene extends Scene {
         addBgColor("test7", 235, 122, 0, 255);
         addBgColor("test8", 31, 64, 64, 255);
 
-        addBallSkin("img0","close.png", 0);
-        addBallSkin("img1","coin.png", 1);
-        addBallSkin("img2","hex_empty.png", 2);
+        addBallSkin("img0","emotiguy0.png", 0);
+        addBallSkin("img1","emotiguy1.png", 1);
+        addBallSkin("img2","emotiguy2.png", 2);
+        addBallSkin("img3","emotiguy3.png", 3);
     }
 
 }

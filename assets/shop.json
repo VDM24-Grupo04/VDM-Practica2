@@ -1,0 +1,26 @@
+{
+    "items": [
+        {
+            "id": "bgColor1",
+            "type": "bgColor",
+            "r": 213,
+            "g": 131,
+            "b": 12,
+            "a": 1
+        },
+
+        {
+            "id": "ballSkin1",
+            "type": "ballSkin",
+            "path": "emotiguy0.png",
+            "colorId": 0
+        }
+    ]
+}
+
+{
+    "bgColor1": {
+        "bought": true,
+        "active": false
+    }
+}
