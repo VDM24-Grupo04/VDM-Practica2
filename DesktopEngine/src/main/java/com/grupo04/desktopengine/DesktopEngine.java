@@ -55,9 +55,14 @@ public class DesktopEngine extends Engine {
     }
 
     @Override
-    public FileInputStream getFileInputStream(String fileName) {
+    public FileInputStream getFileInputStream(String fileName, FileType type) {
+        String path = "./assets/" + fileName;
+        if (type == FileType.PROGRESS_DATA) {
+            path = System.getProperty("user.home") + File.separator + "Documents" + File.separator + fileName;
+        }
+
         // Comprobar si existe el archivo en Documentos del usuario
-        File file = new File(System.getProperty("user.home") + File.separator + "Documents" + File.separator + fileName);
+        File file = new File(path);
         if (file.exists()) {
             try {
                 return new FileInputStream(file);
@@ -73,9 +78,11 @@ public class DesktopEngine extends Engine {
         File file = new File(System.getProperty("user.home") + File.separator + "Documents" + File.separator + fileName);
         try {
             return new FileOutputStream(file);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             System.err.println("Error while getting FileOutputStream from: " + file.getPath() + ": " + e.getMessage());
         }
         return null;
     }
+
 }

@@ -1,0 +1,15 @@
+
+{
+    "bgColor1": {
+        "bought": true,
+        "active": true
+    },
+    "bgColor2": {
+        "bought": false,
+        "active": false
+    },
+    "ball0Skin1": {
+        "bought": true,
+        "active": true
+    }
+}

@@ -3,17 +3,41 @@
         {
             "id": "bgColor1",
             "type": "bgColor",
-            "r": 213,
-            "g": 131,
-            "b": 12,
-            "a": 1
+            "r": 244,
+            "g": 20,
+            "b": 2,
+            "a": 255
+        },
+        {
+            "id": "bgColor2",
+            "type": "bgColor",
+            "r": 123,
+            "g": 627,
+            "b": 222,
+            "a": 255
+        },
+        {
+            "id": "bgColor3",
+            "type": "bgColor",
+            "r": 31,
+            "g": 64,
+            "b": 64,
+            "a": 255
+        },
+        {
+            "id": "bgColor4",
+            "type": "bgColor",
+            "r": 235,
+            "g": 122,
+            "b": 0,
+            "a": 255
         },
 
         {
-            "id": "ballSkin1",
+            "id": "ball0Skin1",
             "type": "ballSkin",
-            "path": "emotiguy0.png",
-            "colorId": 0
+            "colorId": 0,
+            "path": "emotiguy0.png"
         }
     ]
 }

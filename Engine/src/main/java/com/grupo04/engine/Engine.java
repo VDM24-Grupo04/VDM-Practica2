@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -212,7 +213,7 @@ public abstract class Engine implements IEngine, Runnable {
     }
 
     @Override
-    public JSONObject readFile(FileInputStream file) {
+    public JSONObject readFile(InputStream file) {
         if (file != null) {
             JSONObject jsonObject = null;
             StringBuilder stringBuilder = new StringBuilder();

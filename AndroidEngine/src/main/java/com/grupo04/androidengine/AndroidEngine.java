@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class AndroidEngine extends Engine {
     private final Context context;
@@ -32,19 +33,29 @@ public class AndroidEngine extends Engine {
     }
 
     @Override
-    public FileInputStream getFileInputStream(String fileName) {
-        File file = new File(context.getFilesDir(), fileName);
-        if (!file.exists()) {
-            System.out.println("File not found: " + fileName);
-            return null;
-        }
+    public InputStream getFileInputStream(String fileName, FileType type) {
+        if (type == FileType.PROGRESS_DATA) {
+            File file = new File(context.getFilesDir(), fileName);
+            if (!file.exists()) {
+                System.out.println("File not found: " + fileName);
+                return null;
+            }
 
-        // Si el archivo existe
-        try {
-            return this.context.openFileInput(fileName);
-        } catch (IOException e) {
-            System.err.println("Error while getting FileInputStream from: " + fileName + ": " + e.getMessage());
-            return null;
+            // Si el archivo existe
+            try {
+                return this.context.openFileInput(fileName);
+            } catch (IOException e) {
+                System.err.println("Error while getting FileInputStream from: " + fileName + ": " + e.getMessage());
+                return null;
+            }
+        }
+        else {
+            try {
+                return context.getAssets().open(fileName);
+            }
+            catch (Exception e) {
+                return null;
+            }
         }
     }
 
@@ -57,4 +68,5 @@ public class AndroidEngine extends Engine {
             return null;
         }
     }
+
 }
