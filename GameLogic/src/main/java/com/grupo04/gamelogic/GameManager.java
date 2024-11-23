@@ -86,7 +86,8 @@ public class GameManager implements IScene {
     private JSONObject getJsonObject(String key) {
         if (this.mainJsonObject.has(key)) {
             JSONObject json = this.mainJsonObject.getJSONObject(key);
-            if (json.isEmpty()) {
+            Iterator<String> aux = json.keys();
+            if (!aux.hasNext()) {
                 return null;
             } else {
                 return json;
