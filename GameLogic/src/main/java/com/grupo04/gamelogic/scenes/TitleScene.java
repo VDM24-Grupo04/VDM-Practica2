@@ -42,7 +42,7 @@ public class TitleScene extends Scene {
                     this.setFadeCallback(() -> {
                         if (this.gameManager != null) {
                             // Le pasamos el jsonObject del modo de Aventura
-                            this.gameManager.changeScene(new LevelsScene(this.engine, this.gameManager.getAdventureJSONObj(), this.gameManager.getLastLevel()));
+                            this.gameManager.changeScene(new LevelsScene(this.engine));
                         }
                     });
                 });
@@ -59,7 +59,9 @@ public class TitleScene extends Scene {
                         if (this.gameManager != null) {
                             // Le pasamos el jsonObject del modo de Juego Rapido
                             // con id = 0
-                            this.gameManager.changeScene(new GameScene(this.engine, this.gameManager.getQuickPlayJSONObj(), 0));
+                            JSONObject jsonObject = this.gameManager.getQuickPlayJSONObj();
+                            this.gameManager.setQuickPlayJsonObject(new JSONObject());
+                            this.gameManager.changeScene(new GameScene(this.engine, jsonObject, 0));
                         }
                     });
                 });
@@ -77,7 +79,7 @@ public class TitleScene extends Scene {
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
                         if (this.gameManager != null) {
-                             this.gameManager.changeScene(new ShopScene(this.engine));
+                            this.gameManager.changeScene(new ShopScene(this.engine));
                         }
                     });
                 });

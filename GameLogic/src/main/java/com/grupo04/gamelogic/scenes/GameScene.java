@@ -1,5 +1,8 @@
 package com.grupo04.gamelogic.scenes;
 
+import static com.grupo04.engine.utilities.JSONConverter.convertLinkedListToJSONArray;
+import static com.grupo04.engine.utilities.JSONConverter.convertMatrixToJSONArray;
+
 import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.Scene;
 import com.grupo04.engine.interfaces.IEngine;
@@ -13,21 +16,20 @@ import com.grupo04.gamelogic.gameobjects.ImageToggleButton;
 import com.grupo04.gamelogic.gameobjects.Text;
 import com.grupo04.gamelogic.gameobjects.Walls;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.LinkedList;
+
 public class GameScene extends Scene {
-    private final int id;
+    private final int levelNumber;
     private final JSONObject jsonObject;
     private final Grid grid;
     private final CurrentBubble currentBubble;
     boolean checkEnded;
 
-    public GameScene(IEngine engine, JSONObject jsonObject, int id) {
+    public GameScene(IEngine engine, JSONObject jsonObject, int levelNumber) {
         super(engine, 400, 600, "background.jpg");
-
-        this.jsonObject = jsonObject;
-        this.id = id;
-
         int n_COLS = 10;
         int INIT_ROWS = 5;
         int HEADER_WIDTH = 50;
@@ -49,6 +51,9 @@ public class GameScene extends Scene {
         Color TEXT_COLOR = new Color(0, 0, 0);
         String SCORE_TEXT_FONT = "kimberley.ttf";
         float SCORE_TEXT_SIZE = 35;
+
+        this.jsonObject = jsonObject;
+        this.levelNumber = levelNumber;
 
         this.checkEnded = true;
 
@@ -72,6 +77,7 @@ public class GameScene extends Scene {
                         TitleScene scene = new TitleScene(this.engine);
                         scene.setFade(Fade.OUT, 0.25);
                         if (this.gameManager != null) {
+                            saveJson();
                             this.gameManager.changeScene(scene);
                         }
                     });
@@ -110,8 +116,6 @@ public class GameScene extends Scene {
 
     @Override
     public void init() {
-        super.init();
-
         // Se cambia el color de fondo si hay uno seleccionado
         Color bgColor = gameManager.getBgColor();
         if (bgColor != null) {
@@ -119,6 +123,7 @@ public class GameScene extends Scene {
             this.engine.getGraphics().setClearColor(bgColor);
         }
 
+        super.init();
     }
 
     @Override
@@ -139,17 +144,16 @@ public class GameScene extends Scene {
                 this.setFadeCallback(() -> {
                     GameManager gameManager = this.getGameManager();
                     if (gameManager != null) {
-                        gameManager.changeScene(new VictoryScene(this.engine, this.grid.getScore(), this.jsonObject, this.id));
+                        gameManager.changeScene(new VictoryScene(this.engine, this.grid.getScore(), this.levelNumber));
                     }
                 });
-            }
-            else {
+            } else {
                 // Se hace un fade in y cuando acaba la animacion se cambia a la escena de game over
                 this.setFade(Scene.Fade.IN, 0.25);
                 this.setFadeCallback(() -> {
                     GameManager gameManager = this.getGameManager();
                     if (gameManager != null) {
-                        gameManager.changeScene(new GameOverScene(this.engine, this.jsonObject, this.id));
+                        gameManager.changeScene(new GameOverScene(this.engine, this.levelNumber));
                     }
                 });
             }
@@ -159,19 +163,37 @@ public class GameScene extends Scene {
     }
 
     @Override
-    public void shutdown() {
-        // Si es un nivel
-        if (this.id != 0) {
-            this.gameManager.setLastLevel(this.id);
-            this.gameManager.setAdventureGrid(this.grid.getBubbles());
-            this.gameManager.setAdventureBubbleColors(this.currentBubble.getAdventureModeColors());
-            this.gameManager.setAdventureScore(this.grid.getScore());
+    public void saveJson() {
+        JSONObject jsonObject = new JSONObject();
+
+        // Si es el modo de juego rapido
+        if (this.levelNumber == 0) {
+            //this.gameManager.setQuickPlayGrid(this.grid.getBubbles());
+            //this.gameManager.setQuickPlayBubbleColor(this.currentBubble.getColor());
+            //this.gameManager.setQuickPlayScore(this.grid.getScore());
+            // JSONObject quickPlayJsonObject = new JSONObject();
+
+            jsonObject.put("grid", convertMatrixToJSONArray(this.grid.getBubbles()));
+            jsonObject.put("color", this.currentBubble.getColor());
+            jsonObject.put("score", this.grid.getScore());
+            this.gameManager.setQuickPlayJsonObject(jsonObject);
         }
-        // Si es modo Juego Rapido
+        // Si es un nivel del modo aventura
         else {
-            this.gameManager.setQuickPlayGrid(this.grid.getBubbles());
-            this.gameManager.setQuickPlayBubbleColor(this.currentBubble.getColor());
-            this.gameManager.setQuickPlayScore(this.grid.getScore());
+            //this.gameManager.setLastLevel(this.id);
+            //this.gameManager.setAdventureGrid(this.grid.getBubbles());
+            //this.gameManager.setAdventureBubbleColors(this.currentBubble.getAdventureModeColors());
+            //this.gameManager.setAdventureScore(this.grid.getScore());
+            // JSONObject adventureJsonObject = new JSONObject();
+            jsonObject.put("levelNumber", this.levelNumber);
+            jsonObject.put("grid", convertMatrixToJSONArray(this.grid.getBubbles()));
+            /*
+            LinkedList<Integer> aux = this.currentBubble.getAdventureModeColors();
+            JSONArray array = convertLinkedListToJSONArray(aux);
+            jsonObject.put("colors", array);
+            */
+            jsonObject.put("score", this.grid.getScore());
+            this.gameManager.setAdventureJsonObject(jsonObject);
         }
     }
 }

@@ -13,12 +13,8 @@ import org.json.JSONObject;
 public class VictoryScene extends Scene {
     private final ISound winSound;
 
-    private final int score;
-
-    public VictoryScene(IEngine engine, int score, JSONObject jsonObject, int id) {
+    public VictoryScene(IEngine engine, int score, int levelNumber) {
         super(engine, 400, 600, new Color(255, 255, 255));
-
-        this.score = score;
 
         Color TEXT_COLOR = new Color(0, 0, 0);
 
@@ -41,7 +37,7 @@ public class VictoryScene extends Scene {
                 TITLE_FONT, TITLE_SIZE, false, false, TEXT_COLOR);
         addGameObject(title);
 
-        Text scoreText = new Text(new Vector(this.worldWidth / 2f, 3f * this.worldHeight / 7f), Integer.toString(this.score),
+        Text scoreText = new Text(new Vector(this.worldWidth / 2f, 3f * this.worldHeight / 7f), Integer.toString(score),
                 SCORE_TEXT_FONT, SCORE_TEXT_SIZE, false, false, TEXT_COLOR);
         addGameObject(scoreText);
 
@@ -59,7 +55,7 @@ public class VictoryScene extends Scene {
                     this.setFadeCallback(() -> {
                         this.engine.getAudio().stopSound(this.winSound);
                         if (this.gameManager != null) {
-                            this.gameManager.changeScene(new GameScene(this.engine, jsonObject, id));
+                            this.gameManager.changeScene(new GameScene(this.engine, null, levelNumber));
                         }
                     });
                 });

@@ -25,7 +25,7 @@ public class LevelsScene extends Scene {
     private float itemSize;
     private final int ITEMS_PER_ROW = 4, ITEM_OFFSET = 10;
 
-    public LevelsScene(IEngine engine, JSONObject jsonObject, int lastLevel) {
+    public LevelsScene(IEngine engine) {
         super(engine, 400, 600, new Color(255, 255, 255));
 
         // Se anade el boton de volver al menu inicial
@@ -62,7 +62,13 @@ public class LevelsScene extends Scene {
 
         // Anadir los niveles
 
+        // Al iniciar la escena se hace un fade out
+        setFade(Fade.OUT, 0.25);
+    }
 
+    @Override
+    public void init() {
+        JSONObject jsonObject = gameManager.getAdventureJSONObj();
 
         String BUTTON_SOUND = "button.wav";
         float BUTTON_WIDTH = 205f;
@@ -88,15 +94,14 @@ public class LevelsScene extends Scene {
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
                         if (this.gameManager != null) {
+                            this.gameManager.setAdventureJsonObject(new JSONObject());
                             // Cambiar al numero del nivel correspondiente
                             this.gameManager.changeScene(new GameScene(this.engine, jsonObject, 1));
-                            //this.gameManager.changeScene(new GameScene(this.engine, otherJsonObject, i));
                         }
                     });
                 });
         addGameObject(prueba1Button);
 
-        // Al iniciar la escena se hace un fade out
-        setFade(Fade.OUT, 0.25);
+        super.init();
     }
 }

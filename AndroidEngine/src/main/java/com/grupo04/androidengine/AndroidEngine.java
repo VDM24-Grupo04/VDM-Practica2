@@ -27,12 +27,6 @@ public class AndroidEngine extends Engine {
     }
 
     @Override
-    public void onPause() {
-        this.shutdown();
-        super.onPause();
-    }
-
-    @Override
     public InputStream getFileInputStream(String fileName, FileType type) {
         if (type == FileType.PROGRESS_DATA) {
             File file = new File(context.getFilesDir(), fileName);

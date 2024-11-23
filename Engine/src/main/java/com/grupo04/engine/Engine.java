@@ -178,6 +178,12 @@ public abstract class Engine implements IEngine, Runnable {
         }
     }
 
+    public void onStop() {
+        if (this.scene != null) {
+            this.scene.shutdown();
+        }
+    }
+
     @Override
     public void setWorldSize(int worldWidth, int worldHeight) {
         this.graphics.setWorldSize(worldWidth, worldHeight);
@@ -234,11 +240,5 @@ public abstract class Engine implements IEngine, Runnable {
             return jsonObject;
         }
         return null;
-    }
-
-    public void shutdown() {
-        if (this.scene != null) {
-            this.scene.shutdown();
-        }
     }
 }

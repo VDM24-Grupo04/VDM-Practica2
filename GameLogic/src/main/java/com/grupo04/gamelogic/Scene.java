@@ -264,11 +264,16 @@ public abstract class Scene implements IScene {
     }
 
     @Override
-    public void shutdown() {}
+    public void shutdown() {
+    }
+
+    public void saveJson() {
+    }
 
     public int getWorldWidth() {
         return this.worldWidth;
     }
+
     public int getWorldHeight() {
         return this.worldHeight;
     }
@@ -277,7 +282,10 @@ public abstract class Scene implements IScene {
         return this.engine;
     }
 
-    public void setGameManager(GameManager gameManager) { this.gameManager = gameManager; }
+    public void setGameManager(GameManager gameManager) {
+        this.gameManager = gameManager;
+    }
+
     public GameManager getGameManager() {
         return this.gameManager;
     }

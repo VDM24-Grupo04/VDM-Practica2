@@ -93,7 +93,7 @@ public class ShopScene extends Scene {
     public void render(IGraphics graphics) {
         graphics.setFont(this.headerCoinsFont);
         graphics.setColor(this.TEXT_COLOR);
-        graphics.drawText( ((Integer)(gameManager.getCoins())).toString(), headerCoinsTextPos, false, true);
+        graphics.drawText(((Integer) (gameManager.getCoins())).toString(), headerCoinsTextPos, false, true);
         graphics.drawImage(this.coinImg, this.headerCoinsImgPos, (int) this.COINS_IMAGE_SIZE, (int) this.COINS_IMAGE_SIZE);
 
         super.render(graphics);
@@ -115,7 +115,7 @@ public class ShopScene extends Scene {
     }
 
     @Override
-    public void shutdown() {
+    public void saveJson() {
         // o llamarlo cada vez que se gastan monedas
 //        this.gameManager.setCoins(this.coins);
     }
@@ -166,7 +166,7 @@ public class ShopScene extends Scene {
         // Si el objeto no esta ya en la lista
         if (!items.containsKey(key)) {
             // Calcula su posicion dependiendo del numero de objetos que haya en la lista antes de anadirlo
-            float x = (items.size() % ITEMS_PER_ROW) * (this.itemSize + this.ITEM_OFFSET) + this.HEADER_OFFSET +  this.itemSize / 2;
+            float x = (items.size() % ITEMS_PER_ROW) * (this.itemSize + this.ITEM_OFFSET) + this.HEADER_OFFSET + this.itemSize / 2;
             float y = (items.size() / ITEMS_PER_ROW) * (this.itemSize + this.FONT_SIZE * 3) + this.HEADER_SIZE * 2.3f + this.itemSize / 2;
 
             // Cambia la posicion del objeto
@@ -223,8 +223,7 @@ public class ShopScene extends Scene {
                     JSONObject obj = objects.getJSONObject(i);
                     if (Objects.equals((String) obj.get("type"), "bgColor")) {
                         addBgColor((String) obj.get("id"), (int) obj.get("r"), (int) obj.get("g"), (int) obj.get("b"), (int) obj.get("a"));
-                    }
-                    else if (Objects.equals((String) obj.get("type"), "ballSkin")) {
+                    } else if (Objects.equals((String) obj.get("type"), "ballSkin")) {
                         addBallSkin((String) obj.get("id"), (String) obj.get("path"), (int) obj.get("colorId"));
                     }
                 }
@@ -235,7 +234,7 @@ public class ShopScene extends Scene {
         if (savedItems != null) {
             // Recorre todos los objetos guardados
             Iterator<String> keys = savedItems.keys();
-            while(keys.hasNext()) {
+            while (keys.hasNext()) {
                 String key = keys.next();
 
                 // Obtiene los atributos del objeto con la key actual y
@@ -262,5 +261,4 @@ public class ShopScene extends Scene {
             }
         }
     }
-
 }

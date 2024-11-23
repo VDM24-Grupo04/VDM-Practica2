@@ -28,10 +28,6 @@ public abstract class Button extends GameObject {
         }
     }
 
-    public ISound getOnClickSound() {
-        return this.onClickSound;
-    }
-
     protected void setOnClick(Callback callback) {
         this.onClick = callback;
     }

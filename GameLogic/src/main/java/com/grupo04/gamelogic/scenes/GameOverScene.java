@@ -13,7 +13,7 @@ import org.json.JSONObject;
 public class GameOverScene extends Scene {
     private ISound loseSound;
 
-    public GameOverScene(IEngine engine, JSONObject jsonObject, int id) {
+    public GameOverScene(IEngine engine, int levelNumber) {
         super(engine, 400, 600, new Color(255, 255, 255));
 
         String TEXT_FONT = "TheMeshroomRegular.ttf";
@@ -47,7 +47,7 @@ public class GameOverScene extends Scene {
                     this.setFadeCallback(() -> {
                         this.engine.getAudio().stopSound(this.loseSound);
                         if (this.gameManager != null) {
-                            this.gameManager.changeScene(new GameScene(this.engine, jsonObject, id));
+                            this.gameManager.changeScene(new GameScene(this.engine, null, levelNumber));
                         }
                     });
                 });

@@ -24,6 +24,7 @@ public class AndroidGraphics extends Graphics {
     private final Rect rect;
     private final Rect src;
     private final Rect dest;
+    private Path hexagon;
 
     public AndroidGraphics(SurfaceView window, AssetManager assetManager) {
         this.window = window;
@@ -34,6 +35,7 @@ public class AndroidGraphics extends Graphics {
         this.rect = new Rect();
         this.src = new Rect();
         this.dest = new Rect();
+        this.hexagon = new Path();
     }
 
     @Override
@@ -181,8 +183,9 @@ public class AndroidGraphics extends Graphics {
     public void drawHexagon(Vector center, float radius, float rotInDegrees, float strokeWidth) {
         // Numero de lados del poligono
         int nSides = 6;
-        Path hexagon = new Path();
-        Vector initPoint = new Vector();
+
+        float initX = 0.0f;
+        float initY = 0.0f;
 
         // Rotacion del hexagano en radianes y en sentido antihorario
         double rotInRadians = rotInDegrees * Math.PI / 180;
@@ -195,23 +198,22 @@ public class AndroidGraphics extends Graphics {
             // Rotar el hexagono respecto a su posicion inicial
             pointRot += rotInRadians;
 
-            Vector point = new Vector();
-            point.x = (float) (center.x + radius * Math.cos(pointRot));
-            point.y = (float) (center.y + radius * Math.sin(pointRot));
+            float pointX = (float) (center.x + radius * Math.cos(pointRot));
+            float pointY = (float) (center.y + radius * Math.sin(pointRot));
 
             if (i == 0) {
-                initPoint.x = point.x;
-                initPoint.y = point.y;
-                hexagon.moveTo(point.x, point.y);
+                initX = pointX;
+                initY = pointY;
+                this.hexagon.moveTo(pointX, pointY);
             } else {
-                hexagon.lineTo(point.x, point.y);
+                this.hexagon.lineTo(pointX, pointY);
             }
         }
-        hexagon.lineTo(initPoint.x, initPoint.y);
+        this.hexagon.lineTo(initX, initY);
 
         this.paint.setStyle(Paint.Style.STROKE);
         this.paint.setStrokeWidth(strokeWidth);
-        this.canvas.drawPath(hexagon, this.paint);
+        this.canvas.drawPath(this.hexagon, this.paint);
     }
 
     @Override
@@ -263,8 +265,7 @@ public class AndroidGraphics extends Graphics {
         this.paint.getTextBounds(text, 0, text.length(), this.rect);
         if (centerX) {
             this.paint.setTextAlign(Paint.Align.CENTER);
-        }
-        else {
+        } else {
             this.paint.setTextAlign(Paint.Align.LEFT);
         }
 

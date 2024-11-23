@@ -44,7 +44,7 @@ public class DesktopGame {
         // Al cerrar la ventana se realiza una salida adecuada del sistema
         window.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                desktopEngine.shutdown();
+                desktopEngine.onStop();
                 System.exit(0);
             }
         });
@@ -52,14 +52,15 @@ public class DesktopGame {
         // Se anade al JFrame un listener de eventos de teclado
         window.addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent keyEvent) { }
+            public void keyTyped(KeyEvent keyEvent) {
+            }
 
             // Pulsar tecla
             @Override
             public void keyPressed(KeyEvent keyEvent) {
                 // Si se pulsa el escape
                 if (keyEvent.getKeyCode() == 27) {
-                    desktopEngine.shutdown();
+                    desktopEngine.onStop();
                     System.exit(0);
                 }
             }
@@ -77,6 +78,7 @@ public class DesktopGame {
             public void windowLostFocus(WindowEvent e) {
                 desktopEngine.onPause();
             }
+
             // Si se recupera el foco, se reanuda el hilo que ejecuta el juego
             @Override
             public void windowGainedFocus(WindowEvent e) {

@@ -85,7 +85,7 @@ public class CurrentBubble extends GameObject {
             // Si es modo Juego Rapido coge el color que le corresponde
             else if (jsonObject.has("color")) {
                 // Coge el objeto con clave "quickPlay" del cual coge el int del color
-                this.color = (int)jsonObject.get("color");
+                this.color = jsonObject.getInt("color");
                 resetPhysics();
             } else {
                 reset();

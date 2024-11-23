@@ -124,8 +124,7 @@ public class Grid extends GameObject {
         if (jsonObject != null && jsonObject.has("grid")) {
             this.bubbles = convertJSONArrayToMatrix(jsonObject.getJSONArray("grid"));
             rws = this.bubbles.length;
-        }
-        else {
+        } else {
             for (int[] row : this.bubbles) {
                 Arrays.fill(row, -1);
             }
@@ -140,8 +139,7 @@ public class Grid extends GameObject {
                 // Si ya estan asignados los colores
                 if (jsonObject != null && jsonObject.has("grid")) {
                     color = this.bubbles[i][j];
-                }
-                else {
+                } else {
                     this.bubbles[i][j] = color;
                 }
 
@@ -176,7 +174,7 @@ public class Grid extends GameObject {
 
         this.bubblesToExplode = bubblesToExplode;
         if (jsonObject != null && jsonObject.has("score")) {
-            this.score = (int)jsonObject.get("score");
+            this.score = (int) jsonObject.get("score");
         } else {
             this.score = 0;
         }
@@ -404,8 +402,7 @@ public class Grid extends GameObject {
             }
             // Si siguen quedando bolas, se comprueba si hay bolas que se pueden caer
             return manageFall(bubblesToFall);
-        }
-        else {
+        } else {
             this.audio.playSound(this.attachSound);
         }
         return false;
@@ -597,8 +594,7 @@ public class Grid extends GameObject {
                     iterator.remove();
                 }
             }
-        }
-        else if (this.won) {
+        } else if (this.won) {
             this.audio.stopSound(this.attachSound);
             this.audio.stopSound(this.explosionSound);
             this.end = true;
@@ -620,8 +616,19 @@ public class Grid extends GameObject {
         this.explosionSound = null;
     }
 
-    public boolean hasEnded() { return this.end; }
-    public boolean hasWon() { return this.won; }
-    public int getScore() { return this.score; }
-    public int[][] getBubbles() { return this.bubbles;}
+    public boolean hasEnded() {
+        return this.end;
+    }
+
+    public boolean hasWon() {
+        return this.won;
+    }
+
+    public int getScore() {
+        return this.score;
+    }
+
+    public int[][] getBubbles() {
+        return this.bubbles;
+    }
 }

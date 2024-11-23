@@ -49,4 +49,10 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         this.androidEngine.onPause();
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        this.androidEngine.onStop();
+    }
 }

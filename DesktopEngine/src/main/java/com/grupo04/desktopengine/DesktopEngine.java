@@ -46,8 +46,8 @@ public class DesktopEngine extends Engine {
 
     // Cierra todos los clips que estuvieran abiertos cuando se cierra el juego en Desktop
     @Override
-    public void shutdown() {
-        super.shutdown();
+    public void onStop() {
+        super.onStop();
 
         if (this.desktopAudio != null) {
             this.desktopAudio.closeAllClips();
