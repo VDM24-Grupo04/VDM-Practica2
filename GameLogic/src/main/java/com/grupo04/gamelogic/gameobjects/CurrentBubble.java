@@ -47,7 +47,7 @@ public class CurrentBubble extends GameObject {
 
     private BubbleColors bubbleColors;
 
-    public CurrentBubble(JSONObject jsonObject, int w, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, BubbleColors bubbleColors) {
+    public CurrentBubble(JSONObject progressJson, int w, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, BubbleColors bubbleColors) {
         super();
 
         this.lineLength = 100;
@@ -72,30 +72,38 @@ public class CurrentBubble extends GameObject {
 
         this.bubbleColors = bubbleColors;
 
+        // Si jsonObject es null indica que si o si es Juego Rapido porque si fuese modo Aventura
+        // se hubiese pasado un jsonObject con los colores iniciales
+        if (!tryToApplyProgress(progressJson)) {
+            reset();
+        }
+    }
+
+    private boolean tryToApplyProgress(JSONObject progressJson) {
         // Hacer algo con el jsonObject dependiendo de si es modo Aventura o modo Juego Rapido
         // Si es modo Aventura obtiene un array de colores
         // Si es modo Juego rapido obtiene un int del ultimo color
         this.isAdventureMode = false;
-        if (jsonObject != null) {
+        if (progressJson != null) {
             // Si es modo Aventura coge el primer color que le corresponde del array
-            if (jsonObject.has("colors")) {
+            if (progressJson.has("colors")) {
                 this.isAdventureMode = true;
-                this.adventureModeColors = convertJSONArrayToLinkedList(jsonObject.getJSONArray("colors"));
+                this.adventureModeColors = convertJSONArrayToLinkedList(progressJson.getJSONArray("colors"));
+                this.reset();
             }
             // Si es modo Juego Rapido coge el color que le corresponde
-            else if (jsonObject.has("color")) {
+            else if (progressJson.has("color")) {
                 // Coge el objeto con clave "quickPlay" del cual coge el int del color
-                this.color = jsonObject.getInt("color");
-                resetPhysics();
-            } else {
-                reset();
+                this.color = progressJson.getInt("color");
+                this.resetPhysics();
             }
+            // Por si acaso
+            else {
+                this.reset();
+            }
+            return true;
         }
-        // Si jsonObject es null indica que si o si es Juego Rapido porque si fuese modo Aventura
-        // se hubiese pasado un jsonObject con los colores iniciales
-        else {
-            reset();
-        }
+        return false;
     }
 
     @Override
@@ -231,6 +239,11 @@ public class CurrentBubble extends GameObject {
         this.bounceSound = null;
     }
 
-    public int getColor() { return this.color; }
-    public LinkedList<Integer> getAdventureModeColors() { return this.adventureModeColors; }
+    public int getColor() {
+        return this.color;
+    }
+
+    public LinkedList<Integer> getAdventureModeColors() {
+        return this.adventureModeColors;
+    }
 }

@@ -1,7 +1,6 @@
 package com.grupo04.desktopengine;
 
 import com.grupo04.engine.Engine;
-import com.grupo04.engine.utilities.Callback;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferStrategy;
@@ -84,5 +83,4 @@ public class DesktopEngine extends Engine {
         }
         return null;
     }
-
 }

@@ -11,6 +11,7 @@ import com.grupo04.engine.utilities.Vector;
 import com.grupo04.engine.interfaces.IAudio;
 import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.gamelogic.BubbleColors;
+import com.grupo04.gamelogic.gameobjects.buttons.ImageToggleButton;
 
 import org.json.JSONObject;
 
@@ -96,7 +97,7 @@ public class Grid extends GameObject {
     private int currI;
     private int currJ;
 
-    public Grid(JSONObject jsonObject, int width, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, int cols, int initRows,
+    public Grid(JSONObject progressJson, int width, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, int cols, int initRows,
                 int bubblesToExplode, int greatScore, int smallScore, BubbleColors bubbleColors, float fallingSpeed, float shrinkSpeed) {
         super();
 
@@ -114,41 +115,35 @@ public class Grid extends GameObject {
 
         // Se generan initRows filas iniciales
         this.totalBubbles = 0;
-        this.colorCount = new int[bubbleColors.getTotalColors()];
-        bubbleColors.reset();
+
+        this.bubbleColors = bubbleColors;
+        this.colorCount = new int[this.bubbleColors.getTotalColors()];
+        this.bubbleColors.reset();
 
         this.bubbles = new int[this.rows][this.cols];
-        int rws = initRows;
 
-        // Si hay informacion guardada (ya sea del modo normal o modo nivel cargado)
-        if (jsonObject != null && jsonObject.has("grid")) {
-            this.bubbles = convertJSONArrayToMatrix(jsonObject.getJSONArray("grid"));
-            rws = this.bubbles.length;
-        } else {
+        if (!tryToApplyProgress(progressJson)) {
             for (int[] row : this.bubbles) {
                 Arrays.fill(row, -1);
             }
-        }
-        for (int i = 0; i < rws; i++) {
-            // En las filas impares hay una bola menos
-            int bPerRow = (i % 2 == 0) ? this.cols : (this.cols - 1);
 
-            // Se generan las burbujas de la fila
-            for (int j = 0; j < bPerRow; ++j) {
-                int color = bubbleColors.generateRandomColor();
-                // Si ya estan asignados los colores
-                if (jsonObject != null && jsonObject.has("grid")) {
-                    color = this.bubbles[i][j];
-                } else {
+            for (int i = 0; i < initRows; i++) {
+                // En las filas impares hay una bola menos
+                int bPerRow = (i % 2 == 0) ? this.cols : (this.cols - 1);
+
+                // Se generan las burbujas de la fila
+                for (int j = 0; j < bPerRow; ++j) {
+                    int color = this.bubbleColors.generateRandomColor();
                     this.bubbles[i][j] = color;
-                }
-
-                bubbleColors.addColor(color);
-                if (color >= 0 && color < bubbleColors.getTotalColors()) {
-                    this.colorCount[color]++;
-                    this.totalBubbles++;
+                    this.bubbleColors.addColor(color);
+                    if (color >= 0 && color < this.bubbleColors.getTotalColors()) {
+                        this.colorCount[color]++;
+                        this.totalBubbles++;
+                    }
                 }
             }
+
+            this.score = 0;
         }
 
         int lineY = (this.r * 2 * (this.rows - 1)) - this.bubbleOffset * (this.rows - 2);
@@ -173,11 +168,6 @@ public class Grid extends GameObject {
         this.evenAdjacentCells.add(new Pair<>(1, 0));       // Abajo derecha
 
         this.bubblesToExplode = bubblesToExplode;
-        if (jsonObject != null && jsonObject.has("score")) {
-            this.score = (int) jsonObject.get("score");
-        } else {
-            this.score = 0;
-        }
         this.greatScore = greatScore;
         this.smallScore = smallScore;
 
@@ -195,8 +185,6 @@ public class Grid extends GameObject {
         this.attachSound = null;
         this.explosionSound = null;
 
-        this.bubbleColors = bubbleColors;
-
         this.scoreText = null;
         this.showGridButton = null;
 
@@ -205,10 +193,41 @@ public class Grid extends GameObject {
         this.currJ = -1;
     }
 
-    public Grid(JSONObject jsonObject, int width, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, int cols, int initRows,
+    public Grid(JSONObject progressJson, int width, int wallThickness, int headerOffset, int r, int bubbleOffset, int rows, int cols, int initRows,
                 int bubblesToExplode, int greatScore, int smallScore, BubbleColors bubbleColors) {
-        this(jsonObject, width, wallThickness, headerOffset, r, bubbleOffset, rows, cols, initRows,
+        this(progressJson, width, wallThickness, headerOffset, r, bubbleOffset, rows, cols, initRows,
                 bubblesToExplode, greatScore, smallScore, bubbleColors, 350f, 60f);
+    }
+
+    private boolean tryToApplyProgress(JSONObject progressJson) {
+        if (progressJson != null) {
+            // Si hay informacion guardada (ya sea del modo normal o modo nivel cargado)
+            if (progressJson.has("grid")) {
+                this.bubbles = convertJSONArrayToMatrix(progressJson.getJSONArray("grid"));
+                int rws = this.bubbles.length;
+
+                for (int i = 0; i < rws; i++) {
+                    // En las filas impares hay una bola menos
+                    int bPerRow = (i % 2 == 0) ? this.cols : (this.cols - 1);
+
+                    // Se generan las burbujas de la fila
+                    for (int j = 0; j < bPerRow; ++j) {
+                        int color = this.bubbles[i][j];
+                        this.bubbleColors.addColor(color);
+                        if (color >= 0 && color < this.bubbleColors.getTotalColors()) {
+                            this.colorCount[color]++;
+                            this.totalBubbles++;
+                        }
+                    }
+                }
+            }
+
+            if (progressJson.has("score")) {
+                this.score = progressJson.getInt("score");
+            }
+            return true;
+        }
+        return false;
     }
 
     private void clearVisited() {

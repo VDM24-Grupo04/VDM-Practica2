@@ -1,6 +1,7 @@
 package com.grupo04.engine;
 
 import com.grupo04.engine.interfaces.ITouchEvent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class Input {
         this.MAX_EVENTS = 10;
         this.oldestEvent = 0;
         this.eventPool = new TouchEvent[this.MAX_EVENTS];
-        for(int i = 0; i < this.MAX_EVENTS; i++) {
+        for (int i = 0; i < this.MAX_EVENTS; i++) {
             this.eventPool[i] = new TouchEvent(ITouchEvent.TouchEventType.NONE, 0, 0);
         }
     }

@@ -1,4 +1,4 @@
-package com.grupo04.gamelogic.gameobjects;
+package com.grupo04.gamelogic.gameobjects.buttons;
 
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.utilities.Callback;

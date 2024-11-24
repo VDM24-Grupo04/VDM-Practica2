@@ -5,36 +5,35 @@ import com.grupo04.engine.utilities.Color;
 import com.grupo04.gamelogic.Scene;
 import com.grupo04.engine.utilities.Vector;
 import com.grupo04.engine.interfaces.ISound;
-import com.grupo04.gamelogic.gameobjects.TextButton;
+import com.grupo04.gamelogic.gameobjects.buttons.TextButton;
 import com.grupo04.gamelogic.gameobjects.Text;
 
-import org.json.JSONObject;
-
 public class GameOverScene extends Scene {
-    private ISound loseSound;
+    private final String TEXT_FONT = "TheMeshroomRegular.ttf";
+    private final Color TEXT_COLOR = new Color(0, 0, 0);
+    private final float TEXT_SIZE = 70;
+    private final float[] TEXT_INDENTING = new float[]{3f, -10f};
+    private final float TEXT_LINE_SPACING = -30f;
+
+    private final String BUTTON_SOUND = "button.wav";
+    private final float BUTTON_WIDTH = 205f;
+    private final float BUTTON_HEIGHT = 55f;
+    private final float BUTTON_ARC = 25f;
+    private final Color BUTTON_BASE_COLOR = new Color(237, 12, 46);
+    private final Color BUTTON_OVER_COLOR = new Color(203, 10, 38);
+    private final String BUTTON_FONT = "kimberley.ttf";
+    private final float BUTTON_OFFSET_Y = 25f;
 
     public GameOverScene(IEngine engine, int levelNumber) {
         super(engine, 400, 600, new Color(255, 255, 255));
-
-        String TEXT_FONT = "TheMeshroomRegular.ttf";
-        Color TEXT_COLOR = new Color(0, 0, 0);
-        float TEXT_SIZE = 70;
-        float[] TEXT_INDENTING = new float[]{3f, -10f};
-        float TEXT_LINE_SPACING = -30f;
-
-        String BUTTON_SOUND = "button.wav";
-        float BUTTON_WIDTH = 205f;
-        float BUTTON_HEIGHT = 55f;
-        float BUTTON_ARC = 25f;
-        Color BUTTON_BASE_COLOR = new Color(237, 12, 46);
-        Color BUTTON_OVER_COLOR = new Color(203, 10, 38);
-        String BUTTON_FONT = "kimberley.ttf";
-        float BUTTON_OFFSET_Y = 25f;
 
         Text title = new Text(new Vector(this.worldWidth / 2f, this.worldHeight / 4f), new String[]{"Game", "Over!"},
                 TEXT_FONT, TEXT_SIZE, false, false, TEXT_COLOR,
                 TEXT_INDENTING, TEXT_LINE_SPACING);
         addGameObject(title);
+
+        // Se reproduce una vez cargado el sonido
+        ISound loseSound = engine.getAudio().newSound("lose.wav", true);
 
         Vector tryAgainButtonPos = new Vector(this.worldWidth / 2f, 4f * this.worldHeight / 6f);
         TextButton tryAgainButton = new TextButton(tryAgainButtonPos,
@@ -45,7 +44,7 @@ public class GameOverScene extends Scene {
                     // acaba la animacion se cambia a la escena de juego
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
-                        this.engine.getAudio().stopSound(this.loseSound);
+                        this.engine.getAudio().stopSound(loseSound);
                         if (this.gameManager != null) {
                             this.gameManager.changeScene(new GameScene(this.engine, null, levelNumber));
                         }
@@ -66,7 +65,7 @@ public class GameOverScene extends Scene {
                     this.setFadeCallback(() -> {
                         TitleScene scene = new TitleScene(this.engine);
                         scene.setFade(Fade.OUT, 0.25);
-                        this.engine.getAudio().stopSound(this.loseSound);
+                        this.engine.getAudio().stopSound(loseSound);
                         if (this.gameManager != null) {
                             this.gameManager.changeScene(scene);
                         }
@@ -75,8 +74,5 @@ public class GameOverScene extends Scene {
         addGameObject(menuButton);
 
         setFade(Fade.OUT, 0.0);
-
-        // Se reproduce una vez cargado el sonido
-        this.loseSound = engine.getAudio().newSound("lose.wav", true);
     }
 }

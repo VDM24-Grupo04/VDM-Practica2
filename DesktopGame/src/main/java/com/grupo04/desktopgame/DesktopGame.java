@@ -40,7 +40,6 @@ public class DesktopGame {
 
         desktopEngine.onResume();
 
-
         // Al cerrar la ventana se realiza una salida adecuada del sistema
         window.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {

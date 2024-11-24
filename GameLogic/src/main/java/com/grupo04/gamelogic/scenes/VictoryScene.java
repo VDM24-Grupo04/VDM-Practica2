@@ -5,33 +5,29 @@ import com.grupo04.engine.utilities.Color;
 import com.grupo04.gamelogic.Scene;
 import com.grupo04.engine.utilities.Vector;
 import com.grupo04.engine.interfaces.ISound;
-import com.grupo04.gamelogic.gameobjects.TextButton;
+import com.grupo04.gamelogic.gameobjects.buttons.TextButton;
 import com.grupo04.gamelogic.gameobjects.Text;
 
-import org.json.JSONObject;
-
 public class VictoryScene extends Scene {
-    private final ISound winSound;
+    private final Color TEXT_COLOR = new Color(0, 0, 0);
+
+    private final String TITLE_FONT = "TheMeshroomRegular.ttf";
+    private final float TITLE_SIZE = 62;
+
+    private final String SCORE_TEXT_FONT = "kimberley.ttf";
+    private final float SCORE_TEXT_SIZE = 40;
+
+    private final String BUTTON_SOUND = "button.wav";
+    private final float BUTTON_WIDTH = 205f;
+    private final float BUTTON_HEIGHT = 55f;
+    private final float BUTTON_ARC = 25f;
+    private final Color BUTTON_BASE_COLOR = new Color(44, 166, 28);
+    private final Color BUTTON_OVER_COLOR = new Color(34, 138, 24);
+    private final String BUTTON_FONT = "kimberley.ttf";
+    private final float BUTTON_OFFSET_Y = 25f;
 
     public VictoryScene(IEngine engine, int score, int levelNumber) {
         super(engine, 400, 600, new Color(255, 255, 255));
-
-        Color TEXT_COLOR = new Color(0, 0, 0);
-
-        String TITLE_FONT = "TheMeshroomRegular.ttf";
-        float TITLE_SIZE = 62;
-
-        String SCORE_TEXT_FONT = "kimberley.ttf";
-        float SCORE_TEXT_SIZE = 40;
-
-        String BUTTON_SOUND = "button.wav";
-        float BUTTON_WIDTH = 205f;
-        float BUTTON_HEIGHT = 55f;
-        float BUTTON_ARC = 25f;
-        Color BUTTON_BASE_COLOR = new Color(44, 166, 28);
-        Color BUTTON_OVER_COLOR = new Color(34, 138, 24);
-        String BUTTON_FONT = "kimberley.ttf";
-        float BUTTON_OFFSET_Y = 25f;
 
         Text title = new Text(new Vector(this.worldWidth / 2f, this.worldHeight / 6f), "Victory!",
                 TITLE_FONT, TITLE_SIZE, false, false, TEXT_COLOR);
@@ -42,7 +38,7 @@ public class VictoryScene extends Scene {
         addGameObject(scoreText);
 
         // Se reproduce una vez cargado el sonido
-        this.winSound = engine.getAudio().newSound("win.wav", true);
+        ISound winSound = engine.getAudio().newSound("win.wav", true);
 
         Vector tryAgainButtonPos = new Vector(this.worldWidth / 2f, 4f * this.worldHeight / 6f);
         TextButton tryAgainButton = new TextButton(tryAgainButtonPos,
@@ -53,9 +49,9 @@ public class VictoryScene extends Scene {
                     // acaba la animacion se cambia a la escena de juego
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
-                        this.engine.getAudio().stopSound(this.winSound);
+                        this.engine.getAudio().stopSound(winSound);
                         if (this.gameManager != null) {
-                            this.gameManager.changeScene(new GameScene(this.engine, null, levelNumber));
+                            this.gameManager.changeToGameScene(levelNumber);
                         }
                     });
                 });
@@ -74,7 +70,7 @@ public class VictoryScene extends Scene {
                     this.setFadeCallback(() -> {
                         TitleScene scene = new TitleScene(this.engine);
                         scene.setFade(Fade.OUT, 0.25);
-                        this.engine.getAudio().stopSound(this.winSound);
+                        this.engine.getAudio().stopSound(winSound);
                         if (this.gameManager != null) {
                             this.gameManager.changeScene(scene);
                         }

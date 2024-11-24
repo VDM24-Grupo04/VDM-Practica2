@@ -36,7 +36,9 @@ public class DesktopSound extends Sound {
         }
     }
 
-    public void addClip(DesktopAudio.ClipEntry clipEntry) { this.clips.add(clipEntry); }
+    public void addClip(DesktopAudio.ClipEntry clipEntry) {
+        this.clips.add(clipEntry);
+    }
 
     @Override
     protected void play() {

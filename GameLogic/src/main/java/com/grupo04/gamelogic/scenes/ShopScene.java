@@ -7,8 +7,8 @@ import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.Scene;
-import com.grupo04.gamelogic.gameobjects.ImageButton;
-import com.grupo04.gamelogic.gameobjects.ShopItem;
+import com.grupo04.gamelogic.gameobjects.buttons.ImageButton;
+import com.grupo04.gamelogic.gameobjects.shopItems.ShopItem;
 import com.grupo04.gamelogic.gameobjects.Text;
 import com.grupo04.gamelogic.gameobjects.shopItems.ShopBallSkin;
 import com.grupo04.gamelogic.gameobjects.shopItems.ShopBgColor;
@@ -26,18 +26,18 @@ public class ShopScene extends Scene {
     private final String BUTTON_SOUND = "button.wav";
     private final String FONT_NAME = "kimberley.ttf";
     private final int HEADER_SIZE = 40, HEADER_OFFSET = 20, FONT_SIZE = 20;
-    private Color TEXT_COLOR = new Color(0, 0, 0);
+    private final Color TEXT_COLOR = new Color(0, 0, 0);
+    private final float COINS_IMAGE_SIZE = HEADER_SIZE * 0.6f;
+    private final Color SELECTED_COLOR = new Color(0, 255, 0);
+    private final int ITEMS_PER_ROW = 4, ITEM_OFFSET = 10;
 
-    IImage coinImg;
+    private IImage coinImg;
     private IFont headerCoinsFont;
     private Vector headerCoinsTextPos;
     private Vector headerCoinsImgPos;
-    private final float COINS_IMAGE_SIZE = HEADER_SIZE * 0.6f;
 
     private IFont pricesFont;
     private float itemSize;
-    private final int ITEMS_PER_ROW = 4, ITEM_OFFSET = 10;
-    private Color SELECTED_COLOR = new Color(0, 255, 0);
     private int coinsImageSize = this.FONT_SIZE;
 
     private HashMap<String, ShopItem> items;
@@ -103,14 +103,12 @@ public class ShopScene extends Scene {
     public void dereference() {
         super.dereference();
 
-        this.TEXT_COLOR = null;
         this.coinImg = null;
         this.headerCoinsFont = null;
         this.headerCoinsTextPos = null;
         this.headerCoinsImgPos = null;
 
         this.pricesFont = null;
-        SELECTED_COLOR = null;
         items.clear();
     }
 
@@ -194,8 +192,7 @@ public class ShopScene extends Scene {
             // Anade el objeto al mapa de objetos y el color a la lista de colores
             addItem(key, color);
             colors.add(color);
-        }
-        else {
+        } else {
             System.out.println("Color out of valid range");
         }
     }

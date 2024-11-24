@@ -1,6 +1,5 @@
 package com.grupo04.gamelogic.scenes;
 
-import static com.grupo04.engine.utilities.JSONConverter.convertLinkedListToJSONArray;
 import static com.grupo04.engine.utilities.JSONConverter.convertMatrixToJSONArray;
 
 import com.grupo04.gamelogic.GameManager;
@@ -11,48 +10,46 @@ import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.BubbleColors;
 import com.grupo04.gamelogic.gameobjects.CurrentBubble;
 import com.grupo04.gamelogic.gameobjects.Grid;
-import com.grupo04.gamelogic.gameobjects.ImageButton;
-import com.grupo04.gamelogic.gameobjects.ImageToggleButton;
+import com.grupo04.gamelogic.gameobjects.buttons.ImageButton;
+import com.grupo04.gamelogic.gameobjects.buttons.ImageToggleButton;
 import com.grupo04.gamelogic.gameobjects.Text;
 import com.grupo04.gamelogic.gameobjects.Walls;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.LinkedList;
-
 public class GameScene extends Scene {
+    private final int n_COLS = 10;
+    private final int INIT_ROWS = 5;
+    private final int HEADER_WIDTH = 50;
+    private final int WALL_THICKNESS = 20;
+
+    private final int BUBBLES_TO_EXPLODE = 3;
+    private final int GREAT_SCORE = 10;
+    private final int SMALL_SCORE = 5;
+
+    private final String BUTTON_SOUND = "button.wav";
+    private final int SIDE_BUTTONS_PADDING = 10;
+    private final int SIDE_BUTTONS_SIZE = 40;
+
+    private final String MENU_BUTTON_IMG = "close.png";
+
+    private final String SHOW_GRID_BUTTON_UNCHECKED_IMG = "hex_empty.png";
+    private final String SHOW_GRID_BUTTON_CHECKED_IMG = "hex_full.png";
+
+    private final Color TEXT_COLOR = new Color(0, 0, 0);
+    private final String SCORE_TEXT_FONT = "kimberley.ttf";
+    private final float SCORE_TEXT_SIZE = 35;
+
     private final int levelNumber;
     private final JSONObject jsonObject;
     private final Grid grid;
     private final CurrentBubble currentBubble;
     boolean checkEnded;
 
-    public GameScene(IEngine engine, JSONObject jsonObject, int levelNumber) {
+    public GameScene(IEngine engine, JSONObject progressJson, int levelNumber) {
         super(engine, 400, 600, "background.jpg");
-        int n_COLS = 10;
-        int INIT_ROWS = 5;
-        int HEADER_WIDTH = 50;
-        int WALL_THICKNESS = 20;
 
-        int BUBBLES_TO_EXPLODE = 3;
-        int GREAT_SCORE = 10;
-        int SMALL_SCORE = 5;
-
-        String BUTTON_SOUND = "button.wav";
-        int SIDE_BUTTONS_PADDING = 10;
-        int SIDE_BUTTONS_SIZE = 40;
-
-        String MENU_BUTTON_IMG = "close.png";
-
-        String SHOW_GRID_BUTTON_UNCHECKED_IMG = "hex_empty.png";
-        String SHOW_GRID_BUTTON_CHECKED_IMG = "hex_full.png";
-
-        Color TEXT_COLOR = new Color(0, 0, 0);
-        String SCORE_TEXT_FONT = "kimberley.ttf";
-        float SCORE_TEXT_SIZE = 35;
-
-        this.jsonObject = jsonObject;
+        this.jsonObject = progressJson;
         this.levelNumber = levelNumber;
 
         this.checkEnded = true;
@@ -105,11 +102,11 @@ public class GameScene extends Scene {
         Walls walls = new Walls(WALL_THICKNESS, HEADER_WIDTH, this.worldWidth, this.worldHeight);
         addGameObject(walls);
 
-        this.grid = new Grid(jsonObject, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH, (int) r, bubbleOffset, rows, n_COLS,
+        this.grid = new Grid(progressJson, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH, (int) r, bubbleOffset, rows, n_COLS,
                 INIT_ROWS, BUBBLES_TO_EXPLODE, GREAT_SCORE, SMALL_SCORE, bubbleColors);
         addGameObject(grid, "grid");
 
-        this.currentBubble = new CurrentBubble(jsonObject, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH,
+        this.currentBubble = new CurrentBubble(progressJson, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH,
                 (int) r, bubbleOffset, rows, bubbleColors);
         addGameObject(currentBubble);
     }
@@ -168,11 +165,6 @@ public class GameScene extends Scene {
 
         // Si es el modo de juego rapido
         if (this.levelNumber == 0) {
-            //this.gameManager.setQuickPlayGrid(this.grid.getBubbles());
-            //this.gameManager.setQuickPlayBubbleColor(this.currentBubble.getColor());
-            //this.gameManager.setQuickPlayScore(this.grid.getScore());
-            // JSONObject quickPlayJsonObject = new JSONObject();
-
             jsonObject.put("grid", convertMatrixToJSONArray(this.grid.getBubbles()));
             jsonObject.put("color", this.currentBubble.getColor());
             jsonObject.put("score", this.grid.getScore());
@@ -180,16 +172,11 @@ public class GameScene extends Scene {
         }
         // Si es un nivel del modo aventura
         else {
-            //this.gameManager.setLastLevel(this.id);
-            //this.gameManager.setAdventureGrid(this.grid.getBubbles());
-            //this.gameManager.setAdventureBubbleColors(this.currentBubble.getAdventureModeColors());
-            //this.gameManager.setAdventureScore(this.grid.getScore());
-            // JSONObject adventureJsonObject = new JSONObject();
             jsonObject.put("levelNumber", this.levelNumber);
             jsonObject.put("grid", convertMatrixToJSONArray(this.grid.getBubbles()));
             /*
-            LinkedList<Integer> aux = this.currentBubble.getAdventureModeColors();
-            JSONArray array = convertLinkedListToJSONArray(aux);
+            LinkedList<Integer> listAux = this.currentBubble.getAdventureModeColors();
+            JSONArray arrAux = convertLinkedListToJSONArray(aux);
             jsonObject.put("colors", array);
             */
             jsonObject.put("score", this.grid.getScore());

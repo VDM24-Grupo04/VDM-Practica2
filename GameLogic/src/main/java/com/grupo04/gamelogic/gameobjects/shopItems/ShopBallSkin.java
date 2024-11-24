@@ -3,9 +3,7 @@ package com.grupo04.gamelogic.gameobjects.shopItems;
 import com.grupo04.engine.interfaces.IFont;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
-import com.grupo04.engine.utilities.Callback;
 import com.grupo04.engine.utilities.Color;
-import com.grupo04.gamelogic.gameobjects.ShopItem;
 
 public class ShopBallSkin extends ShopItem {
     private IImage image;
