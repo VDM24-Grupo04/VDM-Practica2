@@ -3,6 +3,7 @@ package com.grupo04.engine;
 import com.grupo04.engine.interfaces.IAudio;
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IGraphics;
+import com.grupo04.engine.interfaces.IMobile;
 import com.grupo04.engine.interfaces.IScene;
 import com.grupo04.engine.interfaces.ITouchEvent;
 import com.grupo04.engine.utilities.Vector;
@@ -33,6 +34,7 @@ public abstract class Engine implements IEngine, Runnable {
     private Graphics graphics;
     private Audio audio;
     private Input input;
+    private IMobile mobile;
 
     private IScene scene;
 
@@ -45,10 +47,11 @@ public abstract class Engine implements IEngine, Runnable {
         this.scene = null;
     }
 
-    protected void initModules(Graphics graphics, Audio audio, Input input) {
+    protected void initModules(Graphics graphics, Audio audio, Input input, IMobile mobile) {
         this.graphics = graphics;
         this.audio = audio;
         this.input = input;
+        this.mobile = mobile;
     }
 
     private void handleInput() {
@@ -206,6 +209,9 @@ public abstract class Engine implements IEngine, Runnable {
     public IAudio getAudio() {
         return this.audio;
     }
+
+    @Override
+    public IMobile getMobile() { return this.mobile; }
 
     @Override
     public void writeFile(FileOutputStream file, JSONObject info) {

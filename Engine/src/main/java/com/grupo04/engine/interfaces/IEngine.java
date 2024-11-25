@@ -11,6 +11,7 @@ public interface IEngine {
     void setScene(IScene scene);
     IGraphics getGraphics();
     IAudio getAudio();
+    IMobile getMobile();
 
     InputStream getFileInputStream(String fileName, FileType type);
     FileOutputStream getFileOutputStream(String fileName);

@@ -18,7 +18,7 @@ public class TitleScene extends Scene {
 
     private final String BUTTON_SOUND = "button.wav";
     private final float BUTTON_WIDTH = 205f;
-    private final float BUTTON_HEIGHT = 55f;
+    private final float BUTTON_HEIGHT = 52f;
     private final float BUTTON_ARC = 25f;
     private final Color BUTTON_BASE_COLOR = new Color(252, 228, 5);
     private final Color BUTTON_OVER_COLOR = new Color(226, 205, 5);
@@ -40,7 +40,7 @@ public class TitleScene extends Scene {
         // Boton del modo aventura
         TextButton adventure = new TextButton(new Vector(this.worldWidth / 2f, 2.5f * this.worldHeight / 5f),
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BUTTON_BASE_COLOR, BUTTON_OVER_COLOR,
-                "Aventura", BUTTON_FONT, BUTTON_SOUND,
+                "Adventure", BUTTON_FONT, BUTTON_SOUND,
                 () -> {
                     // Al pulsar el boton se hace un fade in y cuando
                     // acaba la animacion se cambia a la escena de juego
@@ -55,9 +55,9 @@ public class TitleScene extends Scene {
         addGameObject(adventure);
 
         // Boton del modo juego rapido
-        TextButton quickPlay = new TextButton(new Vector(this.worldWidth / 2f, 3.2f * this.worldHeight / 5f),
+        TextButton quickPlay = new TextButton(new Vector(this.worldWidth / 2f, 3f * this.worldHeight / 5f),
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BUTTON_BASE_COLOR, BUTTON_OVER_COLOR,
-                "Juego rápido", BUTTON_FONT, BUTTON_SOUND,
+                "Quick play", BUTTON_FONT, BUTTON_SOUND,
                 () -> {
                     // Al pulsar el boton se hace un fade in y cuando
                     // acaba la animacion se cambia a la escena de juego
@@ -71,9 +71,9 @@ public class TitleScene extends Scene {
         addGameObject(quickPlay);
 
         // Boton de la tienda
-        TextButton shop = new TextButton(new Vector(this.worldWidth / 2f, 3.9f * this.worldHeight / 5f),
+        TextButton shop = new TextButton(new Vector(this.worldWidth / 2f, 3.8f * this.worldHeight / 5f),
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, SHOP_BUTTON_BASE_COLOR, SHOP_BUTTON_OVER_COLOR,
-                "Tienda", BUTTON_FONT, SHOP_FONT_COLOR, true, BUTTON_SOUND,
+                "Shop", BUTTON_FONT, SHOP_FONT_COLOR, true, BUTTON_SOUND,
                 () -> {
                     // Al pulsar el boton se hace un fade in y cuando
                     // acaba la animacion se cambia a la escena de juego

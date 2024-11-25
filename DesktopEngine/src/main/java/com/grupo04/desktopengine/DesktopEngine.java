@@ -40,7 +40,7 @@ public class DesktopEngine extends Engine {
         DesktopGraphics desktopGraphics = new DesktopGraphics(window, graphics2D, bufferStrategy);
         this.desktopAudio = new DesktopAudio(maxStreams);
         DesktopInput desktopInput = new DesktopInput(window, this);
-        this.initModules(desktopGraphics, this.desktopAudio, desktopInput);
+        this.initModules(desktopGraphics, this.desktopAudio, desktopInput, null);
     }
 
     // Cierra todos los clips que estuvieran abiertos cuando se cierra el juego en Desktop
@@ -77,8 +77,7 @@ public class DesktopEngine extends Engine {
         File file = new File(System.getProperty("user.home") + File.separator + "Documents" + File.separator + fileName);
         try {
             return new FileOutputStream(file);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.err.println("Error while getting FileOutputStream from: " + file.getPath() + ": " + e.getMessage());
         }
         return null;

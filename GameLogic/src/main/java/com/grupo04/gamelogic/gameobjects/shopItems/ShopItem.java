@@ -154,7 +154,7 @@ public abstract class ShopItem extends Button {
                             // compra el objeto, cambia el numero de monedas
                             if (this.gameManager.getCoins() - this.price >= 0) {
                                 this.bought = true;
-                                this.gameManager.setCoins(this.gameManager.getCoins() - this.price);
+                                this.gameManager.decreaseCoins(this.price);
                             }
                         }
                     }

@@ -7,6 +7,7 @@ import android.view.SurfaceView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.ads.AdView;
 import com.grupo04.androidengine.AndroidEngine;
 import com.grupo04.gamelogic.GameManager;
 
@@ -18,15 +19,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.activity_main);
+
+        SurfaceView window = findViewById(R.id.SurfaceView);
         // Se encarga de cargar los assets
         AssetManager assetManager = this.getAssets();
-
-        // Creamos el SurfaceView que "contendrá" nuestra escena
-        SurfaceView window = new SurfaceView(this);
-        setContentView(window);
+        AdView adView = findViewById(R.id.AdView);
 
         // Creacion del motor
-        this.androidEngine = new AndroidEngine(window, assetManager, this, 5);
+        this.androidEngine = new AndroidEngine(this, window, assetManager, adView, 5);
 
         // Creacion de la escena
         String fileName = "game.json";

@@ -1,13 +1,11 @@
 package com.grupo04.gamelogic;
 
 import com.grupo04.engine.interfaces.IEngine;
-import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
-import com.grupo04.engine.interfaces.IScene;
-import com.grupo04.engine.interfaces.ITouchEvent;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.gamelogic.scenes.GameScene;
 import com.grupo04.gamelogic.scenes.TitleScene;
+import com.grupo04.gamelogic.scenes.VictoryScene;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,13 +19,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Stack;
 
-public class GameManager implements IScene {
-    // Escenas
-    private final IEngine engine;
-    private final Stack<Scene> scenes;
-    private final Stack<Scene> aliveScenes;
+public class GameManager extends SceneManager {
+    private final String ADVENTURE_KEY = "adventure";
+    private final String QUICK_PLAY_KEY = "quickPlay";
+    private final String COINS_KEY = "coins";
+    private final String SHOP_KEY = "shop";
 
     // Progresion del juego
     private final String progressFileName;
@@ -43,16 +40,9 @@ public class GameManager implements IScene {
     private IImage[] activeSkins;
 
     public GameManager(IEngine engine, String fileName, String shopFileName) {
-        this.engine = engine;
-        this.scenes = new Stack<>();
-        this.aliveScenes = new Stack<>();
-
+        super(engine);
         this.progressFileName = fileName;
         this.progressJsonObject = new JSONObject();
-        this.progressJsonObject.put("coins", 0);
-        this.progressJsonObject.put("shop", new JSONObject());
-        this.progressJsonObject.put("quickPlay", new JSONObject());
-        this.progressJsonObject.put("adventure", new JSONObject());
 
         this.shopFileName = shopFileName;
 
@@ -65,35 +55,52 @@ public class GameManager implements IScene {
     }
 
     @Override
+    protected void initNewScene(Scene newScene) {
+        newScene.setGameManager(this);
+        super.initNewScene(newScene);
+    }
+
+    private JSONObject getProgressJsonObject(String key) {
+        if (this.progressJsonObject.has(key)) {
+            JSONObject json = this.progressJsonObject.getJSONObject(key);
+            // Se hace de esta forma y no con .isEmpty() porque este metodo
+            // produce un error en Android
+            Iterator<String> aux = json.keys();
+            if (!aux.hasNext()) {
+                return null;
+            } else {
+                return json;
+            }
+        }
+        return null;
+    }
+
+    private <T> void tryToCreateProgressProperty(String key, T defaultValue) {
+        if (!this.progressJsonObject.has(key)) {
+            this.progressJsonObject.put(key, defaultValue);
+        }
+    }
+
+    private void readShop(JSONObject shopJson) {
+        // Obtiene el array de objetos
+        JSONArray objects = (JSONArray) shopJson.get("items");
+        // Si el array de objetos es valido
+        if (objects != null) {
+            // Recorre todos los objetos y los anade a la tienda
+            for (int i = 0; i < objects.length(); i++) {
+                JSONObject obj = objects.getJSONObject(i);
+                String id = (String) obj.get("id");
+                this.shopItemsByKey.put(id, obj);
+                this.shopItemsKeys.add(id);
+            }
+        }
+    }
+
+    @Override
     public void init() {
         readInfo();
         applyShopProgress();
         pushScene(new TitleScene(this.engine));
-    }
-
-    public void popScene() {
-        if (!this.scenes.empty()) {
-            this.scenes.peek().setAlive(false);
-        }
-    }
-
-    public void pushScene(Scene newScene) {
-        this.scenes.push(newScene);
-        newScene.setGameManager(this);
-        newScene.init();
-    }
-
-    public void changeScene(Scene newScene) {
-        if (!this.scenes.empty()) {
-            // Si la escena que se quiere insertar no es la misma que la activa...
-            if (this.scenes.peek() != newScene) {
-                this.scenes.peek().setAlive(false);
-                // Se inserta la nueva escena
-                this.scenes.push(newScene);
-                newScene.setGameManager(this);
-                newScene.init();
-            }
-        }
     }
 
     public void changeToGameScene(int levelNumber) {
@@ -104,86 +111,19 @@ public class GameManager implements IScene {
             this.setQuickPlayJsonObject(new JSONObject());
         } else {
             json = this.getAdventureJSONObj();
-            if(json != null) {
-            int levelNumJson = json.getInt("levelNumber");
-            this.setAdventureJsonObject(new JSONObject());
-                if (levelNumber != levelNumJson) {
+            if (json != null) {
+                int levelNumJson = json.getInt("levelNumber");
+                if (levelNumber == levelNumJson) {
+                    this.setAdventureJsonObject(new JSONObject());
+                } else {
                     // TODO: Setear json con el nivel entero
                 }
-            }
-            else {
+            } else {
                 // TODO: Setear json con el nivel entero
             }
         }
         this.changeScene(new GameScene(this.engine, json, levelNumber));
     }
-
-    @Override
-    public void handleInput(List<ITouchEvent> touchEvents) {
-        if (!this.scenes.empty()) {
-            this.scenes.peek().handleInput(touchEvents);
-        }
-    }
-
-    @Override
-    public void update(double deltaTime) {
-        if (!this.scenes.empty()) {
-            this.scenes.peek().update(deltaTime);
-        }
-    }
-
-    @Override
-    public void fixedUpdate(double fixedDeltaTime) {
-        if (!this.scenes.empty()) {
-            this.scenes.peek().fixedUpdate(fixedDeltaTime);
-        }
-    }
-
-    @Override
-    public void render(IGraphics graphics) {
-        if (!this.scenes.empty()) {
-            this.scenes.peek().render(graphics);
-        }
-    }
-
-    @Override
-    public void refresh() {
-        if (!this.scenes.empty()) {
-            this.scenes.peek().refresh();
-
-            boolean hasDeadScenes = false;
-
-            while (!this.scenes.empty()) {
-                Scene scene = this.scenes.peek();
-                if (!scene.isAlive()) {
-                    // Cada vez que se vaya a quitar una escena de la pila
-                    // se llama a su shutdown para asignar los valores a medias
-                    // en caso de ser GameScene o ShopScene
-                    // scene.shutdown();
-                    scene.dereference();
-                    hasDeadScenes = true;
-                } else {
-                    this.aliveScenes.push(scene);
-                }
-                this.scenes.pop();
-            }
-
-            while (!this.aliveScenes.empty()) {
-                Scene scene = this.aliveScenes.peek();
-                this.scenes.push(scene);
-                this.aliveScenes.pop();
-            }
-
-            // Si se ha eliminado una escena, quiere decir que se vuelve a la anterior y, por lo tanto,
-            // hay que actualizar el tam del mundo
-            if (!this.scenes.empty() && hasDeadScenes) {
-                this.aliveScenes.clear();
-                Scene currentScene = this.scenes.peek();
-                this.engine.setWorldSize(currentScene.getWorldWidth(), currentScene.getWorldHeight());
-            }
-        }
-    }
-
 
     public void readInfo() {
         InputStream progressFile = this.engine.getFileInputStream(this.progressFileName, IEngine.FileType.PROGRESS_DATA);
@@ -191,22 +131,15 @@ public class GameManager implements IScene {
         if (json != null) {
             this.progressJsonObject = json;
         }
+        this.tryToCreateProgressProperty(COINS_KEY, 0);
+        this.tryToCreateProgressProperty(SHOP_KEY, new JSONObject());
+        this.tryToCreateProgressProperty(QUICK_PLAY_KEY, new JSONObject());
+        this.tryToCreateProgressProperty(ADVENTURE_KEY, new JSONObject());
 
         InputStream shopFile = this.engine.getFileInputStream(this.shopFileName, IEngine.FileType.GAME_DATA);
-        JSONObject shopJsonObj = this.engine.readFile(shopFile);
-        if (shopJsonObj != null) {
-            // Obtiene el array de objetos
-            JSONArray objects = (JSONArray) shopJsonObj.get("items");
-            // Si el array de objetos es valido
-            if (objects != null) {
-                // Recorre todos los objetos y los anade a la tienda
-                for (int i = 0; i < objects.length(); i++) {
-                    JSONObject obj = objects.getJSONObject(i);
-                    String id = (String) obj.get("id");
-                    this.shopItemsByKey.put(id, obj);
-                    this.shopItemsKeys.add(id);
-                }
-            }
+        JSONObject shopJson = this.engine.readFile(shopFile);
+        if (shopJson != null) {
+            readShop(shopJson);
         }
     }
 
@@ -222,6 +155,7 @@ public class GameManager implements IScene {
 
     @Override
     public void shutdown() {
+        super.shutdown();
         for (Scene scene : this.scenes) {
             // De normal debería haber solo una escena en la pila de escenas
             // pero si hay mas, se deberia considerar recorrerla de principio a fin
@@ -255,12 +189,10 @@ public class GameManager implements IScene {
                             try {
                                 if (Objects.equals((String) shopItem.get("type"), "bgColor")) {
                                     this.bgColor = new Color((int) shopItem.get("r"), (int) shopItem.get("g"), (int) shopItem.get("b"), (int) shopItem.get("a"));
-                                }
-                                else if (Objects.equals((String) shopItem.get("type"), "ballSkin")) {
+                                } else if (Objects.equals((String) shopItem.get("type"), "ballSkin")) {
                                     setBallSkin((int) shopItem.get("colorId"), engine.getGraphics().newImage((String) shopItem.get("path")));
                                 }
-                            }
-                            catch (JSONException e) {
+                            } catch (JSONException e) {
                                 System.out.println("Error while trying to apply active item: " + e.getMessage());
                             }
                         }
@@ -270,36 +202,72 @@ public class GameManager implements IScene {
         }
     }
 
-    private JSONObject getProgressJsonObject(String key) {
-        if (this.progressJsonObject.has(key)) {
-            JSONObject json = this.progressJsonObject.getJSONObject(key);
-            Iterator<String> aux = json.keys();
-            if (!aux.hasNext()) {
-                return null;
-            } else {
-                return json;
-            }
-        }
-        return null;
+    public void setAdventureJsonObject(JSONObject adventureJsonObject) {
+        this.progressJsonObject.put("adventure", adventureJsonObject);
     }
 
-    public void setAdventureJsonObject(JSONObject adventureJsonObject) { this.progressJsonObject.put("adventure", adventureJsonObject); }
-    public JSONObject getAdventureJSONObj() { return getProgressJsonObject("adventure"); }
+    public JSONObject getAdventureJSONObj() {
+        return getProgressJsonObject("adventure");
+    }
 
-    public void setQuickPlayJsonObject(JSONObject quickPlayJsonObject) { this.progressJsonObject.put("quickPlay", quickPlayJsonObject); }
-    public JSONObject getQuickPlayJSONObj() { return getProgressJsonObject("quickPlay"); }
+    public void setQuickPlayJsonObject(JSONObject quickPlayJsonObject) {
+        this.progressJsonObject.put("quickPlay", quickPlayJsonObject);
+    }
 
-    public void setCoins(int coins) { this.progressJsonObject.put("coins", coins); }
-    public int getCoins() { return this.progressJsonObject.getInt("coins"); }
+    public JSONObject getQuickPlayJSONObj() {
+        return getProgressJsonObject("quickPlay");
+    }
 
-    public List<String> getShopItemsKeys() { return this.shopItemsKeys; }
-    public HashMap<String, JSONObject> getShopItemsByKey() { return this.shopItemsByKey; }
-    public JSONObject getSavedShopJsonObject() { return getProgressJsonObject("shop"); }
-    public void setSavedShopJsonObject(JSONObject obj) { this.progressJsonObject.put("shop", obj); }
+    public void increaseCoins(int coins) {
+        int currCoins = getCoins();
+        currCoins += coins;
+        this.progressJsonObject.put(COINS_KEY, currCoins);
+    }
 
-    public void setBgColor(Color c) { this.bgColor = c; }
-    public Color getBgColor() { return this.bgColor; }
+    public void decreaseCoins(int coins) {
+        int currCoins = getCoins();
+        currCoins -= coins;
+        currCoins = Math.max(currCoins, 0);
+        this.progressJsonObject.put(COINS_KEY, currCoins);
+    }
 
-    public void setBallSkin(int i, IImage img) { activeSkins[i] = img; }
-    public IImage getBallSkin(int i) { return activeSkins[i]; }
+    public int getCoins() {
+        if (this.progressJsonObject.has(COINS_KEY)) {
+            return this.progressJsonObject.getInt(COINS_KEY);
+        }
+        return 0;
+    }
+
+    // Metodos tienda
+    public List<String> getShopItemsKeys() {
+        return this.shopItemsKeys;
+    }
+
+    public HashMap<String, JSONObject> getShopItemsByKey() {
+        return this.shopItemsByKey;
+    }
+
+    public JSONObject getSavedShopJsonObject() {
+        return getProgressJsonObject("shop");
+    }
+
+    public void setSavedShopJsonObject(JSONObject obj) {
+        this.progressJsonObject.put("shop", obj);
+    }
+
+    public void setBgColor(Color c) {
+        this.bgColor = c;
+    }
+
+    public Color getBgColor() {
+        return this.bgColor;
+    }
+
+    public void setBallSkin(int i, IImage img) {
+        activeSkins[i] = img;
+    }
+
+    public IImage getBallSkin(int i) {
+        return activeSkins[i];
+    }
 }

@@ -37,7 +37,7 @@ public class Text extends GameObject {
     // Calcular la posicion de cada linea de texto
     private Vector textPos;
 
-    private boolean paramsToBeCalculated;
+    private boolean hasCalculateParams;
     private IGraphics graphics;
 
     private void calculateParams() {
@@ -76,7 +76,7 @@ public class Text extends GameObject {
         this.fullHeight = 0f;
         this.textPos = new Vector();
 
-        this.paramsToBeCalculated = true;
+        this.hasCalculateParams = true;
         this.graphics = null;
     }
 
@@ -125,9 +125,9 @@ public class Text extends GameObject {
 
     @Override
     public void render(IGraphics graphics) {
-        if (this.paramsToBeCalculated) {
+        if (this.hasCalculateParams) {
             calculateParams();
-            this.paramsToBeCalculated = false;
+            this.hasCalculateParams = false;
         }
 
         graphics.setColor(this.color);
@@ -160,7 +160,7 @@ public class Text extends GameObject {
 
     public void setTextLine(String text, int line) {
         this.texts[line] = text;
-        this.paramsToBeCalculated = true;
+        this.hasCalculateParams = true;
     }
 
     public void setTextLine(String text) {
