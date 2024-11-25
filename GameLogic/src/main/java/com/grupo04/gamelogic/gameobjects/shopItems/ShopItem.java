@@ -178,8 +178,10 @@ public abstract class ShopItem extends Button {
     }
 
     public void setBought(boolean bought) { this.bought = bought; }
-    public void setSelected(boolean selected) { this.selected = selected; }
+    public boolean getBought() { return this.bought; }
 
+    public void setSelected(boolean selected) { this.selected = selected; }
+    public boolean getSelected() { return this.selected; }
     public void select() {
         setSelected(true);
         this.onSelect.call();

@@ -13,7 +13,7 @@ import com.grupo04.gamelogic.gameobjects.Text;
 import com.grupo04.gamelogic.gameobjects.shopItems.ShopBallSkin;
 import com.grupo04.gamelogic.gameobjects.shopItems.ShopBgColor;
 
-import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -72,21 +72,6 @@ public class ShopScene extends Scene {
         // Al iniciar la escena se hace un fade out
         setFade(Fade.OUT, 0.25);
 
-        // TEST
-        this.gameManager.setCoins(300);
-//        addBgColor("test1", 244, 20, 2, 255);
-//        addBgColor("test2", 123, 67, 222, 255);
-//        addBgColor("test3", 31, 64, 64, 255);
-//        addBgColor("test4", 235, 122, 0, 255);
-//        addBgColor("test5", 123, 67, 222, 255);
-//        addBgColor("test6", 244, 20, 2, 255);
-//        addBgColor("test7", 235, 122, 0, 255);
-//        addBgColor("test8", 31, 64, 64, 255);
-//
-//        addBallSkin("img0","emotiguy0.png", 0);
-//        addBallSkin("img1","emotiguy1.png", 1);
-//        addBallSkin("img2","emotiguy2.png", 2);
-//        addBallSkin("img3","emotiguy3.png", 3);
     }
 
     @Override
@@ -101,6 +86,8 @@ public class ShopScene extends Scene {
 
     @Override
     public void dereference() {
+        saveJson();
+
         super.dereference();
 
         this.coinImg = null;
@@ -114,8 +101,27 @@ public class ShopScene extends Scene {
 
     @Override
     public void saveJson() {
-        // o llamarlo cada vez que se gastan monedas
-//        this.gameManager.setCoins(this.coins);
+        JSONObject savedItems = gameManager.getSavedShopJsonObject();
+        if (savedItems == null) {
+           savedItems = new JSONObject();
+        }
+        // Recorre todas las keys de los objetos de la tienda
+        for (String key : items.keySet()) {
+            ShopItem item = items.get(key);
+
+            // Se crea un JsonObject en el que guardar los atributos del objeto
+            JSONObject savedItem = new JSONObject();
+
+            // Si el objeto esta comprado, se guarda que esta comprado y si esta activado
+            // (Solo se guardan objetos comprados)
+            if (item.getBought()) {
+                savedItem.put("bought", true);
+                savedItem.put("active", item.getSelected());
+                savedItems.put(key, savedItem);
+            }
+        }
+
+        gameManager.setSavedShopJsonObject(savedItems);
     }
 
 
@@ -205,25 +211,22 @@ public class ShopScene extends Scene {
     }
 
     private void readItems() {
-        JSONObject allItems = gameManager.getShopJsonObject();
+        List<String> itemsKeys =  gameManager.getShopItemsKeys();
+        HashMap<String, JSONObject> itemsByKey = gameManager.getShopItemsByKey();
         JSONObject savedItems = gameManager.getSavedShopJsonObject();
 
-        // Si se ha leido el archivo de la tienda y hay progreso de la tienda guardado
-        if (allItems != null) {
-            // Obtiene el array de objetos
-            JSONArray objects = (JSONArray) allItems.get("items");
-
-            // Si el array de objetos es valido
-            if (objects != null) {
-                // Recorre todos los objetos y los anade a la tienda
-                for (int i = 0; i < objects.length(); i++) {
-                    JSONObject obj = objects.getJSONObject(i);
-                    if (Objects.equals((String) obj.get("type"), "bgColor")) {
-                        addBgColor((String) obj.get("id"), (int) obj.get("r"), (int) obj.get("g"), (int) obj.get("b"), (int) obj.get("a"));
-                    } else if (Objects.equals((String) obj.get("type"), "ballSkin")) {
-                        addBallSkin((String) obj.get("id"), (String) obj.get("path"), (int) obj.get("colorId"));
-                    }
+        // Recorre (en orden) todas las keys de los objetos leidos y los anade a la tienda segun su tipo
+        for(String key : itemsKeys) {
+            JSONObject obj = itemsByKey.get(key);
+            try {
+                if (Objects.equals((String) obj.get("type"), "bgColor")) {
+                    addBgColor((String) obj.get("id"), (int) obj.get("r"), (int) obj.get("g"), (int) obj.get("b"), (int) obj.get("a"));
+                } else if (Objects.equals((String) obj.get("type"), "ballSkin")) {
+                    addBallSkin((String) obj.get("id"), (String) obj.get("path"), (int) obj.get("colorId"));
                 }
+            }
+            catch (JSONException e) {
+                System.out.println("Error while trying to add item to shop: " + e.getMessage());
             }
         }
 

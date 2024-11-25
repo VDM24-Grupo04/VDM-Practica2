@@ -9,14 +9,18 @@ import com.grupo04.engine.utilities.Color;
 import com.grupo04.gamelogic.scenes.GameScene;
 import com.grupo04.gamelogic.scenes.TitleScene;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Stack;
 
 public class GameManager implements IScene {
@@ -31,7 +35,8 @@ public class GameManager implements IScene {
 
     // Tienda dirigida por datos
     private final String shopFileName;
-    private JSONObject shopJsonObject;
+    private List<String> shopItemsKeys;
+    private HashMap<String, JSONObject> shopItemsByKey;
 
     // Cosmeticos
     private Color bgColor;
@@ -52,59 +57,11 @@ public class GameManager implements IScene {
         this.shopFileName = shopFileName;
 
         // Inicializar cosmeticos
+        shopItemsKeys = new ArrayList<>();
+        shopItemsByKey = new HashMap<>();
         bgColor = null;
         activeSkins = new IImage[BubbleColors.getTotalColors()];
         Arrays.fill(activeSkins, null);
-    }
-
-    private void applyShopProgress() {
-        JSONObject playerShopJsonObject = this.getSavedShopJsonObject();
-
-        // Si se ha leido el archivo de la tienda y hay progreso de la tienda guardado
-        if (this.shopJsonObject != null && playerShopJsonObject != null) {
-            JSONObject allItems = this.shopJsonObject.getJSONObject("items");
-
-            // Recorre todos los objetos guardados
-            Iterator<String> savedItems = playerShopJsonObject.keys();
-            while (savedItems.hasNext()) {
-                String key = savedItems.next();
-
-                // Obtiene los atributos del objeto con la key actual y
-                // si no son nulos y el objeto existe en la tienda
-                JSONObject savedItem = playerShopJsonObject.getJSONObject(key);
-                if (savedItem != null && allItems.has(key)) {
-                    // Si el objeto leido tiene el atributo active y
-                    // el objeto esta activo, se selecciona
-                    if (savedItem.get("active") != null) {
-                        if ((Boolean) savedItem.get("active")) {
-                            JSONObject shopItem = allItems.getJSONObject(key);
-
-                            if (shopItem.get("type") != null) {
-                                if (shopItem.get("type") == "bgColor") {
-                                    this.bgColor = new Color((int) shopItem.get("r"), (int) shopItem.get("g"), (int) shopItem.get("b"), (int) shopItem.get("a"));
-                                } else if (shopItem.get("type") == "bgColor") {
-                                    setBallSkin((int) shopItem.get("colorId"), engine.getGraphics().newImage((String) shopItem.get("path")));
-                                }
-
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private JSONObject getProgressJsonObject(String key) {
-        if (this.progressJsonObject.has(key)) {
-            JSONObject json = this.progressJsonObject.getJSONObject(key);
-            Iterator<String> aux = json.keys();
-            if (!aux.hasNext()) {
-                return null;
-            } else {
-                return json;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -236,7 +193,21 @@ public class GameManager implements IScene {
         }
 
         InputStream shopFile = this.engine.getFileInputStream(this.shopFileName, IEngine.FileType.GAME_DATA);
-        this.shopJsonObject = this.engine.readFile(shopFile);
+        JSONObject shopJsonObj = this.engine.readFile(shopFile);
+        if (shopJsonObj != null) {
+            // Obtiene el array de objetos
+            JSONArray objects = (JSONArray) shopJsonObj.get("items");
+            // Si el array de objetos es valido
+            if (objects != null) {
+                // Recorre todos los objetos y los anade a la tienda
+                for (int i = 0; i < objects.length(); i++) {
+                    JSONObject obj = objects.getJSONObject(i);
+                    String id = (String) obj.get("id");
+                    this.shopItemsByKey.put(id, obj);
+                    this.shopItemsKeys.add(id);
+                }
+            }
+        }
     }
 
     public void writeInfo() {
@@ -260,51 +231,75 @@ public class GameManager implements IScene {
         this.writeInfo();
     }
 
-    public void setAdventureJsonObject(JSONObject adventureJsonObject) {
-        this.progressJsonObject.put("adventure", adventureJsonObject);
+    private void applyShopProgress() {
+        JSONObject playerShopJsonObject = this.getSavedShopJsonObject();
+
+        // Si se han leido objetos en la tienda y hay progreso de la tienda guardado
+        if (!this.shopItemsKeys.isEmpty() && playerShopJsonObject != null) {
+            // Recorre todos los objetos guardados
+            Iterator<String> savedItems = playerShopJsonObject.keys();
+            while (savedItems.hasNext()) {
+                // Obtiene el JsonObject del objeto con la key actual
+                String key = savedItems.next();
+                JSONObject item = playerShopJsonObject.getJSONObject(key);
+
+                // Si el objeto no es nulo y existe en la tienda
+                if (item != null && shopItemsByKey.containsKey(key)) {
+                    // Si el objeto leido tiene el atributo active y esta activo,
+                    if (item.get("active") != null) {
+                        if ((Boolean) item.get("active")) {
+                            // Obtiene el JsonObject con esa key
+                            JSONObject shopItem = shopItemsByKey.get(key);
+
+                            // Intenta crear el objeto con los atributos correspondientes segun su tipo
+                            try {
+                                if (Objects.equals((String) shopItem.get("type"), "bgColor")) {
+                                    this.bgColor = new Color((int) shopItem.get("r"), (int) shopItem.get("g"), (int) shopItem.get("b"), (int) shopItem.get("a"));
+                                }
+                                else if (Objects.equals((String) shopItem.get("type"), "ballSkin")) {
+                                    setBallSkin((int) shopItem.get("colorId"), engine.getGraphics().newImage((String) shopItem.get("path")));
+                                }
+                            }
+                            catch (JSONException e) {
+                                System.out.println("Error while trying to apply active item: " + e.getMessage());
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    public JSONObject getAdventureJSONObj() {
-        return getProgressJsonObject("adventure");
+    private JSONObject getProgressJsonObject(String key) {
+        if (this.progressJsonObject.has(key)) {
+            JSONObject json = this.progressJsonObject.getJSONObject(key);
+            Iterator<String> aux = json.keys();
+            if (!aux.hasNext()) {
+                return null;
+            } else {
+                return json;
+            }
+        }
+        return null;
     }
 
-    public void setQuickPlayJsonObject(JSONObject quickPlayJsonObject) {
-        this.progressJsonObject.put("quickPlay", quickPlayJsonObject);
-    }
+    public void setAdventureJsonObject(JSONObject adventureJsonObject) { this.progressJsonObject.put("adventure", adventureJsonObject); }
+    public JSONObject getAdventureJSONObj() { return getProgressJsonObject("adventure"); }
 
-    public JSONObject getQuickPlayJSONObj() {
-        return getProgressJsonObject("quickPlay");
-    }
+    public void setQuickPlayJsonObject(JSONObject quickPlayJsonObject) { this.progressJsonObject.put("quickPlay", quickPlayJsonObject); }
+    public JSONObject getQuickPlayJSONObj() { return getProgressJsonObject("quickPlay"); }
 
-    public void setCoins(int coins) {
-        this.progressJsonObject.put("coins", coins);
-    }
+    public void setCoins(int coins) { this.progressJsonObject.put("coins", coins); }
+    public int getCoins() { return this.progressJsonObject.getInt("coins"); }
 
-    public int getCoins() {
-        return this.progressJsonObject.getInt("coins");
-    }
+    public List<String> getShopItemsKeys() { return this.shopItemsKeys; }
+    public HashMap<String, JSONObject> getShopItemsByKey() { return this.shopItemsByKey; }
+    public JSONObject getSavedShopJsonObject() { return getProgressJsonObject("shop"); }
+    public void setSavedShopJsonObject(JSONObject obj) { this.progressJsonObject.put("shop", obj); }
 
-    public JSONObject getShopJsonObject() {
-        return this.shopJsonObject;
-    }
+    public void setBgColor(Color c) { this.bgColor = c; }
+    public Color getBgColor() { return this.bgColor; }
 
-    public JSONObject getSavedShopJsonObject() {
-        return getProgressJsonObject("shop");
-    }
-
-    public void setBgColor(Color c) {
-        this.bgColor = c;
-    }
-
-    public Color getBgColor() {
-        return this.bgColor;
-    }
-
-    public void setBallSkin(int i, IImage img) {
-        activeSkins[i] = img;
-    }
-
-    public IImage getBallSkin(int i) {
-        return activeSkins[i];
-    }
+    public void setBallSkin(int i, IImage img) { activeSkins[i] = img; }
+    public IImage getBallSkin(int i) { return activeSkins[i]; }
 }
