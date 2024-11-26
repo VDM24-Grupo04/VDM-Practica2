@@ -6,9 +6,7 @@ import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.Scene;
 import com.grupo04.gamelogic.gameobjects.buttons.ImageButton;
 import com.grupo04.gamelogic.gameobjects.Text;
-import com.grupo04.gamelogic.gameobjects.buttons.TextButton;
-
-import org.json.JSONObject;
+import com.grupo04.gamelogic.gameobjects.buttons.LevelButton;
 
 public class LevelsScene extends Scene {
     private final String FONT_NAME = "kimberley.ttf";
@@ -18,17 +16,13 @@ public class LevelsScene extends Scene {
     private final int HEADER_OFFSET = 20;
 
     private final String BUTTON_SOUND = "button.wav";
-    private final float BUTTON_WIDTH = 205f;
-    private final float BUTTON_HEIGHT = 55f;
-    private final float BUTTON_ARC = 25f;
-    private final Color BUTTON_BASE_COLOR = new Color(237, 12, 46);
-    private final Color BUTTON_OVER_COLOR = new Color(203, 10, 38);
-    private final String BUTTON_FONT = "kimberley.ttf";
+    private final float BUTTON_ARC = 45f;
     private final String MENU_BUTTON_IMG = "close.png";
 
+    private float itemSize;        // Se anade el boton de volver al menu inicial
+    private final int ITEMS_PER_ROW = 4, ITEM_OFFSET = 10;
 
-    // private float itemSize;        // Se anade el boton de volver al menu inicial
-    // private final int ITEMS_PER_ROW = 4, ITEM_OFFSET = 10;
+    private int levelsCount = 0;
 
     public LevelsScene(IEngine engine) {
         super(engine, 400, 600, new Color(255, 255, 255));
@@ -55,34 +49,35 @@ public class LevelsScene extends Scene {
         // Se anade el texto del titulo
         Text title = new Text(
                 new Vector(this.worldWidth / 2f, this.HEADER_OFFSET + this.HEADER_SIZE / 2.0f),
-                "Aventura", this.FONT_NAME, this.HEADER_SIZE, false, false, this.TEXT_COLOR);
+                "Adventure", this.FONT_NAME, this.HEADER_SIZE, false, false, this.TEXT_COLOR);
         addGameObject(title);
 
-        Vector testButtonVector = new Vector(this.worldWidth / 2f, 4f * this.worldHeight / 6f);
-        TextButton testButton = new TextButton(testButtonVector,
-                BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BUTTON_BASE_COLOR, BUTTON_OVER_COLOR,
-                "Try again", BUTTON_FONT, BUTTON_SOUND,
-                () -> {
-                    // Al pulsar el boton se hace un fade in y cuando
-                    // acaba la animacion se cambia a la escena de juego
-                    this.setFade(Fade.IN, 0.25);
-                    this.setFadeCallback(() -> {
-                        if (this.gameManager != null) {
-                            // Cambiar al numero del nivel correspondiente
-                            this.gameManager.changeToGameScene(1);
-                        }
-                    });
-                });
-        addGameObject(testButton);
-
         // Se calcula el tamano de los objetos dependiendo del numero de objetos por fila
-        // float freeSpace = this.worldWidth - this.HEADER_OFFSET * 2 - this.ITEM_OFFSET * (this.ITEMS_PER_ROW - 1);
-        // this.itemSize = freeSpace / this.ITEMS_PER_ROW;
+        float freeSpace = this.worldWidth - this.HEADER_OFFSET * 2 - this.ITEM_OFFSET * (this.ITEMS_PER_ROW - 1);
+        this.itemSize = freeSpace / this.ITEMS_PER_ROW;
 
         // Anadir los niveles
-
+        Color BUTTON_BASE_COLOR = new Color(237, 12, 46);
+        Color BUTTON_OVER_COLOR = new Color(203, 10, 38);
+        for(int i = 0; i < 30; i++) {
+            addLevel(BUTTON_BASE_COLOR, BUTTON_OVER_COLOR);
+        }
         // Al iniciar la escena se hace un fade out
-
         setFade(Fade.OUT, 0.25);
     }
+
+    // Anade un objeto a la lista
+    private void addLevel(Color baseColor, Color pointerOverColor) {
+        // Calcula su posicion dependiendo del numero de objetos que haya en la lista antes de anadirlo
+        float x = (levelsCount % ITEMS_PER_ROW) * (this.itemSize + this.ITEM_OFFSET) + this.HEADER_OFFSET + this.itemSize / 2;
+        float y = (levelsCount / ITEMS_PER_ROW) * (this.itemSize + this.ITEM_OFFSET) + this.HEADER_SIZE * 2.3f + this.itemSize / 2;
+
+        LevelButton lvl = new LevelButton(new Vector(x, y), this.itemSize, this.itemSize, this.BUTTON_ARC,
+                baseColor, pointerOverColor, ((Integer)(levelsCount + 1)).toString(), this.FONT_NAME, this.BUTTON_SOUND);
+
+        this.levelsCount++;
+
+        addGameObject(lvl);
+    }
+
 }

@@ -117,7 +117,7 @@ public abstract class ShopItem extends Button {
         }
 
         // Dibuja el rectangulo del borde
-        graphics.drawRoundRectangle(this.pos, this.width, this.height, this.BORDER_RADIUS, this.BORDER_THICKNESS);
+        graphics.drawRoundRectangle(super.pos, super.width, super.height, this.BORDER_RADIUS, this.BORDER_THICKNESS);
 
     }
 

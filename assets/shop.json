@@ -12,7 +12,7 @@
             "id": "bgColor2",
             "type": "bgColor",
             "r": 123,
-            "g": 627,
+            "g": 12,
             "b": 222,
             "a": 255
         },
@@ -24,20 +24,30 @@
             "b": 64,
             "a": 255
         },
-        {
-            "id": "bgColor4",
-            "type": "bgColor",
-            "r": 235,
-            "g": 122,
-            "b": 0,
-            "a": 255
-        },
-
+        
         {
             "id": "ball0Skin1",
             "type": "ballSkin",
             "colorId": 0,
             "path": "emotiguy0.png"
+        },
+        {
+            "id": "ball0Skin2",
+            "type": "ballSkin",
+            "colorId": 1,
+            "path": "emotiguy1.png"
+        },
+        {
+            "id": "ball0Skin3",
+            "type": "ballSkin",
+            "colorId": 2,
+            "path": "emotiguy2.png"
+        },
+        {
+            "id": "ball0Skin4",
+            "type": "ballSkin",
+            "colorId": 3,
+            "path": "emotiguy3.png"
         }
     ]
 }

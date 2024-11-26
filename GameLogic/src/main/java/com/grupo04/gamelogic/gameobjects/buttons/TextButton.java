@@ -21,7 +21,7 @@ public class TextButton extends Button {
     private final String text;
     private float fontSize;
     private final String fontName;
-    private final Color fontColor;
+    protected final Color fontColor;
     private final boolean bold;
 
     private IImage image;

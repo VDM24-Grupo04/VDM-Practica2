@@ -166,12 +166,12 @@ public class ShopScene extends Scene {
 
 
     // Anade un objeto a la lista
-    private void addItem(String key, ShopItem item) {
+    private void addItem(String key, ShopItem item, int index) {
         // Si el objeto no esta ya en la lista
         if (!items.containsKey(key)) {
             // Calcula su posicion dependiendo del numero de objetos que haya en la lista antes de anadirlo
-            float x = (items.size() % ITEMS_PER_ROW) * (this.itemSize + this.ITEM_OFFSET) + this.HEADER_OFFSET + this.itemSize / 2;
-            float y = (items.size() / ITEMS_PER_ROW) * (this.itemSize + this.FONT_SIZE * 3) + this.HEADER_SIZE * 2.3f + this.itemSize / 2;
+            float x = (index % ITEMS_PER_ROW) * (this.itemSize + this.ITEM_OFFSET) + this.HEADER_OFFSET + this.itemSize / 2;
+            float y = (index / ITEMS_PER_ROW) * (this.itemSize + this.FONT_SIZE * 3) + this.HEADER_SIZE * 2.3f + this.itemSize / 2;
 
             // Cambia la posicion del objeto
             item.setPos(x, y);
@@ -196,7 +196,7 @@ public class ShopScene extends Scene {
             });
 
             // Anade el objeto al mapa de objetos y el color a la lista de colores
-            addItem(key, color);
+            addItem(key, color, colors.size());
             colors.add(color);
         } else {
             System.out.println("Color out of valid range");
@@ -207,7 +207,11 @@ public class ShopScene extends Scene {
         IImage img = getEngine().getGraphics().newImage(imgPath);
         ShopBallSkin skin = new ShopBallSkin(itemSize, itemSize, this.BUTTON_SOUND,
                 50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, img, id);
-        addItem(key, skin);
+
+        // Siguiente fila al ultimo color
+        int row = 1 + (colors.size() / ITEMS_PER_ROW);
+        int col = items.size() - colors.size();
+        addItem(key, skin, (row * ITEMS_PER_ROW) + col);
     }
 
     private void readItems() {
