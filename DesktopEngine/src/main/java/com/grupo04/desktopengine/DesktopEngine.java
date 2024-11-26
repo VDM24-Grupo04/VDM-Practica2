@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import javax.swing.JFrame;
 
@@ -81,5 +83,36 @@ public class DesktopEngine extends Engine {
             System.err.println("Error while getting FileOutputStream from: " + file.getPath() + ": " + e.getMessage());
         }
         return null;
+    }
+
+    @Override
+    public String getHash(String data) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(data.getBytes("UTF-8"));
+            return bytesToHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("SHA-256 algorithm not available: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error computing hash: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        // Se multiplica x2 porque cada byte representa dos caracteres hexadecimales
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            // Para asegurarse de que el byte se trate como un valor sin signo
+            // se hace la operación 0xff & b
+            String hex = Integer.toHexString(0xff & b);
+            // Si es de un solo carácter (valores de 0 a 15), se añade un 0 antes
+            // para asegurar que cada byte se represente siempre por dos caracteres
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 }

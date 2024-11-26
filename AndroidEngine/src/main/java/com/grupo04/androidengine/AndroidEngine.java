@@ -16,15 +16,18 @@ import java.io.InputStream;
 public class AndroidEngine extends Engine {
     private final Activity mainActivity;
 
-    public AndroidEngine(Activity mainActiviy, SurfaceView window, AssetManager assetManager, AdView adView, int maxStreams) {
+    public AndroidEngine(Activity mainActivity, SurfaceView window, AssetManager assetManager, AdView adView, int maxStreams) {
         super();
 
-        this.mainActivity = mainActiviy;
+        this.mainActivity = mainActivity;
 
         AndroidGraphics androidGraphics = new AndroidGraphics(window, assetManager);
         AndroidAudio androidAudio = new AndroidAudio(assetManager, maxStreams);
         AndroidInput androidInput = new AndroidInput(window);
         AndroidMobile androidMobile = new AndroidMobile(this.mainActivity, adView);
+
+        System.loadLibrary("HashLibrary");
+
         this.initModules(androidGraphics, androidAudio, androidInput, androidMobile);
     }
 
@@ -63,4 +66,10 @@ public class AndroidEngine extends Engine {
         }
     }
 
+    private native String hash(String data);
+
+    @Override
+    public String getHash(String data) {
+        return hash(data);
+    }
 }

@@ -15,8 +15,9 @@ public interface IEngine {
 
     InputStream getFileInputStream(String fileName, FileType type);
     FileOutputStream getFileOutputStream(String fileName);
-    void writeFile(FileOutputStream file, JSONObject jsonObject);
-    JSONObject readFile(InputStream file);
+    void writeFile(FileOutputStream file, String info);
+    String readFile(InputStream file);
+    String getHash(String data);
 
     enum FileType { GAME_DATA, PROGRESS_DATA }
 }

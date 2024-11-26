@@ -3,9 +3,9 @@ package com.grupo04.gamelogic;
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.utilities.Color;
+import com.grupo04.gamelogic.scenes.CheaterScene;
 import com.grupo04.gamelogic.scenes.GameScene;
 import com.grupo04.gamelogic.scenes.TitleScene;
-import com.grupo04.gamelogic.scenes.VictoryScene;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class GameManager extends SceneManager {
+    private final String SECRET = "VDM24-Grupo04-Practica2";
+
     private final String ADVENTURE_KEY = "adventure";
     private final String QUICK_PLAY_KEY = "quickPlay";
     private final String COINS_KEY = "coins";
@@ -42,7 +44,7 @@ public class GameManager extends SceneManager {
     public GameManager(IEngine engine, String fileName, String shopFileName) {
         super(engine);
         this.progressFileName = fileName;
-        this.progressJsonObject = new JSONObject();
+        this.progressJsonObject = null;
 
         this.shopFileName = shopFileName;
 
@@ -98,9 +100,13 @@ public class GameManager extends SceneManager {
 
     @Override
     public void init() {
-        readInfo();
-        applyShopProgress();
-        pushScene(new TitleScene(this.engine));
+        if (readInfo()) {
+            applyShopProgress();
+            pushScene(new TitleScene(this.engine));
+        }
+        else {
+            pushScene(new CheaterScene(this.engine));
+        }
     }
 
     public void changeToGameScene(int levelNumber) {
@@ -125,11 +131,30 @@ public class GameManager extends SceneManager {
         this.changeScene(new GameScene(this.engine, json, levelNumber));
     }
 
-    public void readInfo() {
+    public boolean readInfo() {
         InputStream progressFile = this.engine.getFileInputStream(this.progressFileName, IEngine.FileType.PROGRESS_DATA);
-        JSONObject json = this.engine.readFile(progressFile);
-        if (json != null) {
-            this.progressJsonObject = json;
+        String progressStrAndHash = this.engine.readFile(progressFile);
+        if (progressStrAndHash != null) {
+            // Debe tener al menos 64 caracteres para el hash...
+            if (progressStrAndHash.length() >= 64) {
+                int progressLength = progressStrAndHash.length() - 64;
+                // Substring con el hash
+                String hashStr = progressStrAndHash.substring(progressLength);
+                // Substring con el progreso
+                String progressStr = progressStrAndHash.substring(0, progressLength);
+                // Si no cuadran los hashes (teniendo en cuenta el SECRET), entonces es
+                // porque modificó el archivo game.json
+                if (!Objects.equals(this.engine.getHash(progressStr + SECRET), hashStr)) {
+                    System.err.println("Hashes do not match!");
+                    return false;
+                }
+                this.progressJsonObject = new JSONObject(progressStr);
+            } else {
+                System.err.println("Something went wrong. Progress and hash string is not bigger or equal to 256.");
+                return false;
+            }
+        } else {
+            this.progressJsonObject = new JSONObject();
         }
         this.tryToCreateProgressProperty(COINS_KEY, 0);
         this.tryToCreateProgressProperty(SHOP_KEY, new JSONObject());
@@ -137,17 +162,21 @@ public class GameManager extends SceneManager {
         this.tryToCreateProgressProperty(ADVENTURE_KEY, new JSONObject());
 
         InputStream shopFile = this.engine.getFileInputStream(this.shopFileName, IEngine.FileType.GAME_DATA);
-        JSONObject shopJson = this.engine.readFile(shopFile);
-        if (shopJson != null) {
-            readShop(shopJson);
+        String shopStr = this.engine.readFile(shopFile);
+        if (shopStr != null) {
+            readShop(new JSONObject(shopStr));
         }
+        return true;
     }
 
     public void writeInfo() {
         try {
-            FileOutputStream progressFile = this.engine.getFileOutputStream(this.progressFileName);
-            this.engine.writeFile(progressFile, this.progressJsonObject);
-
+            // Si es nulo es porque ha habido fallas en readInfo() debido a la comprobacion de los hashes
+            if (this.progressJsonObject != null) {
+                FileOutputStream progressFile = this.engine.getFileOutputStream(this.progressFileName);
+                String progressStr = this.progressJsonObject.toString();
+                this.engine.writeFile(progressFile, progressStr + this.engine.getHash(progressStr + SECRET));
+            }
         } catch (JSONException e) {
             System.err.println("Error while writing info to system: " + e.getMessage());
         }

@@ -214,10 +214,10 @@ public abstract class Engine implements IEngine, Runnable {
     public IMobile getMobile() { return this.mobile; }
 
     @Override
-    public void writeFile(FileOutputStream file, JSONObject info) {
+    public void writeFile(FileOutputStream file, String info) {
         if (file != null) {
             try {
-                file.write(info.toString().getBytes());
+                file.write(info.getBytes());
             } catch (IOException e) {
                 System.err.println("Error while writing in file: " + e.getMessage());
             }
@@ -225,9 +225,8 @@ public abstract class Engine implements IEngine, Runnable {
     }
 
     @Override
-    public JSONObject readFile(InputStream file) {
+    public String readFile(InputStream file) {
         if (file != null) {
-            JSONObject jsonObject = null;
             StringBuilder stringBuilder = new StringBuilder();
             String line;
 
@@ -237,13 +236,12 @@ public abstract class Engine implements IEngine, Runnable {
                 while ((line = reader.readLine()) != null) {
                     stringBuilder.append(line);
                 }
-                jsonObject = new JSONObject(stringBuilder.toString());
+                return stringBuilder.toString();
             } catch (IOException e) {
                 System.err.println("Error while reading file: " + e.getMessage());
             } catch (JSONException e) {
                 System.err.println("Error parsing JSON: " + e.getMessage());
             }
-            return jsonObject;
         }
         return null;
     }
