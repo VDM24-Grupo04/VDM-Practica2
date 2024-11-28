@@ -1,5 +1,6 @@
 package com.grupo04.gamelogic.scenes;
 
+import static com.grupo04.engine.utilities.JSONConverter.convertLinkedListToJSONArray;
 import static com.grupo04.engine.utilities.JSONConverter.convertMatrixToJSONArray;
 
 import com.grupo04.gamelogic.GameManager;
@@ -17,6 +18,7 @@ import com.grupo04.gamelogic.gameobjects.Walls;
 
 import org.json.JSONObject;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class GameScene extends Scene {
@@ -188,12 +190,12 @@ public class GameScene extends Scene {
         else {
             jsonObject.put("levelNumber", this.levelNumber);
             jsonObject.put("grid", convertMatrixToJSONArray(this.grid.getBubbles()));
-            List<Integer> listAux = this.currentBubble.getAdventureModeColors();
+            LinkedList<Integer> listAux = this.currentBubble.getAdventureModeColors();
             int lastColor = this.currentBubble.getColor();
             if (lastColor != -1) {
-                listAux.add(0, lastColor);
+                listAux.push(lastColor);
             }
-            jsonObject.put("colors", listAux);
+            jsonObject.put("colors", convertLinkedListToJSONArray(listAux));
             jsonObject.put("score", this.grid.getScore());
             this.gameManager.setAdventureJsonObject(jsonObject);
         }

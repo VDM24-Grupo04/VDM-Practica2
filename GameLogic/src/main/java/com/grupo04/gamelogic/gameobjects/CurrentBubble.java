@@ -249,8 +249,7 @@ public class CurrentBubble extends GameObject {
     public int getColor() {
         return this.color;
     }
-    public void setColor(int color) {
-        this.color = color; }
+    public void setColor(int color) { this.color = color; }
     public LinkedList<Integer> getAdventureModeColors() { return this.adventureModeColors; }
 
     public boolean allBallsUsed() {
