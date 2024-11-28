@@ -104,7 +104,7 @@ public class VictoryScene extends Scene {
                     this.setFadeCallback(() -> {
                         this.engine.getAudio().stopSound(winSound);
                         if (this.gameManager != null) {
-                            this.gameManager.changeToGameScene(levelNumber);
+//                            this.gameManager.changeToGameScene(levelNumber);
                         }
                     });
                 });

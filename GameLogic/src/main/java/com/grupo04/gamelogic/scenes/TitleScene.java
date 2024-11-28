@@ -64,7 +64,7 @@ public class TitleScene extends Scene {
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
                         if (this.gameManager != null) {
-                            this.gameManager.changeToGameScene(0);
+                            this.gameManager.changeToQuickPlay();
                         }
                     });
                 });

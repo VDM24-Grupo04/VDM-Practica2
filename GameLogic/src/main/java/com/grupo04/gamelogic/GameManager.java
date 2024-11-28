@@ -62,42 +62,6 @@ public class GameManager extends SceneManager {
         super.initNewScene(newScene);
     }
 
-    private JSONObject getProgressJsonObject(String key) {
-        if (this.progressJsonObject.has(key)) {
-            JSONObject json = this.progressJsonObject.getJSONObject(key);
-            // Se hace de esta forma y no con .isEmpty() porque este metodo
-            // produce un error en Android
-            Iterator<String> aux = json.keys();
-            if (!aux.hasNext()) {
-                return null;
-            } else {
-                return json;
-            }
-        }
-        return null;
-    }
-
-    private <T> void tryToCreateProgressProperty(String key, T defaultValue) {
-        if (!this.progressJsonObject.has(key)) {
-            this.progressJsonObject.put(key, defaultValue);
-        }
-    }
-
-    private void readShop(JSONObject shopJson) {
-        // Obtiene el array de objetos
-        JSONArray objects = (JSONArray) shopJson.get("items");
-        // Si el array de objetos es valido
-        if (objects != null) {
-            // Recorre todos los objetos y los anade a la tienda
-            for (int i = 0; i < objects.length(); i++) {
-                JSONObject obj = objects.getJSONObject(i);
-                String id = (String) obj.get("id");
-                this.shopItemsByKey.put(id, obj);
-                this.shopItemsKeys.add(id);
-            }
-        }
-    }
-
     @Override
     public void init() {
         if (readInfo()) {
@@ -109,26 +73,16 @@ public class GameManager extends SceneManager {
         }
     }
 
-    public void changeToGameScene(int levelNumber) {
-        JSONObject json = null;
-        // Progreso del modo de juego rapido
-        if (levelNumber == 0) {
-            json = this.getQuickPlayJSONObj();
-            this.setQuickPlayJsonObject(new JSONObject());
-        } else {
-            json = this.getAdventureJSONObj();
-            if (json != null) {
-                int levelNumJson = json.getInt("levelNumber");
-                if (levelNumber == levelNumJson) {
-                    this.setAdventureJsonObject(new JSONObject());
-                } else {
-                    // TODO: Setear json con el nivel entero
-                }
-            } else {
-                // TODO: Setear json con el nivel entero
-            }
+    @Override
+    public void shutdown() {
+        super.shutdown();
+        for (Scene scene : this.scenes) {
+            // De normal debería haber solo una escena en la pila de escenas
+            // pero si hay mas, se deberia considerar recorrerla de principio a fin
+            scene.saveJson();
         }
-        this.changeScene(new GameScene(this.engine, json, levelNumber));
+
+        this.writeInfo();
     }
 
     public boolean readInfo() {
@@ -182,16 +136,91 @@ public class GameManager extends SceneManager {
         }
     }
 
-    @Override
-    public void shutdown() {
-        super.shutdown();
-        for (Scene scene : this.scenes) {
-            // De normal debería haber solo una escena en la pila de escenas
-            // pero si hay mas, se deberia considerar recorrerla de principio a fin
-            scene.saveJson();
+
+    private JSONObject getProgressJsonObject(String key) {
+        if (this.progressJsonObject.has(key)) {
+            JSONObject json = this.progressJsonObject.getJSONObject(key);
+            // Se hace de esta forma y no con .isEmpty() porque este metodo
+            // produce un error en Android
+            Iterator<String> aux = json.keys();
+            if (!aux.hasNext()) {
+                return null;
+            } else {
+                return json;
+            }
+        }
+        return null;
+    }
+
+    private <T> void tryToCreateProgressProperty(String key, T defaultValue) {
+        if (!this.progressJsonObject.has(key)) {
+            this.progressJsonObject.put(key, defaultValue);
+        }
+    }
+
+    private void readShop(JSONObject shopJson) {
+        // Obtiene el array de objetos
+        JSONArray objects = (JSONArray) shopJson.get("items");
+        // Si el array de objetos es valido
+        if (objects != null) {
+            // Recorre todos los objetos y los anade a la tienda
+            for (int i = 0; i < objects.length(); i++) {
+                JSONObject obj = objects.getJSONObject(i);
+                String id = (String) obj.get("id");
+                this.shopItemsByKey.put(id, obj);
+                this.shopItemsKeys.add(id);
+            }
+        }
+    }
+
+
+    public void changeToGameScene(int world, int levelNumber) {
+        JSONObject json;
+
+        // Progreso del modo de juego rapido
+        if (levelNumber == 0) {
+            json = this.getQuickPlayJSONObj();
+            this.setQuickPlayJsonObject(new JSONObject());
+        }
+        // Progreso del modo aventura
+        else {
+            json = this.getAdventureJSONObj();
+
+            // Si hay progreso guardado
+            if (json != null) {
+                int levelNumJson = json.getInt("levelNumber");
+                // Si el ultimo nivel guardado es el que se va a jugar
+                if (levelNumber == levelNumJson) {
+                    this.setAdventureJsonObject(new JSONObject());
+                }
+                // Si el ultimo nivel guardado es distinto al que se va a jugar
+                else {
+                    json = getLevelJson(world, levelNumber);
+                }
+            }
+            // Si no hay progreso guardado
+            else {
+                json = getLevelJson(world, levelNumber);
+            }
         }
 
-        this.writeInfo();
+        this.changeScene(new GameScene(this.engine, json, levelNumber));
+    }
+    public void changeToQuickPlay() {
+        changeToGameScene(-1, 0);
+    }
+    private JSONObject getLevelJson(int world, int levelNumber) {
+        // Carga el archivo json del nivel
+        String levelFileName = "levels/world" + ((Integer)(world)).toString() + "/level" + ((Integer) (levelNumber)).toString() + ".json";
+        InputStream levelFile = this.engine.getFileInputStream(levelFileName, IEngine.FileType.GAME_DATA);
+
+        if (levelFile != null) {
+            String levelStr = this.engine.readFile(levelFile);
+            if (levelStr != null) {
+                return new JSONObject(levelStr);
+            }
+        }
+        return null;
     }
 
     private void applyShopProgress() {
@@ -234,7 +263,6 @@ public class GameManager extends SceneManager {
     public void setAdventureJsonObject(JSONObject adventureJsonObject) {
         this.progressJsonObject.put("adventure", adventureJsonObject);
     }
-
     public JSONObject getAdventureJSONObj() {
         return getProgressJsonObject("adventure");
     }
@@ -242,7 +270,6 @@ public class GameManager extends SceneManager {
     public void setQuickPlayJsonObject(JSONObject quickPlayJsonObject) {
         this.progressJsonObject.put("quickPlay", quickPlayJsonObject);
     }
-
     public JSONObject getQuickPlayJSONObj() {
         return getProgressJsonObject("quickPlay");
     }
@@ -252,7 +279,6 @@ public class GameManager extends SceneManager {
         currCoins += coins;
         this.progressJsonObject.put(COINS_KEY, currCoins);
     }
-
     public void decreaseCoins(int coins) {
         int currCoins = getCoins();
         currCoins -= coins;
@@ -271,7 +297,6 @@ public class GameManager extends SceneManager {
     public List<String> getShopItemsKeys() {
         return this.shopItemsKeys;
     }
-
     public HashMap<String, JSONObject> getShopItemsByKey() {
         return this.shopItemsByKey;
     }
@@ -279,7 +304,6 @@ public class GameManager extends SceneManager {
     public JSONObject getSavedShopJsonObject() {
         return getProgressJsonObject("shop");
     }
-
     public void setSavedShopJsonObject(JSONObject obj) {
         this.progressJsonObject.put("shop", obj);
     }
@@ -287,7 +311,6 @@ public class GameManager extends SceneManager {
     public void setBgColor(Color c) {
         this.bgColor = c;
     }
-
     public Color getBgColor() {
         return this.bgColor;
     }
@@ -295,7 +318,6 @@ public class GameManager extends SceneManager {
     public void setBallSkin(int i, IImage img) {
         activeSkins[i] = img;
     }
-
     public IImage getBallSkin(int i) {
         return activeSkins[i];
     }
