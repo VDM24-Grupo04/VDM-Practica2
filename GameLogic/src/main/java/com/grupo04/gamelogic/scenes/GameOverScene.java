@@ -8,6 +8,8 @@ import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.gamelogic.gameobjects.buttons.TextButton;
 import com.grupo04.gamelogic.gameobjects.Text;
 
+import org.json.JSONObject;
+
 public class GameOverScene extends Scene {
     private final String TEXT_FONT = "TheMeshroomRegular.ttf";
     private final Color TEXT_COLOR = new Color(0, 0, 0);
@@ -24,7 +26,7 @@ public class GameOverScene extends Scene {
     private final String BUTTON_FONT = "kimberley.ttf";
     private final float BUTTON_OFFSET_Y = 25f;
 
-    public GameOverScene(IEngine engine, int levelNumber) {
+    public GameOverScene(IEngine engine, int worldNumber, int levelNumber) {
         super(engine, 400, 600, new Color(255, 255, 255));
 
         Text title = new Text(new Vector(this.worldWidth / 2f, this.worldHeight / 4f), new String[]{"Game", "Over!"},
@@ -46,7 +48,7 @@ public class GameOverScene extends Scene {
                     this.setFadeCallback(() -> {
                         this.engine.getAudio().stopSound(loseSound);
                         if (this.gameManager != null) {
-                            this.gameManager.changeScene(new GameScene(this.engine, null, levelNumber));
+                            this.gameManager.changeToGameScene(worldNumber, levelNumber);
                         }
                     });
                 });

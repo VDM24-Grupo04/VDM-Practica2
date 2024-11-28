@@ -17,6 +17,8 @@ import com.grupo04.gamelogic.gameobjects.Walls;
 
 import org.json.JSONObject;
 
+import java.util.List;
+
 public class GameScene extends Scene {
     private final int n_COLS = 10;
     private final int INIT_ROWS = 5;
@@ -40,17 +42,18 @@ public class GameScene extends Scene {
     private final String SCORE_TEXT_FONT = "kimberley.ttf";
     private final float SCORE_TEXT_SIZE = 35;
 
-    private final int levelNumber;
+    private final int levelNumber, worldNumber;
     private final JSONObject jsonObject;
     private final Grid grid;
     private final CurrentBubble currentBubble;
     boolean checkEnded;
 
-    public GameScene(IEngine engine, JSONObject progressJson, int levelNumber) {
+    public GameScene(IEngine engine, JSONObject progressJson, int worldNumber, int levelNumber) {
         super(engine, 400, 600, "background.jpg");
 
         this.jsonObject = progressJson;
         this.levelNumber = levelNumber;
+        this.worldNumber = worldNumber;
 
         this.checkEnded = true;
 
@@ -71,7 +74,13 @@ public class GameScene extends Scene {
                     // con animacion de fade out
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
-                        TitleScene scene = new TitleScene(this.engine);
+                        Scene scene = null;
+                        if (worldNumber <= 0) {
+                            scene = new TitleScene(this.engine);
+                        }
+                        else {
+                            scene = new LevelsScene(this.engine);
+                        }
                         scene.setFade(Fade.OUT, 0.25);
                         if (this.gameManager != null) {
                             saveJson();
@@ -134,23 +143,28 @@ public class GameScene extends Scene {
     public void update(double deltaTime) {
         super.update(deltaTime);
 
-        if (this.checkEnded && this.grid.hasEnded()) {
+        if (this.grid.hasWon()) {
+            this.currentBubble.setColor(-2);
+        }
+
+        if (this.checkEnded && (this.grid.hasEnded() || this.currentBubble.allBallsUsed())) {
             if (this.grid.hasWon()) {
                 // Se hace un fade in y cuando acaba la animacion se cambia a la escena de victoria
                 this.setFade(Scene.Fade.IN, 0.25);
                 this.setFadeCallback(() -> {
                     GameManager gameManager = this.getGameManager();
                     if (gameManager != null) {
-                        gameManager.changeScene(new VictoryScene(this.engine, this.grid.getScore(), this.levelNumber));
+                        gameManager.changeScene(new VictoryScene(this.engine, this.grid.getScore(), this.worldNumber, this.levelNumber));
                     }
                 });
-            } else {
+            }
+            else {
                 // Se hace un fade in y cuando acaba la animacion se cambia a la escena de game over
                 this.setFade(Scene.Fade.IN, 0.25);
                 this.setFadeCallback(() -> {
                     GameManager gameManager = this.getGameManager();
                     if (gameManager != null) {
-                        gameManager.changeScene(new GameOverScene(this.engine, this.levelNumber));
+                        gameManager.changeScene(new GameOverScene(this.engine, this.worldNumber, this.levelNumber));
                     }
                 });
             }
@@ -174,11 +188,12 @@ public class GameScene extends Scene {
         else {
             jsonObject.put("levelNumber", this.levelNumber);
             jsonObject.put("grid", convertMatrixToJSONArray(this.grid.getBubbles()));
-            /*
-            LinkedList<Integer> listAux = this.currentBubble.getAdventureModeColors();
-            JSONArray arrAux = convertLinkedListToJSONArray(aux);
-            jsonObject.put("colors", array);
-            */
+            List<Integer> listAux = this.currentBubble.getAdventureModeColors();
+            int lastColor = this.currentBubble.getColor();
+            if (lastColor != -1) {
+                listAux.add(0, lastColor);
+            }
+            jsonObject.put("colors", listAux);
             jsonObject.put("score", this.grid.getScore());
             this.gameManager.setAdventureJsonObject(jsonObject);
         }

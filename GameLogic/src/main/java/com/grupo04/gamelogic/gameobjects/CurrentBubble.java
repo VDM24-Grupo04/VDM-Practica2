@@ -64,6 +64,7 @@ public class CurrentBubble extends GameObject {
         this.wallThickness = wallThickness;
         this.headerOffset = headerOffset;
         this.r = r;
+
         // La posicion inicial sera en el centro del mundo por debajo del limite vertical
         int initY = (this.r * 2 - bubbleOffset) * (rows + 2);
         this.initPos = new Vector(w / 2.0f, wallThickness + headerOffset + initY);
@@ -71,7 +72,7 @@ public class CurrentBubble extends GameObject {
         this.dir = new Vector(0, 0);
 
         this.bubbleColors = bubbleColors;
-
+        this.adventureModeColors = new LinkedList<>();
         // Si jsonObject es null indica que si o si es Juego Rapido porque si fuese modo Aventura
         // se hubiese pasado un jsonObject con los colores iniciales
         if (!tryToApplyProgress(progressJson)) {
@@ -206,14 +207,29 @@ public class CurrentBubble extends GameObject {
         }
     }
 
+    @Override
+    public void dereference() {
+        super.dereference();
+
+        this.bubbleColors = null;
+        this.audio = null;
+        this.throwSound = null;
+        this.bounceSound = null;
+    }
+
     // Recoloca la bola en la posicion inicial, reinicia su direccion, y genera un nuevo color
     public void reset() {
         resetPhysics();
 
         // Si es modo Aventura coge el primer color del array de colores
         if (this.isAdventureMode) {
-            this.color = this.adventureModeColors.getFirst();
-            this.adventureModeColors.pop();
+            if (!this.adventureModeColors.isEmpty()) {
+                this.color = this.adventureModeColors.getFirst();
+                this.adventureModeColors.pop();
+            }
+            else {
+                this.color = -1;
+            }
         }
         // Si es modo Juego rapido obtiene un int del ultimo color asignado
         else {
@@ -229,21 +245,15 @@ public class CurrentBubble extends GameObject {
         this.shot = false;
     }
 
-    @Override
-    public void dereference() {
-        super.dereference();
-
-        this.bubbleColors = null;
-        this.audio = null;
-        this.throwSound = null;
-        this.bounceSound = null;
-    }
 
     public int getColor() {
         return this.color;
     }
+    public void setColor(int color) {
+        this.color = color; }
+    public LinkedList<Integer> getAdventureModeColors() { return this.adventureModeColors; }
 
-    public LinkedList<Integer> getAdventureModeColors() {
-        return this.adventureModeColors;
+    public boolean allBallsUsed() {
+        return this.isAdventureMode && this.adventureModeColors.isEmpty() && this.color == -1;
     }
 }

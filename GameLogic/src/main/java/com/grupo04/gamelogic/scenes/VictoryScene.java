@@ -12,6 +12,8 @@ import com.grupo04.gamelogic.gameobjects.TextWithIcon;
 import com.grupo04.gamelogic.gameobjects.buttons.TextButton;
 import com.grupo04.gamelogic.gameobjects.Text;
 
+import org.json.JSONObject;
+
 public class VictoryScene extends Scene {
     private final Color TEXT_COLOR = new Color(0, 0, 0);
 
@@ -46,7 +48,7 @@ public class VictoryScene extends Scene {
     private TextButton x2Button;
     private TextWithIcon coins;
 
-    public VictoryScene(IEngine engine, int score, int levelNumber) {
+    public VictoryScene(IEngine engine, int score, int worldNumber, int levelNumber) {
         super(engine, 400, 600, new Color(255, 255, 255));
 
         Text title = new Text(new Vector(this.worldWidth / 2f, this.worldHeight / 8f), "Victory!",
@@ -104,7 +106,7 @@ public class VictoryScene extends Scene {
                     this.setFadeCallback(() -> {
                         this.engine.getAudio().stopSound(winSound);
                         if (this.gameManager != null) {
-//                            this.gameManager.changeToGameScene(levelNumber);
+                            this.gameManager.changeToGameScene(worldNumber, levelNumber);
                         }
                     });
                 });

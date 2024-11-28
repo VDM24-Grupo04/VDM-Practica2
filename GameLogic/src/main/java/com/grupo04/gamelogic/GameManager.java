@@ -204,7 +204,7 @@ public class GameManager extends SceneManager {
             }
         }
 
-        this.changeScene(new GameScene(this.engine, json, levelNumber));
+        this.changeScene(new GameScene(this.engine, json, world, levelNumber));
     }
     public void changeToQuickPlay() {
         changeToGameScene(-1, 0);
