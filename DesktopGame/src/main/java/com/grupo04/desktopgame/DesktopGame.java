@@ -18,7 +18,7 @@ public class DesktopGame {
         JFrame window = new JFrame("Puzzle Bobble");
         ImageIcon icon = new ImageIcon("./assets/PuzzleBubbleIcon.png");
         window.setIconImage(icon.getImage());
-        window.setSize(400, 800);
+        window.setSize(400, 600);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setIgnoreRepaint(true);
 

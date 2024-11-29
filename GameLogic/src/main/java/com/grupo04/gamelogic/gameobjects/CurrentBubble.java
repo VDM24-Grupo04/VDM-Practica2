@@ -218,7 +218,7 @@ public class CurrentBubble extends GameObject {
     }
 
     // Recoloca la bola en la posicion inicial, reinicia su direccion, y genera un nuevo color
-    public void reset() {
+    private void reset() {
         resetPhysics();
 
         // Si es modo Aventura coge el primer color del array de colores

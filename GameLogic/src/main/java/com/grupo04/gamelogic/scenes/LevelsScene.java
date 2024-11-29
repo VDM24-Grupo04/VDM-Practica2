@@ -40,20 +40,6 @@ public class LevelsScene extends Scene {
         setFade(Fade.OUT, 0.25);
     }
 
-    private void addLevelButton(VerticalListview listview, int world, int level, int levelProgress, Color[] cols) {
-        int levelsPerWorld = this.gameManager.getLevelsPerWorld();
-        int levelNumber = world * levelsPerWorld + (level + 1);
-        boolean locked = levelNumber > levelProgress;
-        LevelButton levelButton = new LevelButton(levelNumber, locked, cols,
-                LEVEL_BUTTON_BORDER_COLOR, LEVEL_BUTTON_ARC, LEVEL_BUTTON_BORDER_WIDTH,
-                LEVEL_BUTTON_FONT_NAME, false, FONT_COLOR,
-                LEVEL_BUTTON_IMAGE,
-                BUTTON_SOUND, () -> {
-            gameManager.changeToGameScene(levelNumber);
-        });
-        listview.addButton(levelButton);
-    }
-
     @Override
     public void init() {
         IGraphics graphics = this.getEngine().getGraphics();
@@ -62,9 +48,9 @@ public class LevelsScene extends Scene {
         Color[][] styles = this.gameManager.getLevelsStyle();
 
         float height = this.worldHeight - HEADER_REAL_SIZE;
-        float y = HEADER_REAL_SIZE + height / 2f;
+        float y = HEADER_REAL_SIZE + height / 1.95f;
         float maskHeight = HEADER_REAL_SIZE * 2f;
-        VerticalListview listview = new VerticalListview(new Vector(this.worldWidth / 2f, y),
+        VerticalListview listview = new VerticalListview(new Vector(this.worldWidth / 2f, y ),
                 this.worldWidth, height, BG_COLOR,
                 maskHeight, maskHeight, 3, 20);
         addGameObject(listview);
@@ -107,4 +93,21 @@ public class LevelsScene extends Scene {
 
         super.init();
     }
+
+
+
+    private void addLevelButton(VerticalListview listview, int world, int level, int levelProgress, Color[] cols) {
+        int levelsPerWorld = this.gameManager.getLevelsPerWorld();
+        int levelNumber = world * levelsPerWorld + (level + 1);
+        boolean locked = levelNumber > levelProgress;
+        LevelButton levelButton = new LevelButton(levelNumber, locked, cols,
+                LEVEL_BUTTON_BORDER_COLOR, LEVEL_BUTTON_ARC, LEVEL_BUTTON_BORDER_WIDTH,
+                LEVEL_BUTTON_FONT_NAME, false, FONT_COLOR,
+                LEVEL_BUTTON_IMAGE,
+                BUTTON_SOUND, () -> {
+            gameManager.changeToGameScene(levelNumber);
+        });
+        listview.addButton(levelButton);
+    }
+
 }
