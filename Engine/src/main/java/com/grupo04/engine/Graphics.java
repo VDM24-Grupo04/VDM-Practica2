@@ -52,8 +52,8 @@ public abstract class Graphics implements IGraphics {
     }
 
     @Override
-    public void setClearColor(Color bgColor) {
-        this.bgColor = bgColor;
+    public void setClearColor(Color clearColor) {
+        this.bgColor = clearColor;
     }
 
     @Override

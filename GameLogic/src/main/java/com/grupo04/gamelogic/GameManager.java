@@ -27,6 +27,7 @@ public class GameManager extends SceneManager {
     private final String QUICK_PLAY_KEY = "quickPlay";
     private final String COINS_KEY = "coins";
     private final String SHOP_KEY = "shop";
+    private final int MIN_HASH_SIZE = 64;
 
     // Progresion del juego
     private final String progressFileName;
@@ -67,8 +68,7 @@ public class GameManager extends SceneManager {
         if (readInfo()) {
             applyShopProgress();
             pushScene(new TitleScene(this.engine));
-        }
-        else {
+        } else {
             pushScene(new CheaterScene(this.engine));
         }
     }
@@ -90,8 +90,8 @@ public class GameManager extends SceneManager {
         String progressStrAndHash = this.engine.readFile(progressFile);
         if (progressStrAndHash != null) {
             // Debe tener al menos 64 caracteres para el hash...
-            if (progressStrAndHash.length() >= 64) {
-                int progressLength = progressStrAndHash.length() - 64;
+            if (progressStrAndHash.length() >= MIN_HASH_SIZE) {
+                int progressLength = progressStrAndHash.length() - MIN_HASH_SIZE;
                 // Substring con el hash
                 String hashStr = progressStrAndHash.substring(progressLength);
                 // Substring con el progreso
@@ -110,6 +110,7 @@ public class GameManager extends SceneManager {
         } else {
             this.progressJsonObject = new JSONObject();
         }
+
         this.tryToCreateProgressProperty(COINS_KEY, 0);
         this.tryToCreateProgressProperty(SHOP_KEY, new JSONObject());
         this.tryToCreateProgressProperty(QUICK_PLAY_KEY, new JSONObject());
@@ -175,7 +176,6 @@ public class GameManager extends SceneManager {
 
     public void changeToGameScene(int world, int levelNumber) {
         JSONObject json;
-
         // Progreso del modo de juego rapido
         if (levelNumber == 0) {
             json = this.getQuickPlayJSONObj();
@@ -212,7 +212,7 @@ public class GameManager extends SceneManager {
 
     private JSONObject getLevelJson(int world, int levelNumber) {
         // Carga el archivo json del nivel
-        String levelFileName = "levels/world" + ((Integer)(world)).toString() + "/level" + ((Integer) (levelNumber)).toString() + ".json";
+        String levelFileName = "levels/world" + ((Integer) (world)).toString() + "/level" + ((Integer) (levelNumber)).toString() + ".json";
         InputStream levelFile = this.engine.getFileInputStream(levelFileName, IEngine.FileType.GAME_DATA);
 
         if (levelFile != null) {
@@ -264,6 +264,7 @@ public class GameManager extends SceneManager {
     public void setAdventureJsonObject(JSONObject adventureJsonObject) {
         this.progressJsonObject.put("adventure", adventureJsonObject);
     }
+
     public JSONObject getAdventureJSONObj() {
         return getProgressJsonObject("adventure");
     }
@@ -271,6 +272,7 @@ public class GameManager extends SceneManager {
     public void setQuickPlayJsonObject(JSONObject quickPlayJsonObject) {
         this.progressJsonObject.put("quickPlay", quickPlayJsonObject);
     }
+
     public JSONObject getQuickPlayJSONObj() {
         return getProgressJsonObject("quickPlay");
     }
@@ -280,6 +282,7 @@ public class GameManager extends SceneManager {
         currCoins += coins;
         this.progressJsonObject.put(COINS_KEY, currCoins);
     }
+
     public void decreaseCoins(int coins) {
         int currCoins = getCoins();
         currCoins -= coins;
@@ -298,6 +301,7 @@ public class GameManager extends SceneManager {
     public List<String> getShopItemsKeys() {
         return this.shopItemsKeys;
     }
+
     public HashMap<String, JSONObject> getShopItemsByKey() {
         return this.shopItemsByKey;
     }
@@ -305,6 +309,7 @@ public class GameManager extends SceneManager {
     public JSONObject getSavedShopJsonObject() {
         return getProgressJsonObject("shop");
     }
+
     public void setSavedShopJsonObject(JSONObject obj) {
         this.progressJsonObject.put("shop", obj);
     }
@@ -312,6 +317,7 @@ public class GameManager extends SceneManager {
     public void setBgColor(Color c) {
         this.bgColor = c;
     }
+
     public Color getBgColor() {
         return this.bgColor;
     }
@@ -319,6 +325,7 @@ public class GameManager extends SceneManager {
     public void setBallSkin(int i, IImage img) {
         activeSkins[i] = img;
     }
+
     public IImage getBallSkin(int i) {
         return activeSkins[i];
     }

@@ -12,7 +12,7 @@ import com.grupo04.engine.interfaces.ITouchEvent;
 import java.util.List;
 
 public class TextButton extends Button {
-    protected final float arc;
+    private final float arc;
     private final Color baseCol;
     private final Color pointerOverCol;
     private Color bgCol;
@@ -21,7 +21,7 @@ public class TextButton extends Button {
     private final String text;
     private float fontSize;
     private final String fontName;
-    protected final Color fontColor;
+    private final Color fontColor;
     private final boolean bold;
 
     private IImage image;

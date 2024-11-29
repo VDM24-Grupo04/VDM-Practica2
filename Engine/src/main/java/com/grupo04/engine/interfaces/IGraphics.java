@@ -4,7 +4,7 @@ import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
 
 public interface IGraphics {
-    void setClearColor(Color bgColor);
+    void setClearColor(Color clearColor);
     void clear(Color color);
 
     void setColor(Color color);

@@ -9,6 +9,7 @@ import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,7 +18,7 @@ public abstract class Scene implements IScene {
     public enum Fade {NONE, IN, OUT}
 
     private boolean alive;
-    private final HashSet<GameObject> gameObjects;
+    private final List<GameObject> gameObjects;
     private final HashMap<String, GameObject> handlers;
 
     protected IImage bgImage;
@@ -38,7 +39,7 @@ public abstract class Scene implements IScene {
 
     protected Scene(IEngine engine, int worldWidth, int worldHeight) {
         this.alive = true;
-        this.gameObjects = new HashSet<>();
+        this.gameObjects = new ArrayList<>();
         this.handlers = new HashMap<>();
 
         this.bgImage = null;
@@ -46,13 +47,14 @@ public abstract class Scene implements IScene {
         this.fade = Fade.NONE;
         this.fadeDuration = 0;
         this.fadeTimer = 0;
-        this.fadeColor = new Color(0, 0, 0, 255);
+        this.fadeColor = new Color(0, 0, 0);
         this.onFadeEnd = null;
 
         this.engine = engine;
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
         this.engine.setWorldSize(this.worldWidth, this.worldHeight);
+        this.engine.getGraphics().setClearColor(new Color(255, 255, 255));
 
         this.fadePos = new Vector(this.worldWidth / 2.0f, this.worldHeight / 2.0f);
         this.bgImagePos = new Vector(this.worldWidth / 2.0f, this.worldHeight / 2.0f);
@@ -69,7 +71,6 @@ public abstract class Scene implements IScene {
     // Fondo del juego (ruta de una imagen)
     protected Scene(IEngine engine, int worldWidth, int worldHeight, String bgImageFileName) {
         this(engine, worldWidth, worldHeight);
-        this.engine.getGraphics().setClearColor(new Color(255, 255, 255));
         this.bgImage = this.engine.getGraphics().newImage(bgImageFileName);
     }
 
