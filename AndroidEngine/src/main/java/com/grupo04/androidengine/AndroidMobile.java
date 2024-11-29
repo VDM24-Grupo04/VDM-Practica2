@@ -2,11 +2,9 @@ package com.grupo04.androidengine;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
@@ -32,11 +30,11 @@ import com.grupo04.engine.interfaces.IMobile;
 import com.grupo04.engine.utilities.Callback;
 
 public class AndroidMobile implements IMobile {
+    private final String REWARD_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
+
     private final Activity mainActivity;
     private final SurfaceView window;
     private RewardedAd rewardedAd;
-
-    private String rewardAdUnitId;
 
     public AndroidMobile(Activity mainActivity, SurfaceView window, AdView adView) {
         this.mainActivity = mainActivity;
@@ -49,18 +47,6 @@ public class AndroidMobile implements IMobile {
                 System.out.println("Advertisements loaded");
             }
         });
-
-        try {
-            // Obtiene la informacion del manifest
-            PackageManager packageManager = this.mainActivity.getPackageManager();
-            Bundle metaData =  packageManager.getApplicationInfo(this.mainActivity.getPackageName(), packageManager.GET_META_DATA).metaData;
-
-            // Obtiene la ad unit id del metadata del manifest
-            this.rewardAdUnitId = metaData.getString("com.google.android.gms.ads.APPLICATION_ID");
-        }
-        catch (Exception e) {
-            System.out.println("Couldn't get app metadata");
-        }
 
         loadBannerAd(adView);
         loadRewardedAd();
@@ -118,27 +104,21 @@ public class AndroidMobile implements IMobile {
     private void loadRewardedAd() {
         this.rewardedAd = null;
 
-        // Si ha podido obtener la ad unit id, intenta crear el banner
-        if (rewardAdUnitId != null) {
-            AdRequest adRequest = new AdRequest.Builder().build();
-            RewardedAd.load(this.mainActivity, rewardAdUnitId, adRequest, new RewardedAdLoadCallback() {
-                @Override
-                public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                    System.err.println("Failed to load reward advertisement: " + loadAdError);
-                    loadRewardedAd();
-                }
+        AdRequest adRequest = new AdRequest.Builder().build();
+        RewardedAd.load(this.mainActivity, REWARD_AD_UNIT_ID, adRequest, new RewardedAdLoadCallback() {
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                System.err.println("Failed to load reward advertisement: " + loadAdError);
+                loadRewardedAd();
+            }
 
-                @Override
-                public void onAdLoaded(@NonNull RewardedAd ad) {
-                    System.out.println("Reward advertisement loaded");
-                    rewardedAd = ad;
-                    fullScreenCallback();
-                }
-            });
-        }
-        else {
-            System.out.println("Couldn't get ad unit id");
-        }
+            @Override
+            public void onAdLoaded(@NonNull RewardedAd ad) {
+                System.out.println("Reward advertisement loaded");
+                rewardedAd = ad;
+                fullScreenCallback();
+            }
+        });
     }
 
     @Override
