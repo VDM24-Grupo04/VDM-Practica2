@@ -37,9 +37,11 @@ android {
 }
 
 dependencies {
-    implementation("com.google.android.gms:play-services-ads:23.3.0")
+    implementation libs.play.services.ads.v2330
     implementation libs.appcompat
     implementation libs.material
+    implementation libs.work.runtime.v271
+    implementation libs.guava
     implementation project(':Engine')
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit

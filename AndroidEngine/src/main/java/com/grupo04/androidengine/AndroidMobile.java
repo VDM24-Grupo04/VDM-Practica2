@@ -1,6 +1,8 @@
 package com.grupo04.androidengine;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -12,6 +14,9 @@ import android.view.PixelCopy;
 import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
@@ -29,12 +34,19 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.grupo04.engine.interfaces.IMobile;
 import com.grupo04.engine.utilities.Callback;
 
+import java.util.concurrent.TimeUnit;
+
 public class AndroidMobile implements IMobile {
     private final String REWARD_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
 
     private final Activity mainActivity;
     private final SurfaceView window;
     private RewardedAd rewardedAd;
+
+    public static String CHANNEL_ID = "channel_id";
+    public static String CHANNEL_NAME = "channel_name";
+    public static String CHANNEL_DESCRIPTION = "channel_description";
+    public static String WORKERS_TAG = "workers_tag";
 
     public AndroidMobile(Activity mainActivity, SurfaceView window, AdView adView) {
         this.mainActivity = mainActivity;
@@ -50,7 +62,6 @@ public class AndroidMobile implements IMobile {
 
         loadBannerAd(adView);
         loadRewardedAd();
-
     }
 
     private void loadBannerAd(AdView adView) {
@@ -204,5 +215,46 @@ public class AndroidMobile implements IMobile {
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, text);
         this.mainActivity.startActivity(Intent.createChooser(shareIntent, shareTitle));
+    }
+
+    @Override
+    public void initializeNotifications(int channel_id, int channel_name, int channel_description, int notifications_workers_tag) {
+        CHANNEL_ID = this.mainActivity.getString(channel_id);
+        CHANNEL_NAME = this.mainActivity.getString(channel_name);
+        CHANNEL_DESCRIPTION = this.mainActivity.getString(channel_description);
+        WORKERS_TAG = this.mainActivity.getString(notifications_workers_tag);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES. O) {
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription(CHANNEL_DESCRIPTION);
+            NotificationManager notificationManager = this.mainActivity.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    @Override
+    public void programNotification(int duration, TimeUnit unit, String key, String title, String message, int icon, int priority, int visibility) {
+        String packageName = this.mainActivity.getPackageName();
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(ReminderWorker.class)
+                .setInitialDelay(duration, unit)
+                .setInputData(new Data.Builder()
+                    .putString("package_name", packageName)
+                    .putString("channel_id", CHANNEL_ID)
+                    .putString("key", key)
+                    .putString("title", title)
+                    .putString("message", message)
+                    .putInt("icon", icon)
+                    .putInt("priority", priority)
+                    .putInt("visibility", visibility)
+                    .build())
+                .addTag(WORKERS_TAG)
+                .build();
+
+        WorkManager.getInstance(this.mainActivity.getApplicationContext()).enqueue(request);
+    }
+
+    public boolean isNotification(String type) {
+        Intent intent = this.mainActivity.getIntent();
+        return intent != null && intent.hasExtra(type);
     }
 }

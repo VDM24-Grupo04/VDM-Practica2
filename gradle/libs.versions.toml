@@ -1,5 +1,6 @@
 [versions]
 agp = "8.5.1"
+guava = "31.1-android"
 json = "20240303"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -8,9 +9,11 @@ appcompat = "1.7.0"
 material = "1.12.0"
 activity = "1.9.2"
 constraintlayout = "2.1.4"
-playServicesAds = "23.5.0"
+playServicesAdsVersion = "23.3.0"
+workRuntimeVersion = "2.7.1"
 
 [libraries]
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
 json = { module = "org.json:json", version.ref = "json" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -19,7 +22,8 @@ appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "a
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
+play-services-ads-v2330 = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAdsVersion" }
+work-runtime-v271 = { module = "androidx.work:work-runtime", version.ref = "workRuntimeVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

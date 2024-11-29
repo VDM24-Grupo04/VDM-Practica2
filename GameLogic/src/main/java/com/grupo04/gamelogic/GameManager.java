@@ -40,12 +40,12 @@ public class GameManager extends SceneManager {
 
     // Tienda dirigida por datos
     private final String shopFileName;
-    private List<String> shopItemsKeys;
-    private HashMap<String, JSONObject> shopItemsByKey;
+    private final List<String> shopItemsKeys;
+    private final HashMap<String, JSONObject> shopItemsByKey;
 
     // Cosmeticos
     private Color bgColor;
-    private IImage[] activeSkins;
+    private final IImage[] activeSkins;
 
     public GameManager(IEngine engine, String fileName, String shopFileName) {
         super(engine);
@@ -55,11 +55,11 @@ public class GameManager extends SceneManager {
         this.shopFileName = shopFileName;
 
         // Inicializar cosmeticos
-        shopItemsKeys = new ArrayList<>();
-        shopItemsByKey = new HashMap<>();
-        bgColor = null;
-        activeSkins = new IImage[BubbleColors.getTotalColors()];
-        Arrays.fill(activeSkins, null);
+        this.shopItemsKeys = new ArrayList<>();
+        this.shopItemsByKey = new HashMap<>();
+        this.bgColor = null;
+        this.activeSkins = new IImage[BubbleColors.getTotalColors()];
+        Arrays.fill(this.activeSkins, null);
     }
 
     @Override
@@ -276,19 +276,19 @@ public class GameManager extends SceneManager {
                 JSONObject item = playerShopJsonObject.getJSONObject(key);
 
                 // Si el objeto no es nulo y existe en la tienda
-                if (item != null && shopItemsByKey.containsKey(key)) {
+                if (item != null && this.shopItemsByKey.containsKey(key)) {
                     // Si el objeto leido tiene el atributo active y esta activo,
                     if (item.get("active") != null) {
                         if ((Boolean) item.get("active")) {
                             // Obtiene el JsonObject con esa key
-                            JSONObject shopItem = shopItemsByKey.get(key);
+                            JSONObject shopItem = this.shopItemsByKey.get(key);
 
                             // Intenta crear el objeto con los atributos correspondientes segun su tipo
                             try {
                                 if (Objects.equals((String) shopItem.get("type"), "bgColor")) {
                                     this.bgColor = new Color((int) shopItem.get("r"), (int) shopItem.get("g"), (int) shopItem.get("b"), (int) shopItem.get("a"));
                                 } else if (Objects.equals((String) shopItem.get("type"), "ballSkin")) {
-                                    setBallSkin((int) shopItem.get("colorId"), engine.getGraphics().newImage((String) shopItem.get("path")));
+                                    setBallSkin((int) shopItem.get("colorId"), this.engine.getGraphics().newImage((String) shopItem.get("path")));
                                 }
                             } catch (JSONException e) {
                                 System.out.println("Error while trying to apply active item: " + e.getMessage());

@@ -2,6 +2,8 @@ package com.grupo04.engine.interfaces;
 
 import com.grupo04.engine.utilities.Callback;
 
+import java.util.concurrent.TimeUnit;
+
 public interface IMobile {
     void showRewardedAd(Callback onReward);
     void shareAction(ShareActionType type, ShareParams params);
@@ -13,4 +15,6 @@ public interface IMobile {
         public boolean fullScreen = false;
         public String shareTitle = "";
     }
+    void initializeNotifications(int channel_id, int channel_name, int channel_description, int notifications_workers_tag);
+    void programNotification(int duration, TimeUnit unit, String key, String title, String message, int icon, int priority, int visibility);
 }
