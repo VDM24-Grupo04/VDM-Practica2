@@ -24,7 +24,7 @@ public class AndroidGraphics extends Graphics {
     private final Rect rect;
     private final Rect src;
     private final Rect dest;
-    private Path hexagon;
+    private final Path hexagon;
 
     public AndroidGraphics(SurfaceView window, AssetManager assetManager) {
         this.window = window;

@@ -82,6 +82,17 @@ public class VictoryScene extends Scene {
                     BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, GREEN_BUTTON_BASE_COLOR, GREEN_BUTTON_OVER_COLOR,
                     "Compartir", BUTTON_FONT, TEXT_COLOR, false, SHARE_IMAGE_PATH, BUTTON_SOUND,
                     () -> {
+                        IEngine.ShareParams params = new IEngine.ShareParams();
+                        params.fullScreen = true;
+
+                        // Si no es un nivel y es modo QuickPlay
+                        if (levelNumber <= 0) {
+                            params.extraText = "¡Ha completado el nivel aleatorio del modo QuickPlay!";
+                        } else {
+                            params.extraText = "¡Ha completado el nivel " + levelNumber + "!";
+                        }
+
+                        this.engine.shareAction(IEngine.ShareActionType.IMAGE, params);
                     });
             addGameObject(shareButton);
         }

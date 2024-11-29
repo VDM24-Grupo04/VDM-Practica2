@@ -173,7 +173,6 @@ public class GameManager extends SceneManager {
         }
     }
 
-
     public void changeToGameScene(int world, int levelNumber) {
         JSONObject json;
 
@@ -206,9 +205,11 @@ public class GameManager extends SceneManager {
 
         this.changeScene(new GameScene(this.engine, json, world, levelNumber));
     }
+
     public void changeToQuickPlay() {
         changeToGameScene(-1, 0);
     }
+
     private JSONObject getLevelJson(int world, int levelNumber) {
         // Carga el archivo json del nivel
         String levelFileName = "levels/world" + ((Integer)(world)).toString() + "/level" + ((Integer) (levelNumber)).toString() + ".json";

@@ -13,7 +13,6 @@ import com.grupo04.gamelogic.GameManager;
 
 public class MainActivity extends AppCompatActivity {
     private AndroidEngine androidEngine;
-    private GameManager gameManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +31,8 @@ public class MainActivity extends AppCompatActivity {
         // Creacion de la escena
         String fileName = "game.json";
         String shopFileName = "shop.json";
-        this.gameManager = new GameManager(this.androidEngine, fileName, shopFileName);
-        this.androidEngine.setScene(this.gameManager);
+        GameManager gameManager = new GameManager(this.androidEngine, fileName, shopFileName);
+        this.androidEngine.setScene(gameManager);
 
         // Bloquear la orientacion
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);

@@ -1,9 +1,16 @@
 package com.grupo04.androidengine;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.view.SurfaceView;
+import android.view.View;
+
+import androidx.core.content.FileProvider;
 
 import com.google.android.gms.ads.AdView;
 import com.grupo04.engine.Engine;
@@ -15,20 +22,23 @@ import java.io.InputStream;
 
 public class AndroidEngine extends Engine {
     private final Activity mainActivity;
+    private final SurfaceView window;
+    private final AndroidMobile androidMobile;
 
     public AndroidEngine(Activity mainActivity, SurfaceView window, AssetManager assetManager, AdView adView, int maxStreams) {
         super();
 
         this.mainActivity = mainActivity;
+        this.window = window;
 
-        AndroidGraphics androidGraphics = new AndroidGraphics(window, assetManager);
+        AndroidGraphics androidGraphics = new AndroidGraphics(this.window, assetManager);
         AndroidAudio androidAudio = new AndroidAudio(assetManager, maxStreams);
-        AndroidInput androidInput = new AndroidInput(window);
-        AndroidMobile androidMobile = new AndroidMobile(this.mainActivity, adView);
+        AndroidInput androidInput = new AndroidInput(this.window);
+        this.androidMobile = new AndroidMobile(this.mainActivity, this.window, adView);
 
         System.loadLibrary("HashLibrary");
 
-        this.initModules(androidGraphics, androidAudio, androidInput, androidMobile);
+        this.initModules(androidGraphics, androidAudio, androidInput, this.androidMobile);
     }
 
     @Override
@@ -71,5 +81,20 @@ public class AndroidEngine extends Engine {
     @Override
     public String getHash(String data) {
         return hash(data);
+    }
+
+    @Override
+    public void shareAction(ShareActionType type, ShareParams params) {
+        switch (type) {
+            case IMAGE:
+                if (params.fullScreen) {
+                    this.androidMobile.shareImageAction(params.extraText, 0,0, this.window.getWidth(), this.window.getHeight());
+                } else {
+                    this.androidMobile.shareImageAction(params.extraText, params.x, params.y, params.w, params.h);
+                }
+                break;
+            case TEXT: this.androidMobile.shareTextAction(params.extraText); break;
+            // ...
+        }
     }
 }

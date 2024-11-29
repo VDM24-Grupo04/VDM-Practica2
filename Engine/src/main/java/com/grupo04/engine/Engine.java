@@ -245,4 +245,7 @@ public abstract class Engine implements IEngine, Runnable {
         }
         return null;
     }
+
+    @Override
+    public abstract void shareAction(ShareActionType type, ShareParams params);
 }

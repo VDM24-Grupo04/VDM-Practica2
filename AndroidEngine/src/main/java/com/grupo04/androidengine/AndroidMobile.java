@@ -1,6 +1,15 @@
 package com.grupo04.androidengine;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.provider.MediaStore;
+import android.view.PixelCopy;
+import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 
@@ -23,16 +32,18 @@ import com.grupo04.engine.utilities.Callback;
 public class AndroidMobile implements IMobile {
     private final String REWARD_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
 
-    private Activity mainActivity;
+    private final Activity mainActivity;
+    private final SurfaceView window;
     private RewardedAd rewardedAd;
 
-    public AndroidMobile(Activity mainActivity, AdView adView) {
+    public AndroidMobile(Activity mainActivity, SurfaceView window, AdView adView) {
         this.mainActivity = mainActivity;
+        this.window = window;
         this.rewardedAd = null;
 
         MobileAds.initialize(this.mainActivity, new OnInitializationCompleteListener() {
             @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
                 System.out.println("Advertisements loaded");
             }
         });
@@ -47,12 +58,12 @@ public class AndroidMobile implements IMobile {
     }
 
     private void fullScreenCallback() {
-        if (rewardedAd != null) {
+        if (this.rewardedAd != null) {
             // Este callback se encarga de los eventos que suceden cuando se trata de
             // visualizar un anuncio ya cargado. Se debe establecer antes de llamar
             // al metodo show(), que hace que se reproduzca.
             // Ademas, los Rewarded ads siempre se muestran en pantalla completa.
-            rewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+            this.rewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                 // Se llama cuando se clica en el anuncio
                 @Override
                 public void onAdClicked() {
@@ -111,8 +122,8 @@ public class AndroidMobile implements IMobile {
 
     @Override
     public void showRewardedAd(Callback onReward) {
-        if (rewardedAd != null) {
-            mainActivity.runOnUiThread(new Runnable() {
+        if (this.rewardedAd != null) {
+            this.mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     rewardedAd.show(mainActivity, new OnUserEarnedRewardListener() {
@@ -126,5 +137,40 @@ public class AndroidMobile implements IMobile {
         } else {
             System.err.println("The rewarded ad wasn't ready yet");
         }
+    }
+
+    public void shareImageAction(String extraText, int x, int y, int w, int h) {
+        Bitmap bitmap = Bitmap.createBitmap(this.window.getWidth(), this.window.getHeight(), Bitmap.Config.ARGB_8888);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            HandlerThread handlerThread = new HandlerThread("PixelCopier");
+            handlerThread.start();
+            PixelCopy.request(this.window, bitmap, new PixelCopy.OnPixelCopyFinishedListener() {
+                @Override
+                public void onPixelCopyFinished(int copyResult) {
+                    if (copyResult == PixelCopy.SUCCESS) {
+                        try {
+                            Bitmap finalBitmap = Bitmap.createBitmap(bitmap, x, y, w, h);
+                            String imageUri = MediaStore.Images.Media.insertImage(mainActivity.getContentResolver(), finalBitmap, "screenshot", null);
+                            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                            shareIntent.setType("image/*");
+                            shareIntent.putExtra(Intent.EXTRA_TEXT, extraText);
+                            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
+                            mainActivity.startActivity(Intent.createChooser(shareIntent, "Compartir imagen"));
+                        } catch (Exception e) {
+                            System.err.println(e.getMessage());
+                        }
+                    }
+                    handlerThread.quitSafely();
+                }
+            }, new Handler(handlerThread.getLooper()));
+        }
+    }
+
+    public void shareTextAction(String text) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, text);
+        this.mainActivity.startActivity(Intent.createChooser(shareIntent, "Compartir texto"));
     }
 }
