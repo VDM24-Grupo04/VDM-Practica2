@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.Manifest;
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -23,8 +22,6 @@ public class ReminderWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Log.d("ReminderWorker", "Starting to build notification");
-
         String packageName = getInputData().getString("package_name");
         String notifications_channel_id = getInputData().getString("channel_id");
         String key = getInputData().getString("key");

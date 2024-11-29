@@ -2,6 +2,7 @@ package com.grupo04.gamelogic;
 
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IImage;
+import com.grupo04.engine.interfaces.IMobile;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Pair;
 import com.grupo04.gamelogic.scenes.CheaterScene;
@@ -73,6 +74,17 @@ public class GameManager extends SceneManager {
         if (readInfo()) {
             applyShopProgress();
             pushScene(new TitleScene(this.engine));
+            IMobile mobile = this.engine.getMobile();
+            if (mobile != null) {
+                // Las recompensas deben aplicarse siempre y cuando sea correcta la
+                // lectura del archivo de guardado
+                if (mobile.isNotification("Reward1")) {
+                    int coins = this.progressJsonObject.optInt("coins", 0);
+                    ++coins;
+                    this.progressJsonObject.put("coins", coins);
+                }
+                // ... (resto de recompensas)
+            }
         } else {
             pushScene(new CheaterScene(this.engine));
         }
@@ -142,7 +154,6 @@ public class GameManager extends SceneManager {
             System.err.println("Error while writing info to system: " + e.getMessage());
         }
     }
-
 
     private JSONObject getProgressJsonObject(String key) {
         if (this.progressJsonObject.has(key)) {
@@ -259,7 +270,6 @@ public class GameManager extends SceneManager {
                 }
             }
         }
-
         return colors;
     }
 
@@ -285,9 +295,9 @@ public class GameManager extends SceneManager {
 
                             // Intenta crear el objeto con los atributos correspondientes segun su tipo
                             try {
-                                if (Objects.equals((String) shopItem.get("type"), "bgColor")) {
+                                if (Objects.equals(shopItem.get("type"), "bgColor")) {
                                     this.bgColor = new Color((int) shopItem.get("r"), (int) shopItem.get("g"), (int) shopItem.get("b"), (int) shopItem.get("a"));
-                                } else if (Objects.equals((String) shopItem.get("type"), "ballSkin")) {
+                                } else if (Objects.equals(shopItem.get("type"), "ballSkin")) {
                                     setBallSkin((int) shopItem.get("colorId"), this.engine.getGraphics().newImage((String) shopItem.get("path")));
                                 }
                             } catch (JSONException e) {

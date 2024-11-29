@@ -17,4 +17,5 @@ public interface IMobile {
     }
     void initializeNotifications(int channel_id, int channel_name, int channel_description, int notifications_workers_tag);
     void programNotification(int duration, TimeUnit unit, String key, String title, String message, int icon, int priority, int visibility);
+    boolean isNotification(String type);
 }

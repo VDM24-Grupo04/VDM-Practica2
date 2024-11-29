@@ -61,9 +61,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         this.androidEngine.getMobile().programNotification(3, TimeUnit.SECONDS,
-                "Reward",
+                "Reward1",
                 "¡Entra ahora para conseguir tu recompensa diaria!",
-                "TEXTO TEXTO TEXTO", R.mipmap.ic_launcher,
+                "1 moneda gratis para ti porque me caes bien", R.mipmap.ic_launcher,
                 NotificationCompat.PRIORITY_HIGH, NotificationCompat.VISIBILITY_PUBLIC);
         this.androidEngine.onStop();
     }

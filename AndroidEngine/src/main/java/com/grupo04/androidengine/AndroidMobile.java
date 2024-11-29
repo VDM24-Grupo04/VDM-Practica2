@@ -34,6 +34,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.grupo04.engine.interfaces.IMobile;
 import com.grupo04.engine.utilities.Callback;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class AndroidMobile implements IMobile {
@@ -253,8 +254,10 @@ public class AndroidMobile implements IMobile {
         WorkManager.getInstance(this.mainActivity.getApplicationContext()).enqueue(request);
     }
 
+    @Override
     public boolean isNotification(String type) {
         Intent intent = this.mainActivity.getIntent();
-        return intent != null && intent.hasExtra(type);
+        // Comprueba especificamente que sea la clave key de la Uri en data
+        return intent != null && Objects.equals(intent.getDataString(), type);
     }
 }
