@@ -1,0 +1,17 @@
+{
+    "colorUnlocked": {
+        "r": 30,
+        "g": 50,
+        "b": 220
+    },
+    "pointoverUnlocked": {
+        "r": 20,
+        "g": 40,
+        "b": 180
+    },
+    "colorLocked": {
+        "r": 60,
+        "g": 80,
+        "b": 255
+    }
+}

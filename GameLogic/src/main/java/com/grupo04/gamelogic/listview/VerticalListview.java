@@ -1,27 +1,16 @@
-package com.grupo04.gamelogic.gameobjects;
+package com.grupo04.gamelogic.listview;
 
-import com.grupo04.engine.interfaces.IAudio;
+import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.ITouchEvent;
-import com.grupo04.engine.utilities.Callback;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.GameObject;
-import com.grupo04.gamelogic.gameobjects.buttons.LevelButton;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LevelsListview extends GameObject {
-    private final Color BUTTON_BASE_COLOR = new Color(237, 12, 46);
-    private final Color BUTTON_OVER_COLOR = new Color(203, 10, 38);
-    private final float BUTTON_ARC = 80f;
-    private final float BUTTON_BORDER_WIDTH = 4.0f;
-    private final Color BUTTON_BORDER_COLOR = new Color(0, 0, 0);
-    private final Color BUTTON_FONT_COLOR = new Color(0, 0, 0);
-    private final String BUTTON_FONT_NAME = "kimberley.ttf";
-    private final String BUTTON_SOUND = "button.wav";
-
+public class VerticalListview extends GameObject {
     private Vector topLeftOriginalPos;
     private Vector topLeftPos;
     private float previousDrag;
@@ -40,14 +29,14 @@ public class LevelsListview extends GameObject {
 
     private boolean resetButtonColors;
     private int itemIndex;
-    private List<LevelButton> levelButtons;
-    private int levelsPerRow;
-    private float levelOffset;
-    private float levelSize;
+    private List<ListviewButton> buttons;
+    private int itemsPerRow;
+    private float itemOffset;
+    private float itemSize;
 
-    public LevelsListview(Vector pos, float width, float height, Color color,
-                          float headerHeight, float footerHeight,
-                          int levelsPerRow, float levelOffset) {
+    public VerticalListview(Vector pos, float width, float height, Color color,
+                            float headerHeight, float footerHeight,
+                            int levelsPerRow, float levelOffset) {
         this.topLeftOriginalPos = new Vector(pos.x - width / 2f, pos.y - height / 2f);
         this.topLeftPos = new Vector(this.topLeftOriginalPos);
         this.previousDrag = 0;
@@ -65,10 +54,10 @@ public class LevelsListview extends GameObject {
         this.footerHeight = footerHeight;
 
         this.resetButtonColors = false;
-        this.levelButtons = new ArrayList<>();
-        this.levelsPerRow = levelsPerRow;
-        this.levelOffset = levelOffset;
-        this.levelSize = (this.width - 2 * levelOffset - (levelsPerRow - 1) * levelOffset) / levelsPerRow;
+        this.buttons = new ArrayList<>();
+        this.itemsPerRow = levelsPerRow;
+        this.itemOffset = levelOffset;
+        this.itemSize = (this.width - 2 * levelOffset - (levelsPerRow - 1) * levelOffset) / levelsPerRow;
     }
 
     private boolean withinArea(Vector pos) {
@@ -79,18 +68,29 @@ public class LevelsListview extends GameObject {
     private void move(float dragDiff) {
         this.topLeftPos.y += dragDiff;
 
-        for (LevelButton levelButton : levelButtons) {
-            levelButton.move(this.topLeftPos.y);
+        for (ListviewButton button : buttons) {
+            button.move(this.topLeftPos.y);
         }
     }
 
     @Override
     public void init() {
-        IGraphics graphics = scene.getEngine().getGraphics();
-        IAudio audio = scene.getEngine().getAudio();
+        IEngine engine = scene.getEngine();
 
-        for (LevelButton levelButton : levelButtons) {
-            levelButton.init(graphics, audio);
+        for (ListviewButton button : buttons) {
+            float x = this.itemIndex % this.itemsPerRow * (this.itemSize + this.itemOffset) + this.itemOffset + this.itemSize / 2f;
+            float y = this.itemIndex / this.itemsPerRow * (this.itemSize + this.itemOffset) + this.itemOffset + this.itemSize / 2f;
+            Vector relativePos = new Vector(x, y);
+            Vector listviewPos = new Vector(this.topLeftPos);
+
+            button.init(engine, relativePos, listviewPos, this.itemSize, this.itemSize);
+
+            if (this.itemIndex % itemsPerRow == 0) {
+                this.totalHeight += this.itemOffset;
+                this.totalHeight += this.itemSize;
+            }
+
+            ++itemIndex;
         }
     }
 
@@ -129,15 +129,8 @@ public class LevelsListview extends GameObject {
                 }
 
                 this.resetButtonColors = true;
-                for (LevelButton levelButton : levelButtons) {
-                    levelButton.handleEvent(touchEvent);
-                }
-            } else {
-                if (this.resetButtonColors) {
-                    this.resetButtonColors = false;
-                    for (LevelButton levelButton : levelButtons) {
-                        levelButton.resetColor();
-                    }
+                for (ListviewButton button : buttons) {
+                    button.handleEvent(touchEvent);
                 }
             }
         }
@@ -145,8 +138,8 @@ public class LevelsListview extends GameObject {
 
     @Override
     public void render(IGraphics graphics) {
-        for (LevelButton levelButton : levelButtons) {
-            levelButton.render(graphics);
+        for (ListviewButton button : buttons) {
+            button.render(graphics);
         }
 
         graphics.setColor(this.color);
@@ -154,23 +147,7 @@ public class LevelsListview extends GameObject {
         graphics.fillRectangle(this.footerMediumPos, this.width, this.footerHeight);
     }
 
-    public void addLevelButton(int levelNumber, Callback callback) {
-        float x = this.itemIndex % this.levelsPerRow * (this.levelSize + this.levelOffset) + this.levelOffset + this.levelSize / 2f;
-        float y = this.itemIndex / this.levelsPerRow * (this.levelSize + this.levelOffset) + this.levelOffset + this.levelSize / 2f;
-        Vector relativePos = new Vector(x, y);
-        Vector listviewPos = new Vector(this.topLeftPos);
-
-        LevelButton levelButton = new LevelButton(levelNumber, listviewPos, relativePos, this.levelSize, this.levelSize, BUTTON_ARC, BUTTON_BORDER_WIDTH,
-                BUTTON_BASE_COLOR, BUTTON_OVER_COLOR, BUTTON_BORDER_COLOR,
-                BUTTON_FONT_NAME, false, BUTTON_FONT_COLOR,
-                BUTTON_SOUND, callback);
-        levelButtons.add(levelButton);
-
-        if (this.itemIndex % levelsPerRow == 0) {
-            this.totalHeight += this.levelOffset;
-            this.totalHeight += levelButton.getHeight();
-        }
-
-        ++itemIndex;
+    public void addButton(ListviewButton button) {
+        buttons.add(button);
     }
 }

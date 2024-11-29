@@ -3,6 +3,7 @@ package com.grupo04.gamelogic.scenes;
 import static com.grupo04.engine.utilities.JSONConverter.convertLinkedListToJSONArray;
 import static com.grupo04.engine.utilities.JSONConverter.convertMatrixToJSONArray;
 
+import com.grupo04.engine.utilities.Pair;
 import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.Scene;
 import com.grupo04.engine.interfaces.IEngine;
@@ -44,18 +45,17 @@ public class GameScene extends Scene {
     private final String SCORE_TEXT_FONT = "kimberley.ttf";
     private final float SCORE_TEXT_SIZE = 35;
 
-    private final int levelNumber, worldNumber;
-    private final JSONObject jsonObject;
+    private int levelNumber;
+    private final JSONObject json;
     private final Grid grid;
     private final CurrentBubble currentBubble;
     boolean checkEnded;
 
-    public GameScene(IEngine engine, JSONObject progressJson, int worldNumber, int levelNumber) {
+    public GameScene(IEngine engine, JSONObject json, int levelNumber) {
         super(engine, 400, 600, "background.jpg");
 
-        this.jsonObject = progressJson;
+        this.json = json;
         this.levelNumber = levelNumber;
-        this.worldNumber = worldNumber;
 
         this.checkEnded = true;
 
@@ -77,10 +77,9 @@ public class GameScene extends Scene {
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
                         Scene scene = null;
-                        if (worldNumber <= 0) {
+                        if (levelNumber == 0) {
                             scene = new TitleScene(this.engine);
-                        }
-                        else {
+                        } else {
                             scene = new LevelsScene(this.engine);
                         }
                         scene.setFade(Fade.OUT, 0.25);
@@ -93,8 +92,8 @@ public class GameScene extends Scene {
         addGameObject(menuButton);
 
         String text = "Score: 0";
-        if (this.jsonObject != null && this.jsonObject.has("score")) {
-            text = "Score: " + this.jsonObject.get("score");
+        if (this.json != null && this.json.has("score")) {
+            text = "Score: " + this.json.get("score");
         }
         Text scoreText = new Text(new Vector(this.worldWidth / 2f, HEADER_WIDTH / 2f), text,
                 SCORE_TEXT_FONT, SCORE_TEXT_SIZE, false, false, TEXT_COLOR);
@@ -113,11 +112,11 @@ public class GameScene extends Scene {
         Walls walls = new Walls(WALL_THICKNESS, HEADER_WIDTH, this.worldWidth, this.worldHeight);
         addGameObject(walls);
 
-        this.grid = new Grid(progressJson, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH, (int) r, bubbleOffset, rows, n_COLS,
+        this.grid = new Grid(json, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH, (int) r, bubbleOffset, rows, n_COLS,
                 INIT_ROWS, BUBBLES_TO_EXPLODE, GREAT_SCORE, SMALL_SCORE, bubbleColors);
         addGameObject(grid, "grid");
 
-        this.currentBubble = new CurrentBubble(progressJson, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH,
+        this.currentBubble = new CurrentBubble(json, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH,
                 (int) r, bubbleOffset, rows, bubbleColors);
         addGameObject(currentBubble);
     }
@@ -156,17 +155,17 @@ public class GameScene extends Scene {
                 this.setFadeCallback(() -> {
                     GameManager gameManager = this.getGameManager();
                     if (gameManager != null) {
-                        gameManager.changeScene(new VictoryScene(this.engine, this.grid.getScore(), this.worldNumber, this.levelNumber));
+                        gameManager.setLevelProgress(this.levelNumber + 1);
+                        gameManager.changeScene(new VictoryScene(this.engine, this.grid.getScore(), this.levelNumber));
                     }
                 });
-            }
-            else {
+            } else {
                 // Se hace un fade in y cuando acaba la animacion se cambia a la escena de game over
                 this.setFade(Scene.Fade.IN, 0.25);
                 this.setFadeCallback(() -> {
                     GameManager gameManager = this.getGameManager();
                     if (gameManager != null) {
-                        gameManager.changeScene(new GameOverScene(this.engine, this.worldNumber, this.levelNumber));
+                        gameManager.changeScene(new GameOverScene(this.engine, this.levelNumber));
                     }
                 });
             }

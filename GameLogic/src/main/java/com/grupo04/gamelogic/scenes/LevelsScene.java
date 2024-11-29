@@ -5,13 +5,10 @@ import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.Scene;
-import com.grupo04.gamelogic.gameobjects.LevelsListview;
+import com.grupo04.gamelogic.listview.VerticalListview;
 import com.grupo04.gamelogic.gameobjects.buttons.ImageButton;
 import com.grupo04.gamelogic.gameobjects.Text;
-
-import org.json.JSONObject;
-
-import java.io.InputStream;
+import com.grupo04.gamelogic.listview.LevelButton;
 
 public class LevelsScene extends Scene {
     private final Color BG_COLOR = new Color(255, 255, 255);
@@ -23,14 +20,18 @@ public class LevelsScene extends Scene {
     private final String FONT_NAME = "kimberley.ttf";
 
     private final String BUTTON_SOUND = "button.wav";
+    private final Color FONT_COLOR = new Color(0, 0, 0);
+
     private final String MENU_BUTTON_IMG = "close.png";
     private final int MENU_BUTTON_SIZE = HEADER_SIZE;
 
-    private final Color TITLE_COLOR = new Color(0, 0, 0);
-    private final int TITLE_SIZE = HEADER_SIZE;
+    private final float LEVEL_BUTTON_ARC = 80f;
+    private final float LEVEL_BUTTON_BORDER_WIDTH = 4.0f;
+    private final Color LEVEL_BUTTON_BORDER_COLOR = new Color(0, 0, 0);
+    private final String LEVEL_BUTTON_FONT_NAME = "kimberley.ttf";
+    private final String LEVEL_BUTTON_IMAGE = "padlockIcon.png";
 
-    final int NUM_WORLDS = 3;
-    final int LEVELS_PER_WORLD = 4;
+    private final int TITLE_SIZE = HEADER_SIZE;
 
     public LevelsScene(IEngine engine) {
         super(engine, 400, 600);
@@ -39,58 +40,43 @@ public class LevelsScene extends Scene {
         setFade(Fade.OUT, 0.25);
     }
 
-    private void addLevelButton(LevelsListview listview, int world, int level) {
-        int levelNumber = world * LEVELS_PER_WORLD + (level + 1);
-        listview.addLevelButton(levelNumber, () -> {
-            gameManager.changeToGameScene(world + 1, level + 1);
+    private void addLevelButton(VerticalListview listview, int world, int level, int levelProgress, Color[] cols) {
+        int levelsPerWorld = this.gameManager.getLevelsPerWorld();
+        int levelNumber = world * levelsPerWorld + (level + 1);
+        boolean locked = levelNumber > levelProgress;
+        LevelButton levelButton = new LevelButton(levelNumber, locked, cols,
+                LEVEL_BUTTON_BORDER_COLOR, LEVEL_BUTTON_ARC, LEVEL_BUTTON_BORDER_WIDTH,
+                LEVEL_BUTTON_FONT_NAME, false, FONT_COLOR,
+                LEVEL_BUTTON_IMAGE,
+                BUTTON_SOUND, () -> {
+            gameManager.changeToGameScene(levelNumber);
         });
+        listview.addButton(levelButton);
     }
 
     @Override
     public void init() {
         IGraphics graphics = this.getEngine().getGraphics();
-        graphics.setClearColor(new Color(0, 255, 0));
+        graphics.setClearColor(BG_COLOR);
 
-        Color[] worldColorsUnlocked = new Color[NUM_WORLDS];
-        Color[] worldColorsPointoverUnlocked = new Color[NUM_WORLDS];
-        Color[] worldColorsLocked = new Color[NUM_WORLDS];
-
-        for (int i = 0; i < NUM_WORLDS; i++) {
-            String worldStyleFileName = "levels/world" + (i + 1) + "/style.json";
-            InputStream styleFile = this.engine.getFileInputStream(worldStyleFileName, IEngine.FileType.GAME_DATA);
-
-            if (styleFile != null) {
-                String styleStr = this.engine.readFile(styleFile);
-                if (styleStr != null) {
-                    JSONObject style = new JSONObject(styleStr);
-                    JSONObject colorUnlocked = style.getJSONObject("colorUnlocked");
-                    JSONObject colorLocked = style.getJSONObject("colorLocked");
-                    JSONObject pointoverUnlocked = style.getJSONObject("pointoverUnlocked");
-
-                    if (colorUnlocked != null && colorLocked != null) {
-                        Color unlocked = new Color(colorUnlocked.getInt("r"), colorUnlocked.getInt("g"), colorUnlocked.getInt("b"));
-                        Color pointover = new Color(pointoverUnlocked.getInt("r"), pointoverUnlocked.getInt("g"), pointoverUnlocked.getInt("b"));
-                        Color locked = new Color(colorLocked.getInt("r"), colorLocked.getInt("g"), colorLocked.getInt("b"));
-
-                        worldColorsUnlocked[i] = unlocked;
-                        worldColorsPointoverUnlocked[i] = pointover;
-                        worldColorsLocked[i] = locked;
-                    }
-                }
-            }
-        }
+        Color[][] styles = this.gameManager.getLevelsStyle();
 
         float height = this.worldHeight - HEADER_REAL_SIZE;
         float y = HEADER_REAL_SIZE + height / 2f;
-        float maskHeight = HEADER_REAL_SIZE;
-        LevelsListview listview = new LevelsListview(new Vector(this.worldWidth / 2f, y),
+        float maskHeight = HEADER_REAL_SIZE * 2f;
+        VerticalListview listview = new VerticalListview(new Vector(this.worldWidth / 2f, y),
                 this.worldWidth, height, BG_COLOR,
                 maskHeight, maskHeight, 3, 20);
         addGameObject(listview);
 
-        for (int i = 0; i < NUM_WORLDS; ++i) {
-            for (int j = 0; j < LEVELS_PER_WORLD; ++j) {
-                this.addLevelButton(listview, i, j);
+        int levelProgress = this.gameManager.getLevelProgress();
+
+        int nWorlds = gameManager.getNWorlds();
+        int levelsPerWorld = gameManager.getLevelsPerWorld();
+
+        for (int i = 0; i < nWorlds; ++i) {
+            for (int j = 0; j < levelsPerWorld; ++j) {
+                this.addLevelButton(listview, i, j, levelProgress, styles[i]);
             }
         }
 
@@ -116,7 +102,7 @@ public class LevelsScene extends Scene {
         // Se anade el texto del titulo
         Text title = new Text(
                 new Vector(this.worldWidth / 2f, HEADER_OFFSET + TITLE_SIZE / 2.0f),
-                "Adventure", FONT_NAME, TITLE_SIZE, false, false, TITLE_COLOR);
+                "Adventure", FONT_NAME, TITLE_SIZE, false, false, FONT_COLOR);
         addGameObject(title);
 
         super.init();

@@ -3,6 +3,7 @@ package com.grupo04.gamelogic;
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.utilities.Color;
+import com.grupo04.engine.utilities.Pair;
 import com.grupo04.gamelogic.scenes.CheaterScene;
 import com.grupo04.gamelogic.scenes.GameScene;
 import com.grupo04.gamelogic.scenes.TitleScene;
@@ -21,13 +22,17 @@ import java.util.List;
 import java.util.Objects;
 
 public class GameManager extends SceneManager {
+    private final int NUM_WORLDS = 3;
+    private final int LEVELS_PER_WORLD = 4;
+
     private final String SECRET = "VDM24-Grupo04-Practica2";
+    private final int MIN_HASH_SIZE = 64;
 
     private final String ADVENTURE_KEY = "adventure";
     private final String QUICK_PLAY_KEY = "quickPlay";
     private final String COINS_KEY = "coins";
+    private final String LEVEL_PROGRESS_KEY = "levelProgress";
     private final String SHOP_KEY = "shop";
-    private final int MIN_HASH_SIZE = 64;
 
     // Progresion del juego
     private final String progressFileName;
@@ -111,6 +116,7 @@ public class GameManager extends SceneManager {
             this.progressJsonObject = new JSONObject();
         }
 
+        this.tryToCreateProgressProperty(LEVEL_PROGRESS_KEY, 1);
         this.tryToCreateProgressProperty(COINS_KEY, 0);
         this.tryToCreateProgressProperty(SHOP_KEY, new JSONObject());
         this.tryToCreateProgressProperty(QUICK_PLAY_KEY, new JSONObject());
@@ -174,7 +180,7 @@ public class GameManager extends SceneManager {
         }
     }
 
-    public void changeToGameScene(int world, int levelNumber) {
+    public void changeToGameScene(int levelNumber) {
         JSONObject json;
         // Progreso del modo de juego rapido
         if (levelNumber == 0) {
@@ -194,25 +200,27 @@ public class GameManager extends SceneManager {
                 }
                 // Si el ultimo nivel guardado es distinto al que se va a jugar
                 else {
-                    json = getLevelJson(world, levelNumber);
+                    json = this.getLevelJson(levelNumber);
                 }
             }
             // Si no hay progreso guardado
             else {
-                json = getLevelJson(world, levelNumber);
+                json = this.getLevelJson(levelNumber);
             }
         }
 
-        this.changeScene(new GameScene(this.engine, json, world, levelNumber));
+        this.changeScene(new GameScene(this.engine, json, levelNumber));
     }
 
     public void changeToQuickPlay() {
-        changeToGameScene(-1, 0);
+        changeToGameScene(0);
     }
 
-    private JSONObject getLevelJson(int world, int levelNumber) {
+    private JSONObject getLevelJson(int levelNumber) {
+        Pair<Integer, Integer> levelWorld = this.getLevelWorld(levelNumber);
+
         // Carga el archivo json del nivel
-        String levelFileName = "levels/world" + ((Integer) (world)).toString() + "/level" + ((Integer) (levelNumber)).toString() + ".json";
+        String levelFileName = "levels/world" + levelWorld.getFirst() + "/level" + levelWorld.getSecond() + ".json";
         InputStream levelFile = this.engine.getFileInputStream(levelFileName, IEngine.FileType.GAME_DATA);
 
         if (levelFile != null) {
@@ -222,6 +230,37 @@ public class GameManager extends SceneManager {
             }
         }
         return null;
+    }
+
+    public Color[][] getLevelsStyle() {
+        Color[][] colors = new Color[NUM_WORLDS][3];
+
+        for (int i = 0; i < NUM_WORLDS; i++) {
+            String worldStyleFileName = "levels/world" + (i + 1) + "/style.json";
+            InputStream styleFile = this.engine.getFileInputStream(worldStyleFileName, IEngine.FileType.GAME_DATA);
+
+            if (styleFile != null) {
+                String styleStr = this.engine.readFile(styleFile);
+                if (styleStr != null) {
+                    JSONObject style = new JSONObject(styleStr);
+                    JSONObject colorUnlocked = style.getJSONObject("colorUnlocked");
+                    JSONObject colorLocked = style.getJSONObject("colorLocked");
+                    JSONObject pointoverUnlocked = style.getJSONObject("pointoverUnlocked");
+
+                    if (colorUnlocked != null && colorLocked != null) {
+                        Color unlocked = new Color(colorUnlocked.getInt("r"), colorUnlocked.getInt("g"), colorUnlocked.getInt("b"));
+                        Color pointover = new Color(pointoverUnlocked.getInt("r"), pointoverUnlocked.getInt("g"), pointoverUnlocked.getInt("b"));
+                        Color locked = new Color(colorLocked.getInt("r"), colorLocked.getInt("g"), colorLocked.getInt("b"));
+
+                        colors[i][0] = unlocked;
+                        colors[i][1] = pointover;
+                        colors[i][2] = locked;
+                    }
+                }
+            }
+        }
+
+        return colors;
     }
 
     private void applyShopProgress() {
@@ -262,19 +301,19 @@ public class GameManager extends SceneManager {
     }
 
     public void setAdventureJsonObject(JSONObject adventureJsonObject) {
-        this.progressJsonObject.put("adventure", adventureJsonObject);
+        this.progressJsonObject.put(ADVENTURE_KEY, adventureJsonObject);
     }
 
     public JSONObject getAdventureJSONObj() {
-        return getProgressJsonObject("adventure");
+        return getProgressJsonObject(ADVENTURE_KEY);
     }
 
     public void setQuickPlayJsonObject(JSONObject quickPlayJsonObject) {
-        this.progressJsonObject.put("quickPlay", quickPlayJsonObject);
+        this.progressJsonObject.put(QUICK_PLAY_KEY, quickPlayJsonObject);
     }
 
     public JSONObject getQuickPlayJSONObj() {
-        return getProgressJsonObject("quickPlay");
+        return getProgressJsonObject(QUICK_PLAY_KEY);
     }
 
     public void increaseCoins(int coins) {
@@ -297,6 +336,34 @@ public class GameManager extends SceneManager {
         return 0;
     }
 
+    public void setLevelProgress(int levelNumber) {
+        int currLevelProgress = this.getLevelProgress();
+        if (levelNumber > currLevelProgress) {
+            this.progressJsonObject.put(LEVEL_PROGRESS_KEY, levelNumber);
+        }
+    }
+
+    public int getLevelProgress() {
+        if (this.progressJsonObject.has(LEVEL_PROGRESS_KEY)) {
+            return this.progressJsonObject.getInt(LEVEL_PROGRESS_KEY);
+        }
+        return 1;
+    }
+
+    public Pair<Integer, Integer> getLevelWorld(int levelNumber) {
+        int world = (levelNumber - 1) / LEVELS_PER_WORLD + 1;
+        int level = (levelNumber - 1) % LEVELS_PER_WORLD + 1;
+        return new Pair<>(world, level);
+    }
+
+    public int getNWorlds() {
+        return NUM_WORLDS;
+    }
+
+    public int getLevelsPerWorld() {
+        return LEVELS_PER_WORLD;
+    }
+
     // Metodos tienda
     public List<String> getShopItemsKeys() {
         return this.shopItemsKeys;
@@ -307,11 +374,11 @@ public class GameManager extends SceneManager {
     }
 
     public JSONObject getSavedShopJsonObject() {
-        return getProgressJsonObject("shop");
+        return getProgressJsonObject(SHOP_KEY);
     }
 
     public void setSavedShopJsonObject(JSONObject obj) {
-        this.progressJsonObject.put("shop", obj);
+        this.progressJsonObject.put(SHOP_KEY, obj);
     }
 
     public void setBgColor(Color c) {
