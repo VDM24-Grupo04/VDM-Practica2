@@ -18,13 +18,6 @@ public interface IEngine {
     void writeFile(FileOutputStream file, String info);
     String readFile(InputStream file);
     String getHash(String data);
-    void shareAction(ShareActionType type, ShareParams params);
 
     enum FileType { GAME_DATA, PROGRESS_DATA }
-    enum ShareActionType { IMAGE, TEXT }
-    class ShareParams {
-        public String extraText;
-        public int x, y, w, h;
-        public boolean fullScreen = false;
-    }
 }

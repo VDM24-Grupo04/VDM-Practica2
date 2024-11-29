@@ -50,6 +50,7 @@ public class AndroidMobile implements IMobile {
 
         loadBannerAd(adView);
         loadRewardedAd();
+
     }
 
     private void loadBannerAd(AdView adView) {
@@ -139,38 +140,69 @@ public class AndroidMobile implements IMobile {
         }
     }
 
-    public void shareImageAction(String extraText, int x, int y, int w, int h) {
-        Bitmap bitmap = Bitmap.createBitmap(this.window.getWidth(), this.window.getHeight(), Bitmap.Config.ARGB_8888);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            HandlerThread handlerThread = new HandlerThread("PixelCopier");
-            handlerThread.start();
-            PixelCopy.request(this.window, bitmap, new PixelCopy.OnPixelCopyFinishedListener() {
-                @Override
-                public void onPixelCopyFinished(int copyResult) {
-                    if (copyResult == PixelCopy.SUCCESS) {
-                        try {
-                            Bitmap finalBitmap = Bitmap.createBitmap(bitmap, x, y, w, h);
-                            String imageUri = MediaStore.Images.Media.insertImage(mainActivity.getContentResolver(), finalBitmap, "screenshot", null);
-                            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                            shareIntent.setType("image/*");
-                            shareIntent.putExtra(Intent.EXTRA_TEXT, extraText);
-                            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
-                            mainActivity.startActivity(Intent.createChooser(shareIntent, "Compartir imagen"));
-                        } catch (Exception e) {
-                            System.err.println(e.getMessage());
-                        }
+    @Override
+    public void shareAction(ShareActionType type, ShareParams params) {
+        switch (type) {
+            case IMAGE:
+                if (params.fullScreen) {
+                    this.shareImageAction(params.extraText, 0,0, this.window.getWidth(), this.window.getHeight(), params.shareTitle);
+                } else {
+                    // worldWidth y worldHeight no pueden ser 0
+                    if (params.worldWidth == 0 || params.worldHeight == 0) {
+                        System.err.println("worldWidth or worldHeight cannot be zero.");
+                        return;
                     }
-                    handlerThread.quitSafely();
+
+                    float scaleX = this.window.getWidth() / (float)(params.worldWidth);
+                    float scaleY = this.window.getHeight() / (float)(params.worldHeight);
+                    int x = (int)(params.x * scaleX);
+                    int y = (int)(params.y * scaleY);
+                    int w = (int)(params.w * scaleX);
+                    int h = (int)(params.h * scaleY);
+                    this.shareImageAction(params.extraText, x, y, w, h, params.shareTitle);
                 }
-            }, new Handler(handlerThread.getLooper()));
+                break;
+            case TEXT: this.shareTextAction(params.extraText, params.shareTitle); break;
+            // ...
         }
     }
 
-    public void shareTextAction(String text) {
+    private void shareImageAction(String extraText, int x, int y, int w, int h, String shareTitle) {
+        Bitmap bitmap = Bitmap.createBitmap(this.window.getWidth(), this.window.getHeight(), Bitmap.Config.ARGB_8888);
+        HandlerThread handlerThread = new HandlerThread("PixelCopier");
+        handlerThread.start();
+        PixelCopy.request(this.window, bitmap, new PixelCopy.OnPixelCopyFinishedListener() {
+            @Override
+            public void onPixelCopyFinished(int copyResult) {
+                try {
+                    if (copyResult == PixelCopy.SUCCESS) {
+                        Bitmap finalBitmap = Bitmap.createBitmap(bitmap, x, y, w, h);
+                        String uniqueImageName = "screenshot_" + System.currentTimeMillis();
+                        String imageUri = MediaStore.Images.Media.insertImage(mainActivity.getContentResolver(), finalBitmap, uniqueImageName, null);
+                        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                        shareIntent.setType("image/*");
+                        shareIntent.putExtra(Intent.EXTRA_TEXT, extraText);
+                        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
+                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                        mainActivity.startActivity(Intent.createChooser(shareIntent, shareTitle));
+                        finalBitmap.recycle();
+                    }
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                } finally {
+                    // Se lanza siempre sin importar si hubo excepción o no
+                    bitmap.recycle();
+                    handlerThread.quitSafely();
+                }
+            }
+        }, new Handler(handlerThread.getLooper()));
+    }
+
+    private void shareTextAction(String text, String shareTitle) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, text);
-        this.mainActivity.startActivity(Intent.createChooser(shareIntent, "Compartir texto"));
+        this.mainActivity.startActivity(Intent.createChooser(shareIntent, shareTitle));
     }
 }

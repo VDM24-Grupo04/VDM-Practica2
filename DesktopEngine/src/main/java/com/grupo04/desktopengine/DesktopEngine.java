@@ -115,7 +115,4 @@ public class DesktopEngine extends Engine {
         }
         return hexString.toString();
     }
-
-    @Override
-    public void shareAction(ShareActionType type, ShareParams params) {}
 }

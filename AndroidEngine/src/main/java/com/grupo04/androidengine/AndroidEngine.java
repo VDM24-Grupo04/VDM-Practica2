@@ -22,23 +22,20 @@ import java.io.InputStream;
 
 public class AndroidEngine extends Engine {
     private final Activity mainActivity;
-    private final SurfaceView window;
-    private final AndroidMobile androidMobile;
 
     public AndroidEngine(Activity mainActivity, SurfaceView window, AssetManager assetManager, AdView adView, int maxStreams) {
         super();
 
         this.mainActivity = mainActivity;
-        this.window = window;
 
-        AndroidGraphics androidGraphics = new AndroidGraphics(this.window, assetManager);
+        AndroidGraphics androidGraphics = new AndroidGraphics(window, assetManager);
         AndroidAudio androidAudio = new AndroidAudio(assetManager, maxStreams);
-        AndroidInput androidInput = new AndroidInput(this.window);
-        this.androidMobile = new AndroidMobile(this.mainActivity, this.window, adView);
+        AndroidInput androidInput = new AndroidInput(window);
+        AndroidMobile androidMobile = new AndroidMobile(this.mainActivity, window, adView);
 
         System.loadLibrary("HashLibrary");
 
-        this.initModules(androidGraphics, androidAudio, androidInput, this.androidMobile);
+        this.initModules(androidGraphics, androidAudio, androidInput, androidMobile);
     }
 
     @Override
@@ -81,20 +78,5 @@ public class AndroidEngine extends Engine {
     @Override
     public String getHash(String data) {
         return hash(data);
-    }
-
-    @Override
-    public void shareAction(ShareActionType type, ShareParams params) {
-        switch (type) {
-            case IMAGE:
-                if (params.fullScreen) {
-                    this.androidMobile.shareImageAction(params.extraText, 0,0, this.window.getWidth(), this.window.getHeight());
-                } else {
-                    this.androidMobile.shareImageAction(params.extraText, params.x, params.y, params.w, params.h);
-                }
-                break;
-            case TEXT: this.androidMobile.shareTextAction(params.extraText); break;
-            // ...
-        }
     }
 }

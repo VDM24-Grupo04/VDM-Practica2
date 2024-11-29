@@ -68,9 +68,7 @@ public class VictoryScene extends Scene {
             this.x2Button = new TextButton(x2ButtonPos,
                     BUTTON_WIDTH / 2f, BUTTON_HEIGHT, BUTTON_ARC, GREEN_BUTTON_BASE_COLOR, GREEN_BUTTON_OVER_COLOR,
                     "x2", BUTTON_FONT, TEXT_COLOR, false, AD_IMAGE_PATH, BUTTON_SOUND,
-                    () -> {
-                        mobile.showRewardedAd(this::onReward);
-                    });
+                    () -> mobile.showRewardedAd(this::onReward));
             addGameObject(this.x2Button);
 
             Vector shareButtonPos = new Vector(this.worldWidth / 2f, coinsPos.y + BUTTON_HEIGHT + BUTTON_OFFSET_Y);
@@ -78,8 +76,9 @@ public class VictoryScene extends Scene {
                     BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, GREEN_BUTTON_BASE_COLOR, GREEN_BUTTON_OVER_COLOR,
                     "Compartir", BUTTON_FONT, TEXT_COLOR, false, SHARE_IMAGE_PATH, BUTTON_SOUND,
                     () -> {
-                        IEngine.ShareParams params = new IEngine.ShareParams();
+                        IMobile.ShareParams params = new IMobile.ShareParams();
                         params.fullScreen = true;
+                        params.shareTitle = "Compartir imagen";
 
                         // Si no es un nivel y es modo QuickPlay
                         if (levelNumber <= 0) {
@@ -88,7 +87,7 @@ public class VictoryScene extends Scene {
                             params.extraText = "¡Ha completado el nivel " + levelNumber + "!";
                         }
 
-                        this.engine.shareAction(IEngine.ShareActionType.IMAGE, params);
+                        mobile.shareAction(IMobile.ShareActionType.IMAGE, params);
                     });
             addGameObject(shareButton);
         }

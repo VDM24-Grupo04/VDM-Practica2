@@ -23,9 +23,9 @@ public class DesktopGame {
         window.setIgnoreRepaint(true);
 
         // Pantalla completa
-        //window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        window.setExtendedState(JFrame.MAXIMIZED_BOTH);
         // Sin bordes
-        //window.setUndecorated(true);
+        window.setUndecorated(true);
 
         window.setVisible(true);
 
@@ -43,8 +43,8 @@ public class DesktopGame {
         // Al cerrar la ventana se realiza una salida adecuada del sistema
         window.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                desktopEngine.onStop();
-                System.exit(0);
+            desktopEngine.onStop();
+            System.exit(0);
             }
         });
 
