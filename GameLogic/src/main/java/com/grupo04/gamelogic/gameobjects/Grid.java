@@ -173,6 +173,7 @@ public class Grid extends GameObject {
         this.fallingSpeed = fallingSpeed;
         this.fallingBubbles = new ArrayList<>();
         this.won = false;
+        this.end = false;
 
         this.collidedBubbles = new ArrayList<>();
         this.shrinkSpeed = shrinkSpeed;
@@ -293,7 +294,8 @@ public class Grid extends GameObject {
                     iterator.remove();
                 }
             }
-        } else if (this.won) {
+        }
+        else if (this.won) {
             this.audio.stopSound(this.attachSound);
             this.audio.stopSound(this.explosionSound);
             this.end = true;
