@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         this.androidEngine.getMobile().initializeNotifications(R.string.channel_id,
                 R.string.channel_name, R.string.channel_description,
-                R.string.notifications_workers_tag);
+                R.string.workers_tag);
 
         // Bloquear la orientacion
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
