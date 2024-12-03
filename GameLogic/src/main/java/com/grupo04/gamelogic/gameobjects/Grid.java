@@ -215,25 +215,17 @@ public class Grid extends GameObject {
     public void render(IGraphics graphics) {
         super.render(graphics);
 
+        ImageToggleButton showGridButtonRef = this.showGridButton.get();
+
         // Recorre la matriz y pinta las bolas si el color en la posicion i,j de la matriz es >= 0
         if (this.bubbles != null) {
             for (int i = 0; i < this.rows; i++) {
                 int bPerRow = (i % 2 == 0) ? this.cols : (this.cols - 1);
                 for (int j = 0; j < bPerRow; ++j) {
-                    this.bubbleColors.drawBall(graphics, scene.getGameManager(), this.bubbles[i][j], gridToWorldPosition(i, j), this.r);
-                }
-            }
-        }
+                    Vector pos = gridToWorldPosition(i, j);
+                    this.bubbleColors.drawBall(graphics, scene.getGameManager(), this.bubbles[i][j], pos, this.r);
 
-        // Recorre la matriz pintando los hexagonos (hay que recorrerla de nuevo
-        // para que los hexagonos se pinten por encima de todas las bolas)
-        ImageToggleButton showGridButtonRef = this.showGridButton.get();
-        if (showGridButtonRef != null) {
-            if (showGridButtonRef.isCheck()) {
-                for (int i = 0; i < this.rows; i++) {
-                    int bPerRow = (i % 2 == 0) ? this.cols : (this.cols - 1);
-                    for (int j = 0; j < bPerRow; ++j) {
-                        Vector pos = gridToWorldPosition(i, j);
+                    if (showGridButtonRef != null && showGridButtonRef.isCheck()) {
                         pos.x += 0.5f;
                         graphics.setColor(this.lineColor);
                         graphics.drawHexagon(pos, this.hexagonRadius, 90, this.lineThickness);
@@ -294,8 +286,7 @@ public class Grid extends GameObject {
                     iterator.remove();
                 }
             }
-        }
-        else if (this.won) {
+        } else if (this.won) {
             this.audio.stopSound(this.attachSound);
             this.audio.stopSound(this.explosionSound);
             this.end = true;
@@ -510,8 +501,8 @@ public class Grid extends GameObject {
     }
 
     // A partir de la lista de coordenadas adyacentes, obtenida tras la eliminacion de la bolas del mismo color
-    // bolas, se sacan los diferentes conjuntos con dfs y se comprueba si en cada conjunto hay al menos una bola
-    // pegada al techo. En ese caso, todas las bolas de ese conjunto no se caen
+// bolas, se sacan los diferentes conjuntos con dfs y se comprueba si en cada conjunto hay al menos una bola
+// pegada al techo. En ese caso, todas las bolas de ese conjunto no se caen
     private boolean manageFall(List<Pair<Integer, Integer>> bubblesToFall) {
         int numBubblesToFall = 0;
         for (Pair<Integer, Integer> v : bubblesToFall) {
