@@ -147,7 +147,22 @@ public class VerticalListview extends GameObject {
         graphics.fillRectangle(this.footerMediumPos, this.width, this.footerHeight);
     }
 
+    @Override
+    public void update(double deltaTime) {
+        for (ListviewButton button : buttons) {
+            button.update(deltaTime);
+        }
+    }
+
+    @Override
+    public void dereference() {
+        for (ListviewButton button : buttons) {
+            button.dereference();
+        }
+    }
+
     public void addButton(ListviewButton button) {
         buttons.add(button);
     }
+    public float getItemSize() { return this.itemSize; }
 }

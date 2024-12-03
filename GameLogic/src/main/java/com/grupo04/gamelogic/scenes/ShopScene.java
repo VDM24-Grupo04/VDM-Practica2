@@ -12,6 +12,7 @@ import com.grupo04.gamelogic.gameobjects.shopItems.ShopItem;
 import com.grupo04.gamelogic.gameobjects.Text;
 import com.grupo04.gamelogic.gameobjects.shopItems.ShopBallSkin;
 import com.grupo04.gamelogic.gameobjects.shopItems.ShopBgColor;
+import com.grupo04.gamelogic.listview.VerticalListview;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,9 +24,13 @@ import java.util.List;
 import java.util.Objects;
 
 public class ShopScene extends Scene {
+    private final Color BG_COLOR = new Color(255, 255, 255);
+
     private final String BUTTON_SOUND = "button.wav";
     private final String FONT_NAME = "kimberley.ttf";
     private final int HEADER_SIZE = 40, HEADER_OFFSET = 20, FONT_SIZE = 20;
+    private final int HEADER_REAL_SIZE = HEADER_SIZE + HEADER_OFFSET;
+
     private final Color TEXT_COLOR = new Color(0, 0, 0);
     private final float COINS_IMAGE_SIZE = HEADER_SIZE * 0.6f;
     private final Color SELECTED_COLOR = new Color(0, 255, 0);
@@ -53,6 +58,14 @@ public class ShopScene extends Scene {
     @Override
     public void init() {
         IGraphics graphics = getEngine().getGraphics();
+
+        float height = this.worldHeight - HEADER_REAL_SIZE;
+        float y = HEADER_REAL_SIZE + height / 1.95f;
+        float maskHeight = HEADER_REAL_SIZE * 2f;
+        VerticalListview listview = new VerticalListview(new Vector(this.worldWidth / 2f, y ),
+                this.worldWidth, height, BG_COLOR,
+                maskHeight, maskHeight, 3, 20);
+        addGameObject(listview);
 
         // Se anaden los objetos del header
         createHeader(graphics);

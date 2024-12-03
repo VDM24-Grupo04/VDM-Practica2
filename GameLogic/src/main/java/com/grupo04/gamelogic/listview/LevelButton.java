@@ -24,25 +24,18 @@ public class LevelButton extends ListviewButton {
 
     private IFont font;
     private final String text;
-    private String fontName;
-    private boolean bold;
     private final Color fontColor;
 
     private IImage image;
-    private String imagePath;
     private int imageSize;
 
     private IAudio audio;
     private ISound onClickSound;
-    private String onClickSoundPath;
-
     private Callback onClick;
 
     public LevelButton(int levelNumber, boolean locked, Color[] colors,
                        Color borderCol, float arc, float borderWidth,
-                       String fontName, boolean bold, Color fontColor,
-                       String imagePath,
-                       String onClickSoundPath,
+                       Color fontColor, IFont font, IImage image, ISound onClickSound,
                        Callback onClick) {
 
         this.locked = locked;
@@ -59,17 +52,14 @@ public class LevelButton extends ListviewButton {
         this.borderWidth = borderWidth;
 
         this.text = Integer.toString(levelNumber);
-        this.fontName = fontName;
-        this.bold = bold;
-        this.font = null;
+        this.font = font;
         this.fontColor = fontColor;
 
-        this.imagePath = imagePath;
-        this.imageSize = 0;
+        this.imageSize = (int) (height / 1.7f);
+        this.image = image;
 
-        this.onClickSoundPath = onClickSoundPath;
         this.audio = null;
-        this.onClickSound = null;
+        this.onClickSound = onClickSound;
 
         this.onClick = onClick;
     }
@@ -78,15 +68,7 @@ public class LevelButton extends ListviewButton {
     public void init(IEngine engine, Vector relativePos, Vector listviewPos, float width, float height) {
         super.init(engine, relativePos, listviewPos, width, height);
 
-        IGraphics graphics = engine.getGraphics();
-        IAudio audio = engine.getAudio();
-
-        float fontSize = height / 1.8f;
-        this.font = graphics.newFont(fontName, fontSize, bold, false);
-        this.imageSize = (int) (height / 1.7f);
-        this.image = graphics.newImage(this.imagePath);
-        this.audio = audio;
-        this.onClickSound = audio.newSound(onClickSoundPath);
+        this.audio = engine.getAudio();
     }
 
     @Override

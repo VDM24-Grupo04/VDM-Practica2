@@ -1,7 +1,11 @@
 package com.grupo04.gamelogic.scenes;
 
 import com.grupo04.engine.interfaces.IEngine;
+import com.grupo04.engine.interfaces.IFont;
 import com.grupo04.engine.interfaces.IGraphics;
+import com.grupo04.engine.interfaces.IImage;
+import com.grupo04.engine.interfaces.ISound;
+import com.grupo04.engine.utilities.Callback;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.Scene;
@@ -100,13 +104,18 @@ public class LevelsScene extends Scene {
         int levelsPerWorld = this.gameManager.getLevelsPerWorld();
         int levelNumber = world * levelsPerWorld + (level + 1);
         boolean locked = levelNumber > levelProgress;
+
+        float fontSize = listview.getItemSize() / 1.8f;
+        IFont font = getEngine().getGraphics().newFont(LEVEL_BUTTON_FONT_NAME, fontSize, false, false);
+        IImage image = getEngine().getGraphics().newImage(LEVEL_BUTTON_IMAGE);
+        ISound onClickSound = getEngine().getAudio().newSound(BUTTON_SOUND);
+
         LevelButton levelButton = new LevelButton(levelNumber, locked, cols,
                 LEVEL_BUTTON_BORDER_COLOR, LEVEL_BUTTON_ARC, LEVEL_BUTTON_BORDER_WIDTH,
-                LEVEL_BUTTON_FONT_NAME, false, FONT_COLOR,
-                LEVEL_BUTTON_IMAGE,
-                BUTTON_SOUND, () -> {
+                FONT_COLOR, font, image, onClickSound, () -> {
             gameManager.changeToGameScene(levelNumber);
         });
+
         listview.addButton(levelButton);
     }
 
