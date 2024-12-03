@@ -98,7 +98,7 @@ public class DesktopAudio extends Audio {
             return openNotRunning;
         }
 
-        System.out.println("No clips available.");
+        System.out.println("No clips available");
         return null;
     }
 

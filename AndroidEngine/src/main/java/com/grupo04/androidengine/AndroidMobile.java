@@ -3,15 +3,20 @@ package com.grupo04.androidengine;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.view.PixelCopy;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
@@ -34,6 +39,8 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.grupo04.engine.interfaces.IMobile;
 import com.grupo04.engine.utilities.Callback;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -179,6 +186,32 @@ public class AndroidMobile implements IMobile {
         }
     }
 
+    private Uri saveBitmapToGallery(Bitmap bitmap, Context context, String name) {
+        ContentResolver resolver = context.getContentResolver();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name + ".png");
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
+        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES);
+        Uri imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+
+        if (imageUri == null) {
+            Toast.makeText(context, "Failed to create a new MediaStore record", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        try (OutputStream fos = resolver.openOutputStream(imageUri)) {
+            assert fos != null;
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            Toast.makeText(context, "Image saved in gallery", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            Toast.makeText(context, "Error saving image: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            resolver.delete(imageUri, null, null);
+            return null;
+        }
+        return imageUri;
+    }
+
     private void shareImageAction(String extraText, int x, int y, int w, int h, String shareTitle) {
         Bitmap bitmap = Bitmap.createBitmap(this.window.getWidth(), this.window.getHeight(), Bitmap.Config.ARGB_8888);
         HandlerThread handlerThread = new HandlerThread("PixelCopier");
@@ -190,14 +223,15 @@ public class AndroidMobile implements IMobile {
                     if (copyResult == PixelCopy.SUCCESS) {
                         Bitmap finalBitmap = Bitmap.createBitmap(bitmap, x, y, w, h);
                         String uniqueImageName = "screenshot_" + System.currentTimeMillis();
-                        String imageUri = MediaStore.Images.Media.insertImage(mainActivity.getContentResolver(), finalBitmap, uniqueImageName, null);
-                        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                        shareIntent.setType("image/*");
-                        shareIntent.putExtra(Intent.EXTRA_TEXT, extraText);
-                        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
-                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-                        mainActivity.startActivity(Intent.createChooser(shareIntent, shareTitle));
+                        Uri imageUri = saveBitmapToGallery(finalBitmap, mainActivity.getApplicationContext(), uniqueImageName);
+                        if (imageUri != null) {
+                            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                            shareIntent.setType("image/*");
+                            shareIntent.putExtra(Intent.EXTRA_TEXT, extraText);
+                            shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+                            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            mainActivity.startActivity(Intent.createChooser(shareIntent, shareTitle));
+                        }
                         finalBitmap.recycle();
                     }
                 } catch (Exception e) {
