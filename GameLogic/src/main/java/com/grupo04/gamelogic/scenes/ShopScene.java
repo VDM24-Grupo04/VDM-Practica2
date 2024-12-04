@@ -4,14 +4,16 @@ import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IFont;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
+import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.Scene;
 import com.grupo04.gamelogic.gameobjects.buttons.ImageButton;
-import com.grupo04.gamelogic.gameobjects.shopItems.ShopItem;
 import com.grupo04.gamelogic.gameobjects.Text;
-import com.grupo04.gamelogic.gameobjects.shopItems.ShopBallSkin;
-import com.grupo04.gamelogic.gameobjects.shopItems.ShopBgColor;
+import com.grupo04.gamelogic.listview.ShopItemButton;
+import com.grupo04.gamelogic.listview.VerticalListview;
+import com.grupo04.gamelogic.listview.shopItems.ShopBallSkinButton;
+import com.grupo04.gamelogic.listview.shopItems.ShopBgColorButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,9 +25,15 @@ import java.util.List;
 import java.util.Objects;
 
 public class ShopScene extends Scene {
-    private final String BUTTON_SOUND = "button.wav";
+    private final Color BG_COLOR = new Color(255, 255, 255);
+
     private final String FONT_NAME = "kimberley.ttf";
     private final int HEADER_SIZE = 40, HEADER_OFFSET = 20, FONT_SIZE = 20;
+    private final int HEADER_REAL_SIZE = HEADER_SIZE + HEADER_OFFSET;
+
+    private final String BUTTON_SOUND = "button.wav";
+    private ISound buttonSound;
+
     private final Color TEXT_COLOR = new Color(0, 0, 0);
     private final float COINS_IMAGE_SIZE = HEADER_SIZE * 0.6f;
     private final Color SELECTED_COLOR = new Color(0, 255, 0);
@@ -40,8 +48,10 @@ public class ShopScene extends Scene {
     private float itemSize;
     private int coinsImageSize = this.FONT_SIZE;
 
-    private HashMap<String, ShopItem> items;
-    private List<ShopBgColor> colors;
+    VerticalListview listview;
+
+    private HashMap<String, ShopItemButton> items;
+    private List<ShopBgColorButton> colors;
 
     public ShopScene(IEngine engine) {
         super(engine, 400, 600, new Color(255, 255, 255));
@@ -54,11 +64,19 @@ public class ShopScene extends Scene {
     public void init() {
         IGraphics graphics = getEngine().getGraphics();
 
+        float height = this.worldHeight - HEADER_REAL_SIZE;
+        float y = HEADER_REAL_SIZE + height / 1.95f;
+        float maskHeight = HEADER_REAL_SIZE * 2f;
+        this.listview = new VerticalListview(new Vector(this.worldWidth / 2f, y ),
+                this.worldWidth, height, BG_COLOR, maskHeight, maskHeight, ITEMS_PER_ROW, ITEM_OFFSET, this.itemSize + this.FONT_SIZE * 3);
+        addGameObject(listview);
+
         // Se anaden los objetos del header
         createHeader(graphics);
 
-        // Se crea la fuente
+        // Se crea la fuente y el audio de los botones
         this.pricesFont = graphics.newFont(this.FONT_NAME, this.FONT_SIZE, true, false);
+        this.buttonSound = getEngine().getAudio().newSound(BUTTON_SOUND);
 
         // Se calcula el tamano de los objetos dependiendo del numero de objetos por fila
         float freeSpace = this.worldWidth - this.HEADER_OFFSET * 2 - this.ITEM_OFFSET * (this.ITEMS_PER_ROW - 1);
@@ -71,17 +89,16 @@ public class ShopScene extends Scene {
 
         // Al iniciar la escena se hace un fade out
         setFade(Fade.OUT, 0.25);
-
     }
 
     @Override
     public void render(IGraphics graphics) {
+        super.render(graphics);
+
         graphics.setFont(this.headerCoinsFont);
         graphics.setColor(this.TEXT_COLOR);
         graphics.drawText(((Integer) (gameManager.getCoins())).toString(), headerCoinsTextPos, false, true);
         graphics.drawImage(this.coinImg, this.headerCoinsImgPos, (int) this.COINS_IMAGE_SIZE, (int) this.COINS_IMAGE_SIZE);
-
-        super.render(graphics);
     }
 
     @Override
@@ -96,6 +113,7 @@ public class ShopScene extends Scene {
         this.headerCoinsImgPos = null;
 
         this.pricesFont = null;
+        this.buttonSound = null;
         items.clear();
     }
 
@@ -107,7 +125,7 @@ public class ShopScene extends Scene {
         }
         // Recorre todas las keys de los objetos de la tienda
         for (String key : items.keySet()) {
-            ShopItem item = items.get(key);
+            ShopItemButton item = items.get(key);
 
             // Se crea un JsonObject en el que guardar los atributos del objeto
             JSONObject savedItem = new JSONObject();
@@ -164,56 +182,7 @@ public class ShopScene extends Scene {
         this.headerCoinsImgPos = new Vector(this.headerCoinsTextPos.x - this.COINS_IMAGE_SIZE, this.headerCoinsTextPos.y);
     }
 
-
-    // Anade un objeto a la lista
-    private void addItem(String key, ShopItem item, int index) {
-        // Si el objeto no esta ya en la lista
-        if (!items.containsKey(key)) {
-            // Calcula su posicion dependiendo del numero de objetos que haya en la lista antes de anadirlo
-            float x = (index % ITEMS_PER_ROW) * (this.itemSize + this.ITEM_OFFSET) + this.HEADER_OFFSET + this.itemSize / 2;
-            float y = (index / ITEMS_PER_ROW) * (this.itemSize + this.FONT_SIZE * 3) + this.HEADER_SIZE * 2.3f + this.itemSize / 2;
-
-            // Cambia la posicion del objeto
-            item.setPos(x, y);
-
-            // Lo anade a la escena y a la lista de objetos
-            addGameObject(item);
-            items.put(key, item);
-        }
-    }
-
-    private void addBgColor(String key, int r, int g, int b, int a) {
-        if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255 && a >= 0 && a <= 255) {
-            Color col = new Color(r, g, b, a);
-            ShopBgColor color = new ShopBgColor(itemSize, itemSize, this.BUTTON_SOUND,
-                    50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, col);
-
-            // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
-            color.setOnSelect(() -> {
-                for (ShopBgColor c : colors) {
-                    c.setSelected(false);
-                }
-            });
-
-            // Anade el objeto al mapa de objetos y el color a la lista de colores
-            addItem(key, color, colors.size());
-            colors.add(color);
-        } else {
-            System.out.println("Color out of valid range");
-        }
-    }
-
-    private void addBallSkin(String key, String imgPath, int id) {
-        IImage img = getEngine().getGraphics().newImage(imgPath);
-        ShopBallSkin skin = new ShopBallSkin(itemSize, itemSize, this.BUTTON_SOUND,
-                50, pricesFont, this.TEXT_COLOR, coinImg, coinsImageSize, SELECTED_COLOR, img, id);
-
-        // Siguiente fila al ultimo color
-        int row = 1 + (colors.size() / ITEMS_PER_ROW);
-        int col = items.size() - colors.size();
-        addItem(key, skin, (row * ITEMS_PER_ROW) + col);
-    }
-
+    // Lee los objetos del json de la tienda
     private void readItems() {
         List<String> itemsKeys =  gameManager.getShopItemsKeys();
         HashMap<String, JSONObject> itemsByKey = gameManager.getShopItemsByKey();
@@ -246,7 +215,7 @@ public class ShopScene extends Scene {
                 JSONObject obj = savedItems.getJSONObject(key);
                 if (obj != null && this.items.containsKey(key)) {
                     // Obtiene el objeto con esa id de la tienda
-                    ShopItem item = this.items.get(key);
+                    ShopItemButton item = this.items.get(key);
 
                     // Si el objeto leido tiene el atributo bought, se
                     // pone el valor bought del objeto por el leido
@@ -265,4 +234,51 @@ public class ShopScene extends Scene {
             }
         }
     }
+
+    // Crea un elemento de tipo color de fondo
+    private void addBgColor(String key, int r, int g, int b, int a) {
+        if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255 && a >= 0 && a <= 255) {
+            Color col = new Color(r, g, b, a);
+
+            ShopBgColorButton color = new ShopBgColorButton(50, this.pricesFont, TEXT_COLOR, coinImg, coinsImageSize,
+                    SELECTED_COLOR, this.buttonSound, gameManager, col);
+
+            // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
+            color.setOnSelect(() -> {
+                for (ShopBgColorButton c : colors) {
+                    c.setSelected(false);
+                }
+            });
+
+            // Anade el objeto al mapa de objetos y el color a la lista de colores
+            addItem(key, color, colors.size());
+            colors.add(color);
+        }
+        else {
+            System.out.println("Color out of valid range");
+        }
+    }
+
+    // Crea un elemento de tipo skin de bola
+    private void addBallSkin(String key, String imgPath, int id) {
+        IImage img = getEngine().getGraphics().newImage(imgPath);
+
+        ShopBallSkinButton skin = new ShopBallSkinButton(50, this.pricesFont, TEXT_COLOR, coinImg, coinsImageSize,
+                SELECTED_COLOR, this.buttonSound, gameManager, img, id);
+
+        // Siguiente fila al ultimo color
+        int row = 1 + (colors.size() / ITEMS_PER_ROW);
+        int col = items.size() - colors.size();
+        addItem(key, skin, (row * ITEMS_PER_ROW) + col);
+    }
+
+    // Anade un objeto a la lista
+    private void addItem(String key, ShopItemButton item, int index) {
+        // Si el objeto no esta ya en la lista
+        if (!items.containsKey(key)) {
+            this.listview.addButton(item);
+            items.put(key, item);
+        }
+    }
+
 }

@@ -1,26 +1,27 @@
-package com.grupo04.gamelogic.gameobjects.shopItems;
+package com.grupo04.gamelogic.listview.shopItems;
 
 import com.grupo04.engine.interfaces.IFont;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
+import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.engine.utilities.Callback;
 import com.grupo04.engine.utilities.Color;
+import com.grupo04.gamelogic.GameManager;
+import com.grupo04.gamelogic.listview.ShopItemButton;
 
-public class ShopBgColor extends ShopItem {
+public class ShopBgColorButton extends ShopItemButton {
     private Color color;
     private Callback baseOnSelect;
 
-    public ShopBgColor(float width, float height, String onClickSoundPath,
-                       int price, IFont priceFont, Color priceColor,
-                       IImage coinImage, int coinSize, Color selectedColor, Color color)
-    {
-        super(width, height, onClickSoundPath, price, priceFont, priceColor, coinImage, coinSize, selectedColor);
+    public ShopBgColorButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
+                             Color selectedColor, ISound buttonClickSound, GameManager gameManager, Color color) {
+        super(price, priceFont, priceColor, coinImage, coinSize, selectedColor, buttonClickSound, gameManager);
 
         this.color = color;
 
         // Al deseleccionar el objeto, se pone el color del fondo en el gameManager a null
         super.onDeselect = () -> {
-            scene.getGameManager().setBgColor(null);
+            gameManager.setBgColor(null);
         };
 
         // El resto da funcion de seleccion se establece desde fuera con el setOnSelect(),
@@ -28,7 +29,7 @@ public class ShopBgColor extends ShopItem {
         this.baseOnSelect = () -> {
             // Selecciona el objeto y cambia el color del fondo
             super.setSelected(true);
-            scene.getGameManager().setBgColor(this.color);
+            gameManager.setBgColor(this.color);
         };
     }
 

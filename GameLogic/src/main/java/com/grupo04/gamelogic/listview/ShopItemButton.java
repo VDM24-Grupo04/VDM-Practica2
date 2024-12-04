@@ -1,19 +1,18 @@
-package com.grupo04.gamelogic.gameobjects.shopItems;
+package com.grupo04.gamelogic.listview;
 
+import com.grupo04.engine.interfaces.IAudio;
+import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IFont;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
+import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.engine.interfaces.ITouchEvent;
 import com.grupo04.engine.utilities.Callback;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.GameManager;
-import com.grupo04.gamelogic.gameobjects.buttons.Button;
 
-import java.util.List;
-
-// Clase de la que heredaran todos los objetos de la tienda
-public abstract class ShopItem extends Button {
+public class ShopItemButton extends ListviewButton {
     private int price;          // Precio
     private Vector pricePos;    // Posicion del texto del precio
     private IFont priceFont;    // IFont que usara el texto
@@ -23,6 +22,10 @@ public abstract class ShopItem extends Button {
     private IImage coinImage;       // Imagen de la moneda
     private Vector coinImagePos;    // Posicion de la imagen de la moneda
     private float coinSize;     // Tamano de la imagen de la moneda
+
+    private IAudio audio;
+    private ISound onClickSound;
+    protected Callback onSelect, onDeselect;
 
     private boolean bought;         // Si se ha comprado el objeto o no
     private boolean selected;       // Si el objeto esta seleccionado o no
@@ -34,16 +37,11 @@ public abstract class ShopItem extends Button {
     private boolean hasTouched;     // Si se ha pulsado una vez (para detectar una segunda pulsacion)
     private double touchTimer;      // Tiempo desde la primera pulsacion
 
-    protected Callback onSelect, onDeselect;
-
     GameManager gameManager;
 
-    public ShopItem(float width, float height, String onClickSoundPath,
-                    int price, IFont priceFont, Color priceColor,
-                    IImage coinImage, int coinSize, Color selectedColor)
-    {
-        super(new Vector(0, 0), width, height, onClickSoundPath, ()-> { });
-
+    public ShopItemButton(int price, IFont priceFont, Color priceColor, IImage coinImage,
+                          int coinSize, Color selectedColor, ISound buttonClickSound, GameManager gameManager) {
+        super();
         this.price = price;
         this.priceFont = priceFont;
         this.priceColor = priceColor;
@@ -51,6 +49,8 @@ public abstract class ShopItem extends Button {
         this.coinImage = coinImage;
         this.coinSize = coinSize;
         this.selectedColor = selectedColor;
+
+        this.onClickSound = buttonClickSound;
 
         this.onSelect = () -> { };
         this.onDeselect = () -> { };
@@ -63,36 +63,67 @@ public abstract class ShopItem extends Button {
         // Se crean los vectores de posicion
         this.pricePos = new Vector(0, 0);
         this.coinImagePos = new Vector(0, 0);
+
+        this.gameManager = gameManager;
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void init(IEngine engine, Vector relativePos, Vector listviewPos, float width, float height) {
+        super.init(engine, relativePos, listviewPos, width, height);
 
-        this.gameManager = scene.getGameManager();
+        this.audio = engine.getAudio();
+
+        // Cambia la posicion y la esquina superior izquierda del padre
+        this.pos.x = topLeft.x + this.width / 2;
+        this.pos.y = topLeft.y + this.height / 2;
+        updatePricePos();
     }
 
     @Override
-    public void update(double deltaTime) {
-        super.update(deltaTime);
+    public void handleEvent(ITouchEvent touchEvent) {
+        if (touchEvent.getType() == ITouchEvent.TouchEventType.PRESS) {
+            // Si el evento es de pulsacion y esta dentro del area del boton
+            if (withinArea(touchEvent.getPos())) {
+                // Si se ha comprado el objeto, hace toggle de su estado de seleccion
+                if (this.bought) {
+                    setSelected(!this.selected);
 
-        // Si se ha pulsado una vez y el objeto no ha sido comprado
-        if (hasTouched && !bought) {
-            // Actualiza el contador para detectar una doble pulsacion
-            this.touchTimer += deltaTime;
+                    // Si se ha seleccionado, llama a la funcion de seleccion
+                    if (this.selected) {
+                        this.onSelect.call();
+                    }
+                    // Si no, llama a la funcion de deseleccion
+                    else {
+                        this.onDeselect.call();
+                    }
+                }
+                // Si no,
+                else {
+                    // Si no se habia pulsado antes, pone que se ha pulsado
+                    // una vez y reinicia el contador de doble pulsacion
+                    if (!this.hasTouched) {
+                        this.hasTouched = true;
+                        this.touchTimer = 0;
+                    }
+                    // Si no, si se detecta doble pulsacion, intenta comprar el objeto
+                    else if (this.touchTimer < this.DOUBLE_TOUCH_THRESHOLD) {
+                        // Si el numero de monedas tras comprar el objeto es >= que 0,
+                        // compra el objeto, cambia el numero de monedas
+                        if (this.gameManager.getCoins() - this.price >= 0) {
+                            this.bought = true;
+                            this.gameManager.decreaseCoins(this.price);
+                        }
+                    }
+                }
 
-            // Si no se ha detectado una doble pulsacion, pone que se ha pulsado a false
-            if (this.touchTimer >= this.DOUBLE_TOUCH_THRESHOLD) {
-                this.hasTouched = false;
+                // Reproduce el sonido del boton
+                this.audio.playSound(this.onClickSound);
             }
         }
-
     }
 
     @Override
     public void render(IGraphics graphics) {
-        super.render(graphics);
-
         // Si no se ha comprado el objeto
         if (!bought) {
             // Se pinta el texto del precio
@@ -118,58 +149,27 @@ public abstract class ShopItem extends Button {
 
         // Dibuja el rectangulo del borde
         graphics.drawRoundRectangle(super.pos, super.width, super.height, this.BORDER_RADIUS, this.BORDER_THICKNESS);
-
     }
 
     @Override
-    public void handleInput(List<ITouchEvent> touchEvents) {
-        for (ITouchEvent touchEvent : touchEvents) {
-            if (touchEvent.getType() == ITouchEvent.TouchEventType.PRESS) {
-                // Si el evento es de pulsacion y esta dentro del area del boton
-                if (withinArea(touchEvent.getPos())) {
-                    // Si se ha comprado el objeto, hace toggle de su estado de seleccion
-                    if (this.bought) {
-                        setSelected(!this.selected);
+    public void update(double deltaTime) {
+        updatePricePos();
 
-                        // Si se ha seleccionado, llama a la funcion de seleccion
-                        if (this.selected) {
-                            this.onSelect.call();
-                        }
-                        // Si no, llama a la funcion de deseleccion
-                        else {
-                            this.onDeselect.call();
-                        }
-                    }
-                    // Si no,
-                    else {
-                        // Si no se habia pulsado antes, pone que se ha pulsado
-                        // una vez y reinicia el contador de doble pulsacion
-                        if (!this.hasTouched) {
-                            this.hasTouched = true;
-                            this.touchTimer = 0;
-                        }
-                        // Si no, si se detecta doble pulsacion, intenta comprar el objeto
-                        else if (this.touchTimer < this.DOUBLE_TOUCH_THRESHOLD) {
-                            // Si el numero de monedas tras comprar el objeto es >= que 0,
-                            // compra el objeto, cambia el numero de monedas
-                            if (this.gameManager.getCoins() - this.price >= 0) {
-                                this.bought = true;
-                                this.gameManager.decreaseCoins(this.price);
-                            }
-                        }
-                    }
+        // Si se ha pulsado una vez y el objeto no ha sido comprado
+        if (hasTouched && !bought) {
+            // Actualiza el contador para detectar una doble pulsacion
+            this.touchTimer += deltaTime;
 
-                    // Reproduce el sonido del boton
-                    this.playOnClickSound();
-                }
+            // Si no se ha detectado una doble pulsacion, pone que se ha pulsado a false
+            if (this.touchTimer >= this.DOUBLE_TOUCH_THRESHOLD) {
+                this.hasTouched = false;
             }
         }
     }
 
+
     @Override
     public void dereference() {
-        super.dereference();
-
         this.pricePos = null;
         this.priceFont = null;
 
@@ -187,14 +187,7 @@ public abstract class ShopItem extends Button {
         this.onSelect.call();
     }
 
-    // Establece la posicion del boton
-    public void setPos(float x, float y) {
-        // Cambia la posicion y la esquina superior izquierda del padre
-        this.pos.x = x;
-        this.pos.y = y;
-        this.topLeft.x = this.pos.x - (float) this.width / 2;
-        this.topLeft.y = this.pos.y - (float) this.height / 2;
-
+    private void updatePricePos() {
         this.pricePos.x = this.pos.x;
         this.pricePos.y = this.pos.y + this.height / 2 + PRICE_OFFSET * 2;
 

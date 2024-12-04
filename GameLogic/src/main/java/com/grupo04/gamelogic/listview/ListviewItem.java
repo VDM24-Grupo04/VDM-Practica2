@@ -29,4 +29,6 @@ public abstract class ListviewItem {
     }
 
     public abstract void render(IGraphics graphics);
+
+    public void dereference() { };
 }

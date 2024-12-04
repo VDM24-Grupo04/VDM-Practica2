@@ -30,4 +30,6 @@ public abstract class ListviewButton extends ListviewItem {
     }
 
     public abstract void handleEvent(ITouchEvent touchEvent);
+
+    public void update(double deltaTime) { };
 }
