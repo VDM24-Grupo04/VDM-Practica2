@@ -1,9 +1,11 @@
 package com.grupo04.gamelogic.listview;
 
+import com.grupo04.engine.interfaces.IAudio;
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IFont;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
+import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.engine.interfaces.ITouchEvent;
 import com.grupo04.engine.utilities.Callback;
 import com.grupo04.engine.utilities.Color;
@@ -21,6 +23,10 @@ public class ShopItemButton extends ListviewButton {
     private Vector coinImagePos;    // Posicion de la imagen de la moneda
     private float coinSize;     // Tamano de la imagen de la moneda
 
+    private IAudio audio;
+    private ISound onClickSound;
+    protected Callback onSelect, onDeselect;
+
     private boolean bought;         // Si se ha comprado el objeto o no
     private boolean selected;       // Si el objeto esta seleccionado o no
     private Color selectedColor;
@@ -31,13 +37,10 @@ public class ShopItemButton extends ListviewButton {
     private boolean hasTouched;     // Si se ha pulsado una vez (para detectar una segunda pulsacion)
     private double touchTimer;      // Tiempo desde la primera pulsacion
 
-    protected Callback onSelect, onDeselect;
-
     GameManager gameManager;
 
-    public ShopItemButton(float width, float height, String onClickSoundPath,
-                          int price, IFont priceFont, Color priceColor,
-                          IImage coinImage, int coinSize, Color selectedColor) {
+    public ShopItemButton(int price, IFont priceFont, Color priceColor, IImage coinImage,
+                          int coinSize, Color selectedColor, ISound buttonClickSound, GameManager gameManager) {
         super();
         this.price = price;
         this.priceFont = priceFont;
@@ -46,6 +49,8 @@ public class ShopItemButton extends ListviewButton {
         this.coinImage = coinImage;
         this.coinSize = coinSize;
         this.selectedColor = selectedColor;
+
+        this.onClickSound = buttonClickSound;
 
         this.onSelect = () -> { };
         this.onDeselect = () -> { };
@@ -58,11 +63,20 @@ public class ShopItemButton extends ListviewButton {
         // Se crean los vectores de posicion
         this.pricePos = new Vector(0, 0);
         this.coinImagePos = new Vector(0, 0);
+
+        this.gameManager = gameManager;
     }
 
     @Override
     public void init(IEngine engine, Vector relativePos, Vector listviewPos, float width, float height) {
         super.init(engine, relativePos, listviewPos, width, height);
+
+        this.audio = engine.getAudio();
+
+        // Cambia la posicion y la esquina superior izquierda del padre
+        this.pos.x = topLeft.x + this.width / 2;
+        this.pos.y = topLeft.y + this.height / 2;
+        updatePricePos();
     }
 
     @Override
@@ -103,18 +117,44 @@ public class ShopItemButton extends ListviewButton {
                 }
 
                 // Reproduce el sonido del boton
-                this.playOnClickSound();
+                this.audio.playSound(this.onClickSound);
             }
         }
     }
 
     @Override
     public void render(IGraphics graphics) {
+        // Si no se ha comprado el objeto
+        if (!bought) {
+            // Se pinta el texto del precio
+            graphics.setColor(this.priceColor);
+            graphics.setFont(this.priceFont);
+            graphics.drawText(((Integer) this.price).toString(), this.pricePos, false, true);
 
+            // Se pinta la imagen de la moneda al lado del texto
+            graphics.drawImage(this.coinImage, this.coinImagePos, (int) this.coinSize, (int) this.coinSize);
+
+            // Se pone el color del borde al por defecto (no esta seleccionado)
+            graphics.setColor(this.priceColor);
+        }
+        // Si no, si se se ha comprado y esta seleccionado, se pone el color del borde al seleccionado
+        else if (selected) {
+            graphics.setColor(this.selectedColor);
+        }
+        // Si no, es que se ha comprado pero no se ha seleccionado y se
+        // pone el color del borde al por defecto (no esta seleccionado)
+        else {
+            graphics.setColor(this.priceColor);
+        }
+
+        // Dibuja el rectangulo del borde
+        graphics.drawRoundRectangle(super.pos, super.width, super.height, this.BORDER_RADIUS, this.BORDER_THICKNESS);
     }
 
     @Override
     public void update(double deltaTime) {
+        updatePricePos();
+
         // Si se ha pulsado una vez y el objeto no ha sido comprado
         if (hasTouched && !bought) {
             // Actualiza el contador para detectar una doble pulsacion
@@ -147,14 +187,7 @@ public class ShopItemButton extends ListviewButton {
         this.onSelect.call();
     }
 
-    // Establece la posicion del boton
-    public void setPos(float x, float y) {
-        // Cambia la posicion y la esquina superior izquierda del padre
-        this.pos.x = x;
-        this.pos.y = y;
-        this.topLeft.x = this.pos.x - (float) this.width / 2;
-        this.topLeft.y = this.pos.y - (float) this.height / 2;
-
+    private void updatePricePos() {
         this.pricePos.x = this.pos.x;
         this.pricePos.y = this.pos.y + this.height / 2 + PRICE_OFFSET * 2;
 

@@ -31,18 +31,18 @@ public class VerticalListview extends GameObject {
     private int itemIndex;
     private List<ListviewButton> buttons;
     private int itemsPerRow;
-    private float itemOffset;
+    private float itemOffsetX, itemOffsetY;
     private float itemSize;
 
     public VerticalListview(Vector pos, float width, float height, Color color,
                             float headerHeight, float footerHeight,
-                            int levelsPerRow, float levelOffset) {
+                            int elementsPerRow, float itemOffsetX, float itemOffsetY) {
         this.topLeftOriginalPos = new Vector(pos.x - width / 2f, pos.y - height / 2f);
         this.topLeftPos = new Vector(this.topLeftOriginalPos);
         this.previousDrag = 0;
         this.width = width;
         this.height = height;
-        this.totalHeight = levelOffset;
+        this.totalHeight = itemOffsetX;
         this.color = color;
 
         this.headerTopHeight = this.topLeftOriginalPos.y - headerHeight;
@@ -55,9 +55,10 @@ public class VerticalListview extends GameObject {
 
         this.resetButtonColors = false;
         this.buttons = new ArrayList<>();
-        this.itemsPerRow = levelsPerRow;
-        this.itemOffset = levelOffset;
-        this.itemSize = (this.width - 2 * levelOffset - (levelsPerRow - 1) * levelOffset) / levelsPerRow;
+        this.itemsPerRow = elementsPerRow;
+        this.itemOffsetX = itemOffsetX;
+        this.itemOffsetY = itemOffsetY;
+        this.itemSize = (this.width - 2 * itemOffsetX - (elementsPerRow - 1) * itemOffsetX) / elementsPerRow;
     }
 
     private boolean withinArea(Vector pos) {
@@ -78,15 +79,15 @@ public class VerticalListview extends GameObject {
         IEngine engine = scene.getEngine();
 
         for (ListviewButton button : buttons) {
-            float x = this.itemIndex % this.itemsPerRow * (this.itemSize + this.itemOffset) + this.itemOffset + this.itemSize / 2f;
-            float y = this.itemIndex / this.itemsPerRow * (this.itemSize + this.itemOffset) + this.itemOffset + this.itemSize / 2f;
+            float x = this.itemIndex % this.itemsPerRow * (this.itemSize + this.itemOffsetX) + this.itemOffsetX + this.itemSize / 2f;
+            float y = this.itemIndex / this.itemsPerRow * (this.itemSize + this.itemOffsetY) + this.itemOffsetY + this.itemSize / 2f;
             Vector relativePos = new Vector(x, y);
             Vector listviewPos = new Vector(this.topLeftPos);
 
             button.init(engine, relativePos, listviewPos, this.itemSize, this.itemSize);
 
             if (this.itemIndex % itemsPerRow == 0) {
-                this.totalHeight += this.itemOffset;
+                this.totalHeight += this.itemOffsetY;
                 this.totalHeight += this.itemSize;
             }
 

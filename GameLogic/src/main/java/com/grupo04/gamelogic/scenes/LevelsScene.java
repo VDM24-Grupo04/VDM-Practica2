@@ -56,7 +56,7 @@ public class LevelsScene extends Scene {
         float maskHeight = HEADER_REAL_SIZE * 2f;
         VerticalListview listview = new VerticalListview(new Vector(this.worldWidth / 2f, y ),
                 this.worldWidth, height, BG_COLOR,
-                maskHeight, maskHeight, 3, 20);
+                maskHeight, maskHeight, 3, 20, 20);
         addGameObject(listview);
 
         int levelProgress = this.gameManager.getLevelProgress();

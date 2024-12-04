@@ -1,29 +1,31 @@
-package com.grupo04.gamelogic.gameobjects.shopItems;
+package com.grupo04.gamelogic.listview.shopItems;
 
 import com.grupo04.engine.interfaces.IFont;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
+import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.engine.utilities.Color;
+import com.grupo04.gamelogic.GameManager;
+import com.grupo04.gamelogic.listview.ShopItemButton;
 
-public class ShopBallSkin extends ShopItem {
+public class ShopBallSkinButton extends ShopItemButton {
     private IImage image;
     private int colorId;
 
-    public ShopBallSkin(float width, float height, String onClickSoundPath,
-                       int price, IFont priceFont, Color priceColor,
-                       IImage coinImage, int coinSize, Color selectedColor, IImage image, int colorId)
-    {
-        super(width, height, onClickSoundPath, price, priceFont, priceColor, coinImage, coinSize, selectedColor);
+    public ShopBallSkinButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
+                              Color selectedColor, ISound buttonClickSound, GameManager gameManager,
+                              IImage image, int colorId) {
+        super(price, priceFont, priceColor, coinImage, coinSize, selectedColor, buttonClickSound, gameManager);
 
         this.image = image;
         this.colorId = colorId;
 
         // Al deseleccionar el objeto, se pone el color del fondo en el gameManager a null
         super.onDeselect = () -> {
-            scene.getGameManager().setBallSkin(this.colorId, null);
+            gameManager.setBallSkin(this.colorId, null);
         };
         super.onSelect = () -> {
-            scene.getGameManager().setBallSkin(this.colorId, this.image);
+            gameManager.setBallSkin(this.colorId, this.image);
         };
     }
 
@@ -39,5 +41,4 @@ public class ShopBallSkin extends ShopItem {
         super.dereference();
         this.image = null;
     }
-
 }

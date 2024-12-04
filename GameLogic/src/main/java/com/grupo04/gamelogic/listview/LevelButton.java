@@ -55,7 +55,6 @@ public class LevelButton extends ListviewButton {
         this.font = font;
         this.fontColor = fontColor;
 
-        this.imageSize = (int) (height / 1.7f);
         this.image = image;
 
         this.audio = null;
@@ -68,6 +67,7 @@ public class LevelButton extends ListviewButton {
     public void init(IEngine engine, Vector relativePos, Vector listviewPos, float width, float height) {
         super.init(engine, relativePos, listviewPos, width, height);
 
+        this.imageSize = (int) (height / 1.7f);
         this.audio = engine.getAudio();
     }
 
@@ -87,7 +87,8 @@ public class LevelButton extends ListviewButton {
                     if (withinArea(touchEvent.getPos())) {
                         // Se podria añadir un sonido cuando este encima
                         this.bgCol = this.unlockedPointoverCol;
-                    } else {
+                    }
+                    else {
                         // Se podria añadir un sonido cuando no este encima
                         this.bgCol = this.unlockedCol;
                     }
@@ -106,7 +107,8 @@ public class LevelButton extends ListviewButton {
 
         if (this.locked) {
             graphics.drawImage(image, this.pos, this.imageSize, this.imageSize);
-        } else {
+        }
+        else {
             graphics.setColor(this.fontColor);
             graphics.setFont(this.font);
             graphics.drawText(this.text, this.pos);
