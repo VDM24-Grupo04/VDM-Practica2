@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -245,4 +246,7 @@ public abstract class Engine implements IEngine, Runnable {
         }
         return null;
     }
+
+    @Override
+    public abstract void eraseFile(String fileName);
 }

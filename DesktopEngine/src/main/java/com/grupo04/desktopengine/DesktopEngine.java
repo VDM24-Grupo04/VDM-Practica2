@@ -136,6 +136,20 @@ public class DesktopEngine extends Engine {
     }
 
     @Override
+    public void eraseFile(String fileName) {
+        File file = new File(System.getProperty("user.home") + File.separator + "Documents" + File.separator + fileName);
+        if (file.exists()) {
+            if (file.delete()) {
+                System.out.println("File was successfully deleted");
+            } else {
+                System.err.println("Failed to delete the file");
+            }
+        } else {
+            System.err.println("File does not exist.");
+        }
+    }
+
+    @Override
     public String getHash(String data) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

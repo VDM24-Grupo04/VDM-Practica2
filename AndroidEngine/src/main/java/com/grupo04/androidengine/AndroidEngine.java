@@ -73,6 +73,20 @@ public class AndroidEngine extends Engine {
         }
     }
 
+    @Override
+    public void eraseFile(String fileName) {
+        File file = new File(this.mainActivity.getFilesDir(), fileName);
+        if (file.exists()) {
+            if (file.delete()) {
+                System.out.println("File was successfully deleted");
+            } else {
+                System.err.println("Failed to delete the file");
+            }
+        } else {
+            System.err.println("File does not exist.");
+        }
+    }
+
     private native String hash(String data);
 
     @Override

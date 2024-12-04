@@ -149,6 +149,8 @@ public class GameManager extends SceneManager {
                 FileOutputStream progressFile = this.engine.getFileOutputStream(this.progressFileName);
                 String progressStr = this.progressJsonObject.toString();
                 this.engine.writeFile(progressFile, progressStr + this.engine.getHash(progressStr + SECRET));
+            } else {
+                this.engine.eraseFile(this.progressFileName);
             }
         } catch (JSONException e) {
             System.err.println("Error while writing info to system: " + e.getMessage());
