@@ -1,7 +1,12 @@
 package com.grupo04.androidgame;
 
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.AssetManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.SurfaceView;
 
@@ -14,8 +19,16 @@ import com.grupo04.gamelogic.GameManager;
 
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
+    private final int SENSOR_TYPE = Sensor.TYPE_GYROSCOPE;
+    private final float SHAKE_ACCELERATION = 1;
+
     private AndroidEngine androidEngine;
+    private GameManager gameManager;
+    private SensorManager sensorManager;
+    private Sensor gyroscopeSensor;
+    private float acceleration = 0.0f;
+    private float currentAcceleration = 0.0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         // Creacion de la escena
         String fileName = "game.json";
         String shopFileName = "shop.json";
-        GameManager gameManager = new GameManager(this.androidEngine, fileName, shopFileName);
+        this.gameManager = new GameManager(this.androidEngine, fileName, shopFileName);
         this.androidEngine.setScene(gameManager);
 
         this.androidEngine.getMobile().initializeNotifications(R.string.channel_id,
@@ -43,17 +56,24 @@ public class MainActivity extends AppCompatActivity {
 
         // Bloquear la orientacion
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        // Opcional: sensor de acelerometro
+        this.sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        this.gyroscopeSensor = this.sensorManager.getDefaultSensor(SENSOR_TYPE);
+        this.sensorManager.registerListener(this, this.gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        this.sensorManager.registerListener(this, this.gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL);
         this.androidEngine.onResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        this.sensorManager.unregisterListener(this);
         this.androidEngine.onPause();
     }
 
@@ -66,5 +86,28 @@ public class MainActivity extends AppCompatActivity {
                 "1 moneda gratis para ti porque me caes bien", R.drawable.ic_notification,
                 NotificationCompat.PRIORITY_HIGH, NotificationCompat.VISIBILITY_PUBLIC);
         this.androidEngine.onStop();
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (sensorEvent.sensor.getType() == SENSOR_TYPE) {
+            float x = sensorEvent.values[0];
+            float y = sensorEvent.values[1];
+            float z = sensorEvent.values[2];
+            float lastAcceleration = currentAcceleration;
+
+            currentAcceleration = (float) Math.sqrt(x * x + y * y + z * z);
+            float delta = currentAcceleration - lastAcceleration;
+            acceleration = acceleration * 0.9f + delta;
+
+            if (acceleration > SHAKE_ACCELERATION) {
+                this.gameManager.increaseCoins(1);
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
     }
 }
