@@ -7,6 +7,7 @@ import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
+import com.grupo04.gamelogic.BubbleColors;
 import com.grupo04.gamelogic.Scene;
 import com.grupo04.gamelogic.gameobjects.buttons.ImageButton;
 import com.grupo04.gamelogic.gameobjects.Text;
@@ -192,10 +193,11 @@ public class ShopScene extends Scene {
         for(String key : itemsKeys) {
             JSONObject obj = itemsByKey.get(key);
             try {
-                if (Objects.equals((String) obj.get("type"), "bgColor")) {
-                    addBgColor((String) obj.get("id"), (int) obj.get("r"), (int) obj.get("g"), (int) obj.get("b"), (int) obj.get("a"));
-                } else if (Objects.equals((String) obj.get("type"), "ballSkin")) {
-                    addBallSkin((String) obj.get("id"), (String) obj.get("path"), (int) obj.get("colorId"));
+                if (Objects.equals(obj.getString("type"), "bgColor")) {
+                    addBgColor(obj.getString("id"), obj.getInt("price"), obj.getInt("r"), obj.getInt("g"), obj.getInt("b"), obj.getInt("a"));
+                }
+                else if (Objects.equals((String) obj.get("type"), "ballSkin")) {
+                    addBallSkin(obj.getString("id"), obj.getInt("price"), obj.getString("path"), obj.getInt("colorId"));
                 }
             }
             catch (JSONException e) {
@@ -236,11 +238,11 @@ public class ShopScene extends Scene {
     }
 
     // Crea un elemento de tipo color de fondo
-    private void addBgColor(String key, int r, int g, int b, int a) {
+    private void addBgColor(String key, int price,  int r, int g, int b, int a) {
         if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255 && a >= 0 && a <= 255) {
             Color col = new Color(r, g, b, a);
 
-            ShopBgColorButton color = new ShopBgColorButton(50, this.pricesFont, TEXT_COLOR, coinImg, coinsImageSize,
+            ShopBgColorButton color = new ShopBgColorButton(price, this.pricesFont, TEXT_COLOR, coinImg, coinsImageSize,
                     SELECTED_COLOR, this.buttonSound, gameManager, col);
 
             // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
@@ -260,16 +262,21 @@ public class ShopScene extends Scene {
     }
 
     // Crea un elemento de tipo skin de bola
-    private void addBallSkin(String key, String imgPath, int id) {
-        IImage img = getEngine().getGraphics().newImage(imgPath);
+    private void addBallSkin(String key, int price, String imgPath, int id) {
+        if (id < BubbleColors.getTotalColors()) {
+            IImage img = getEngine().getGraphics().newImage(imgPath);
 
-        ShopBallSkinButton skin = new ShopBallSkinButton(50, this.pricesFont, TEXT_COLOR, coinImg, coinsImageSize,
-                SELECTED_COLOR, this.buttonSound, gameManager, img, id);
+            ShopBallSkinButton skin = new ShopBallSkinButton(price, this.pricesFont, TEXT_COLOR, coinImg, coinsImageSize,
+                    SELECTED_COLOR, this.buttonSound, gameManager, img, id);
 
-        // Siguiente fila al ultimo color
-        int row = 1 + (colors.size() / ITEMS_PER_ROW);
-        int col = items.size() - colors.size();
-        addItem(key, skin, (row * ITEMS_PER_ROW) + col);
+            // Siguiente fila al ultimo color
+            int row = 1 + (colors.size() / ITEMS_PER_ROW);
+            int col = items.size() - colors.size();
+            addItem(key, skin, (row * ITEMS_PER_ROW) + col);
+        }
+        else {
+            System.out.println("Ball id doesn't match with the available balls");
+        }
     }
 
     // Anade un objeto a la lista
