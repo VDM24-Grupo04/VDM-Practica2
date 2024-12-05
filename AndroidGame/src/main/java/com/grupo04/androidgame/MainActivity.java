@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         this.androidEngine.getMobile().programNotification(3, TimeUnit.SECONDS,
                 "Reward1",
                 "¡Entra ahora para conseguir tu recompensa diaria!",
-                "1 moneda gratis para ti porque me caes bien", R.mipmap.ic_launcher,
+                "1 moneda gratis para ti porque me caes bien", R.drawable.ic_notification,
                 NotificationCompat.PRIORITY_HIGH, NotificationCompat.VISIBILITY_PUBLIC);
         this.androidEngine.onStop();
     }
