@@ -79,9 +79,7 @@ public class GameManager extends SceneManager {
                 // Las recompensas deben aplicarse siempre y cuando sea correcta la
                 // lectura del archivo de guardado
                 if (mobile.isNotification("Reward1")) {
-                    int coins = this.progressJsonObject.optInt("coins", 0);
-                    ++coins;
-                    this.progressJsonObject.put("coins", coins);
+                    this.increaseCoins(1);
                 }
                 // ... (resto de recompensas)
             }

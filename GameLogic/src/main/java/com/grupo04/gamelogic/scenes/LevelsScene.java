@@ -49,12 +49,10 @@ public class LevelsScene extends Scene {
         IGraphics graphics = this.getEngine().getGraphics();
         graphics.setClearColor(BG_COLOR);
 
-        Color[][] styles = this.gameManager.getLevelsStyle();
-
         float height = this.worldHeight - HEADER_REAL_SIZE;
         float y = HEADER_REAL_SIZE + height / 1.95f;
         float maskHeight = HEADER_REAL_SIZE * 2f;
-        VerticalListview listview = new VerticalListview(new Vector(this.worldWidth / 2f, y ),
+        VerticalListview listview = new VerticalListview(new Vector(this.worldWidth / 2f, y),
                 this.worldWidth, height, BG_COLOR,
                 maskHeight, maskHeight, 3, 20, 20);
         addGameObject(listview);
@@ -64,9 +62,16 @@ public class LevelsScene extends Scene {
         int nWorlds = gameManager.getNWorlds();
         int levelsPerWorld = gameManager.getLevelsPerWorld();
 
+        Color[][] levelsStyle = this.gameManager.getLevelsStyle();
+        float fontSize = listview.getItemSize() / 1.8f;
+        IFont levelFont = getEngine().getGraphics().newFont(LEVEL_BUTTON_FONT_NAME, fontSize, false, false);
+        IImage levelImage = getEngine().getGraphics().newImage(LEVEL_BUTTON_IMAGE);
+        ISound levelSound = getEngine().getAudio().newSound(BUTTON_SOUND);
+
         for (int i = 0; i < nWorlds; ++i) {
             for (int j = 0; j < levelsPerWorld; ++j) {
-                this.addLevelButton(listview, i, j, levelProgress, styles[i]);
+                this.addLevelButton(listview, i, j, levelProgress, levelFont, levelImage,
+                        levelSound, levelsStyle[i]);
             }
         }
 
@@ -99,18 +104,13 @@ public class LevelsScene extends Scene {
     }
 
 
-
-    private void addLevelButton(VerticalListview listview, int world, int level, int levelProgress, Color[] cols) {
+    private void addLevelButton(VerticalListview listview, int world, int level, int levelProgress,
+                                IFont font, IImage image, ISound onClickSound, Color[] style) {
         int levelsPerWorld = this.gameManager.getLevelsPerWorld();
         int levelNumber = world * levelsPerWorld + (level + 1);
         boolean locked = levelNumber > levelProgress;
 
-        float fontSize = listview.getItemSize() / 1.8f;
-        IFont font = getEngine().getGraphics().newFont(LEVEL_BUTTON_FONT_NAME, fontSize, false, false);
-        IImage image = getEngine().getGraphics().newImage(LEVEL_BUTTON_IMAGE);
-        ISound onClickSound = getEngine().getAudio().newSound(BUTTON_SOUND);
-
-        LevelButton levelButton = new LevelButton(levelNumber, locked, cols,
+        LevelButton levelButton = new LevelButton(levelNumber, locked, style,
                 LEVEL_BUTTON_BORDER_COLOR, LEVEL_BUTTON_ARC, LEVEL_BUTTON_BORDER_WIDTH,
                 FONT_COLOR, font, image, onClickSound, () -> {
             gameManager.changeToGameScene(levelNumber);

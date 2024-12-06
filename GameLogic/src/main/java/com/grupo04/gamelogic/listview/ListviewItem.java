@@ -28,6 +28,8 @@ public abstract class ListviewItem {
         this.height = height;
     }
 
+    public void update(double deltaTime) { };
+
     public abstract void render(IGraphics graphics);
 
     public void dereference() { };

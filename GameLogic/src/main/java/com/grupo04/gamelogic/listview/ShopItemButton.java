@@ -52,8 +52,10 @@ public class ShopItemButton extends ListviewButton {
 
         this.onClickSound = buttonClickSound;
 
-        this.onSelect = () -> { };
-        this.onDeselect = () -> { };
+        this.onSelect = () -> {
+        };
+        this.onDeselect = () -> {
+        };
 
         this.bought = false;
         this.selected = false;
@@ -167,21 +169,31 @@ public class ShopItemButton extends ListviewButton {
         }
     }
 
-
     @Override
     public void dereference() {
         this.pricePos = null;
         this.priceFont = null;
 
-//        this.coinImage = null;
+        // this.coinImage = null;
         this.coinImagePos = null;
     }
 
-    public void setBought(boolean bought) { this.bought = bought; }
-    public boolean getBought() { return this.bought; }
+    public void setBought(boolean bought) {
+        this.bought = bought;
+    }
 
-    public void setSelected(boolean selected) { this.selected = selected; }
-    public boolean getSelected() { return this.selected; }
+    public boolean getBought() {
+        return this.bought;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    public boolean getSelected() {
+        return this.selected;
+    }
+
     public void select() {
         setSelected(true);
         this.onSelect.call();
@@ -192,6 +204,6 @@ public class ShopItemButton extends ListviewButton {
         this.pricePos.y = this.pos.y + this.height / 2 + PRICE_OFFSET * 2;
 
         this.coinImagePos.x = this.pricePos.x - this.coinSize;
-        this.coinImagePos.y = (float) (this.pricePos.y);
+        this.coinImagePos.y = this.pricePos.y;
     }
 }

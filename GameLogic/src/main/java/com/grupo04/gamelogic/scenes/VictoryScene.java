@@ -2,6 +2,7 @@ package com.grupo04.gamelogic.scenes;
 
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IMobile;
+import com.grupo04.engine.utilities.Callback;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.gamelogic.Scene;
 import com.grupo04.engine.utilities.Vector;
@@ -43,9 +44,12 @@ public class VictoryScene extends Scene {
 
     private TextButton x2Button;
     private TextWithIcon coins;
+    private int levelNumber;
 
     public VictoryScene(IEngine engine, int score, int levelNumber) {
         super(engine, 400, 600, new Color(255, 255, 255));
+
+        this.levelNumber = levelNumber;
 
         Text title = new Text(new Vector(this.worldWidth / 2f, this.worldHeight / 8f), "Victory!",
                 TITLE_FONT, TITLE_SIZE, false, false, TEXT_COLOR);
@@ -74,17 +78,17 @@ public class VictoryScene extends Scene {
             Vector shareButtonPos = new Vector(this.worldWidth / 2f, coinsPos.y + BUTTON_HEIGHT + BUTTON_OFFSET_Y);
             TextButton shareButton = new TextButton(shareButtonPos,
                     BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, GREEN_BUTTON_BASE_COLOR, GREEN_BUTTON_OVER_COLOR,
-                    "Compartir", BUTTON_FONT, TEXT_COLOR, false, SHARE_IMAGE_PATH, BUTTON_SOUND,
+                    "Share", BUTTON_FONT, TEXT_COLOR, false, SHARE_IMAGE_PATH, BUTTON_SOUND,
                     () -> {
                         IMobile.ShareParams params = new IMobile.ShareParams();
                         params.fullScreen = true;
                         params.shareTitle = "Compartir imagen";
 
                         // Si no es un nivel y es modo QuickPlay
-                        if (levelNumber <= 0) {
+                        if (this.levelNumber <= 0) {
                             params.extraText = "¡Ha completado el nivel aleatorio del modo QuickPlay!";
                         } else {
-                            params.extraText = "¡Ha completado el nivel " + levelNumber + "!";
+                            params.extraText = "¡Ha completado el nivel " + this.levelNumber + "!";
                         }
 
                         mobile.shareAction(IMobile.ShareActionType.IMAGE, params);
@@ -98,13 +102,24 @@ public class VictoryScene extends Scene {
                 COINS_IMAGE_PATH);
         addGameObject(this.coins);
 
+        setFade(Fade.OUT, 0.25);
+    }
+
+    @Override
+    public void init() {
         // Se reproduce una vez cargado el sonido
         ISound winSound = engine.getAudio().newSound("win.wav", true);
+
+        int totalNLevels = gameManager.getNWorlds() * gameManager.getLevelsPerWorld();
+        String playButtonText = "Play again";
+        if (this.levelNumber > 0 && this.levelNumber < totalNLevels) {
+            playButtonText = "Next";
+        }
 
         Vector tryAgainButtonPos = new Vector(this.worldWidth / 2f, 4.5f * this.worldHeight / 6f);
         TextButton tryAgainButton = new TextButton(tryAgainButtonPos,
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, YELLOW_BUTTON_BASE_COLOR, YELLOW_BUTTON_OVER_COLOR,
-                "Play again", BUTTON_FONT, BUTTON_SOUND,
+                playButtonText, BUTTON_FONT, BUTTON_SOUND,
                 () -> {
                     // Al pulsar el boton se hace un fade in y cuando
                     // acaba la animacion se cambia a la escena de juego
@@ -112,7 +127,11 @@ public class VictoryScene extends Scene {
                     this.setFadeCallback(() -> {
                         this.engine.getAudio().stopSound(winSound);
                         if (this.gameManager != null) {
-                            this.gameManager.changeToGameScene(levelNumber);
+                            int nextLevelNumber = this.levelNumber;
+                            if (this.levelNumber > 0 && this.levelNumber < totalNLevels) {
+                                nextLevelNumber += 1;
+                            }
+                            this.gameManager.changeToGameScene(nextLevelNumber);
                         }
                     });
                 });
@@ -139,11 +158,6 @@ public class VictoryScene extends Scene {
                 });
         addGameObject(menuButton);
 
-        setFade(Fade.OUT, 0.25);
-    }
-
-    @Override
-    public void init() {
         if (this.gameManager != null) {
             this.gameManager.increaseCoins(N_COINS_EARNED);
         }
