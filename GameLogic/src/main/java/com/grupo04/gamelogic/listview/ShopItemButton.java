@@ -198,6 +198,10 @@ public class ShopItemButton extends ListviewButton {
         setSelected(true);
         this.onSelect.call();
     }
+    public void deselect() {
+        setSelected(false);
+        this.onDeselect.call();
+    }
 
     private void updatePricePos() {
         this.pricePos.x = this.pos.x;

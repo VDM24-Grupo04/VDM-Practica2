@@ -19,6 +19,7 @@ import com.grupo04.gamelogic.listview.shopItems.ShopBgColorButton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.spec.ECField;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -217,19 +218,25 @@ public class ShopScene extends Scene {
                     // Obtiene el objeto con esa id de la tienda
                     ShopItemButton item = this.items.get(key);
 
-                    // Si el objeto leido tiene el atributo bought, se
-                    // pone el valor bought del objeto por el leido
-                    if (obj.get("bought") != null) {
+                    try {
+                        // Se pone el valor bought del objeto por el leido
                         item.setBought(obj.getBoolean("bought"));
                     }
+                    catch (Exception e) {
+                        System.out.println("Item " + key + " doesn't have bought property");
+                        item.setBought(false);
+                    }
 
-                    // Si el objeto leido tiene el atributo active y
-                    // el objeto esta activo, se selecciona
-                    if (obj.get("active") != null) {
+                    try {
+                        // Si el objeto esta activo, se selecciona
                         if (obj.getBoolean("active")) {
                             item.select();
                         }
                     }
+                    catch (Exception e) {
+                        System.out.println("Item " + key + " doesn't have active property");
+                    }
+
                 }
             }
         }

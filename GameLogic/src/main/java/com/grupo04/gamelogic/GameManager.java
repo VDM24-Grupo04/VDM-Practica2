@@ -334,7 +334,8 @@ public class GameManager extends SceneManager {
                 // Si el objeto no es nulo y existe en la tienda
                 if (item != null && this.shopItemsByKey.containsKey(key)) {
                     // Si el objeto leido tiene el atributo active y esta activo,
-                    if (item.get("active") != null) {
+                    try {
+                        // Si el objeto esta comprado y activo, se selecciona
                         if (item.getBoolean("active")) {
                             // Obtiene el JsonObject con esa key
                             JSONObject shopItem = this.shopItemsByKey.get(key);
@@ -342,7 +343,7 @@ public class GameManager extends SceneManager {
                             // Intenta crear el objeto con los atributos correspondientes segun su tipo
                             try {
                                 if (Objects.equals(shopItem.get("type"), "bgColor")) {
-                                   this.setBgColor(new Color(shopItem.getInt("r"), shopItem.getInt("g"), shopItem.getInt("b"), shopItem.getInt("a")));
+                                    this.setBgColor(new Color(shopItem.getInt("r"), shopItem.getInt("g"), shopItem.getInt("b"), shopItem.getInt("a")));
                                 }
                                 else if (Objects.equals(shopItem.get("type"), "ballSkin")) {
                                     setBallSkin(shopItem.getInt("colorId"), this.engine.getGraphics().newImage(shopItem.getString("path")));
@@ -352,6 +353,9 @@ public class GameManager extends SceneManager {
                                 System.out.println("Error while trying to apply active item: " + e.getMessage());
                             }
                         }
+                    }
+                    catch (Exception e) {
+                        System.out.println("Item " + key + " doesn't have active property");
                     }
                 }
             }
