@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class GameManager extends SceneManager {
+    private final Color DEFAULT_BG_COLOR = new Color(255, 255, 255);
+
     private final int NUM_WORLDS = 3;
     private final int LEVELS_PER_WORLD = 4;
 
@@ -83,7 +85,8 @@ public class GameManager extends SceneManager {
                 }
                 // ... (resto de recompensas)
             }
-        } else {
+        }
+        else {
             pushScene(new CheaterScene(this.engine));
         }
     }
@@ -118,11 +121,13 @@ public class GameManager extends SceneManager {
                     return false;
                 }
                 this.progressJsonObject = new JSONObject(progressStr);
-            } else {
+            }
+            else {
                 System.err.println("Something went wrong. Progress and hash string is not bigger or equal to 256.");
                 return false;
             }
-        } else {
+        }
+        else {
             this.progressJsonObject = new JSONObject();
         }
 
@@ -132,10 +137,16 @@ public class GameManager extends SceneManager {
         this.tryToCreateProgressProperty(QUICK_PLAY_KEY, new JSONObject());
         this.tryToCreateProgressProperty(ADVENTURE_KEY, new JSONObject());
 
+        // Se intenta leer la tienda
         InputStream shopFile = this.engine.getFileInputStream(this.shopFileName, IEngine.FileType.GAME_DATA);
         String shopStr = this.engine.readFile(shopFile);
         if (shopStr != null) {
-            readShop(new JSONObject(shopStr));
+            try {
+                readShop(new JSONObject(shopStr));
+            }
+            catch (Exception e) {
+                System.out.println("Invalid shop file");
+            }
         }
         return true;
     }
@@ -147,10 +158,12 @@ public class GameManager extends SceneManager {
                 FileOutputStream progressFile = this.engine.getFileOutputStream(this.progressFileName);
                 String progressStr = this.progressJsonObject.toString();
                 this.engine.writeFile(progressFile, progressStr + this.engine.getHash(progressStr + SECRET));
-            } else {
+            }
+            else {
                 this.engine.eraseFile(this.progressFileName);
             }
-        } catch (JSONException e) {
+        }
+        catch (JSONException e) {
             System.err.println("Error while writing info to system: " + e.getMessage());
         }
     }
@@ -178,15 +191,21 @@ public class GameManager extends SceneManager {
 
     private void readShop(JSONObject shopJson) {
         // Obtiene el array de objetos
-        JSONArray objects = (JSONArray) shopJson.get("items");
+        JSONArray objects = shopJson.getJSONArray("items");
+
         // Si el array de objetos es valido
         if (objects != null) {
             // Recorre todos los objetos y los anade a la tienda
             for (int i = 0; i < objects.length(); i++) {
                 JSONObject obj = objects.getJSONObject(i);
-                String id = (String) obj.get("id");
-                this.shopItemsByKey.put(id, obj);
-                this.shopItemsKeys.add(id);
+                try {
+                    String id = obj.getString("id");
+                    this.shopItemsByKey.put(id, obj);
+                    this.shopItemsKeys.add(id);
+                }
+                catch (Exception e) {
+                    System.out.println("Invalid item (doesn't have an id)");
+                }
             }
         }
     }
@@ -237,8 +256,34 @@ public class GameManager extends SceneManager {
         if (levelFile != null) {
             String levelStr = this.engine.readFile(levelFile);
             if (levelStr != null) {
-                return new JSONObject(levelStr);
+                try {
+                    JSONObject obj = new JSONObject(levelStr);
+
+                    try {
+                        obj.get("grid");
+                    }
+                    catch (Exception e) {
+                        System.out.println("Grid not found. Generating qickplay grid");
+                        return null;
+                    }
+
+                    try {
+                        obj.get("colors");
+                    }
+                    catch (Exception e) {
+                        System.out.println("Bubble colors not found. Generating qickplay grid");
+                        return null;
+                    }
+                    return obj;
+                }
+                catch (Exception e) {
+                    System.out.println("Invalid level. Generating quickplay grid");
+                    return null;
+                }
             }
+        }
+        else {
+            System.out.println("World " + levelWorld.getFirst() + " level " + levelNumber + " not found. Generating quickplay grid");
         }
         return null;
     }
@@ -275,6 +320,7 @@ public class GameManager extends SceneManager {
 
     private void applyShopProgress() {
         JSONObject playerShopJsonObject = this.getSavedShopJsonObject();
+        this.setBgColor(null);
 
         // Si se han leido objetos en la tienda y hay progreso de la tienda guardado
         if (!this.shopItemsKeys.isEmpty() && playerShopJsonObject != null) {
@@ -289,18 +335,20 @@ public class GameManager extends SceneManager {
                 if (item != null && this.shopItemsByKey.containsKey(key)) {
                     // Si el objeto leido tiene el atributo active y esta activo,
                     if (item.get("active") != null) {
-                        if ((Boolean) item.get("active")) {
+                        if (item.getBoolean("active")) {
                             // Obtiene el JsonObject con esa key
                             JSONObject shopItem = this.shopItemsByKey.get(key);
 
                             // Intenta crear el objeto con los atributos correspondientes segun su tipo
                             try {
                                 if (Objects.equals(shopItem.get("type"), "bgColor")) {
-                                    this.bgColor = new Color((int) shopItem.get("r"), (int) shopItem.get("g"), (int) shopItem.get("b"), (int) shopItem.get("a"));
-                                } else if (Objects.equals(shopItem.get("type"), "ballSkin")) {
-                                    setBallSkin((int) shopItem.get("colorId"), this.engine.getGraphics().newImage((String) shopItem.get("path")));
+                                   this.setBgColor(new Color(shopItem.getInt("r"), shopItem.getInt("g"), shopItem.getInt("b"), shopItem.getInt("a")));
                                 }
-                            } catch (JSONException e) {
+                                else if (Objects.equals(shopItem.get("type"), "ballSkin")) {
+                                    setBallSkin(shopItem.getInt("colorId"), this.engine.getGraphics().newImage(shopItem.getString("path")));
+                                }
+                            }
+                            catch (JSONException e) {
                                 System.out.println("Error while trying to apply active item: " + e.getMessage());
                             }
                         }
@@ -313,7 +361,6 @@ public class GameManager extends SceneManager {
     public void setAdventureJsonObject(JSONObject adventureJsonObject) {
         this.progressJsonObject.put(ADVENTURE_KEY, adventureJsonObject);
     }
-
     public JSONObject getAdventureJSONObj() {
         return getProgressJsonObject(ADVENTURE_KEY);
     }
@@ -321,7 +368,6 @@ public class GameManager extends SceneManager {
     public void setQuickPlayJsonObject(JSONObject quickPlayJsonObject) {
         this.progressJsonObject.put(QUICK_PLAY_KEY, quickPlayJsonObject);
     }
-
     public JSONObject getQuickPlayJSONObj() {
         return getProgressJsonObject(QUICK_PLAY_KEY);
     }
@@ -331,14 +377,12 @@ public class GameManager extends SceneManager {
         currCoins += coins;
         this.progressJsonObject.put(COINS_KEY, currCoins);
     }
-
     public void decreaseCoins(int coins) {
         int currCoins = getCoins();
         currCoins -= coins;
         currCoins = Math.max(currCoins, 0);
         this.progressJsonObject.put(COINS_KEY, currCoins);
     }
-
     public int getCoins() {
         if (this.progressJsonObject.has(COINS_KEY)) {
             return this.progressJsonObject.getInt(COINS_KEY);
@@ -352,7 +396,6 @@ public class GameManager extends SceneManager {
             this.progressJsonObject.put(LEVEL_PROGRESS_KEY, levelNumber);
         }
     }
-
     public int getLevelProgress() {
         if (this.progressJsonObject.has(LEVEL_PROGRESS_KEY)) {
             return this.progressJsonObject.getInt(LEVEL_PROGRESS_KEY);
@@ -369,7 +412,6 @@ public class GameManager extends SceneManager {
     public int getNWorlds() {
         return NUM_WORLDS;
     }
-
     public int getLevelsPerWorld() {
         return LEVELS_PER_WORLD;
     }
@@ -378,7 +420,6 @@ public class GameManager extends SceneManager {
     public List<String> getShopItemsKeys() {
         return this.shopItemsKeys;
     }
-
     public HashMap<String, JSONObject> getShopItemsByKey() {
         return this.shopItemsByKey;
     }
@@ -386,23 +427,33 @@ public class GameManager extends SceneManager {
     public JSONObject getSavedShopJsonObject() {
         return getProgressJsonObject(SHOP_KEY);
     }
-
     public void setSavedShopJsonObject(JSONObject obj) {
         this.progressJsonObject.put(SHOP_KEY, obj);
     }
 
     public void setBgColor(Color c) {
+        Color col = c;
+        if (c == null) {
+            col = DEFAULT_BG_COLOR;
+        }
+        engine.getGraphics().setClearColor(col);
         this.bgColor = c;
     }
-
-    public Color getBgColor() {
-        return this.bgColor;
+    public Color getBgColor(boolean ignoreDefault) {
+        if (this.bgColor != null) {
+            return this.bgColor;
+        }
+        else {
+            if (ignoreDefault) {
+                return null;
+            }
+        }
+        return DEFAULT_BG_COLOR;
     }
 
     public void setBallSkin(int i, IImage img) {
         activeSkins[i] = img;
     }
-
     public IImage getBallSkin(int i) {
         return activeSkins[i];
     }

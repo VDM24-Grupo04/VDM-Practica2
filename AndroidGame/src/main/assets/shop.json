@@ -1,6 +1,7 @@
 {
     "items": [
         {
+            "price": 50,
             "id": "bgColor1",
             "type": "bgColor",
             "r": 244,
@@ -9,6 +10,7 @@
             "a": 255
         },
         {
+            "price": 50,
             "id": "bgColor2",
             "type": "bgColor",
             "r": 123,
@@ -17,33 +19,37 @@
             "a": 255
         },
         {
+            "price": 50,
             "id": "bgColor3",
             "type": "bgColor",
             "r": 31,
             "g": 64,
             "b": 64,
             "a": 255
-        },
-        
+        },        
         {
+            "price": 50,
             "id": "ball0Skin1",
             "type": "ballSkin",
             "colorId": 0,
             "path": "emotiguy0.png"
         },
         {
+            "price": 50,
             "id": "ball0Skin2",
             "type": "ballSkin",
             "colorId": 1,
             "path": "emotiguy1.png"
         },
         {
+            "price": 50,
             "id": "ball0Skin3",
             "type": "ballSkin",
             "colorId": 2,
             "path": "emotiguy2.png"
         },
         {
+            "price": 50,
             "id": "ball0Skin4",
             "type": "ballSkin",
             "colorId": 3,

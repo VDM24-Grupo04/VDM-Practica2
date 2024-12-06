@@ -10,7 +10,7 @@
             "a": 255
         },
         {
-            "price": 50,
+            "price": 15,
             "id": "bgColor2",
             "type": "bgColor",
             "r": 123,
@@ -19,7 +19,7 @@
             "a": 255
         },
         {
-            "price": 50,
+            "price": 20,
             "id": "bgColor3",
             "type": "bgColor",
             "r": 31,
@@ -28,28 +28,28 @@
             "a": 255
         },        
         {
-            "price": 50,
+            "price": 40,
             "id": "ball0Skin1",
             "type": "ballSkin",
             "colorId": 0,
             "path": "emotiguy0.png"
         },
         {
-            "price": 50,
+            "price": 1,
             "id": "ball0Skin2",
             "type": "ballSkin",
             "colorId": 1,
             "path": "emotiguy1.png"
         },
         {
-            "price": 50,
+            "price": 3,
             "id": "ball0Skin3",
             "type": "ballSkin",
             "colorId": 2,
             "path": "emotiguy2.png"
         },
         {
-            "price": 50,
+            "price": 80,
             "id": "ball0Skin4",
             "type": "ballSkin",
             "colorId": 3,

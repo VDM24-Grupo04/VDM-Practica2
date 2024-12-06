@@ -226,6 +226,10 @@ public class CurrentBubble extends GameObject {
             if (!this.adventureModeColors.isEmpty()) {
                 this.color = this.adventureModeColors.getFirst();
                 this.adventureModeColors.pop();
+                if (this.color < 0 || this.color >= this.bubbleColors.getTotalColors()) {
+                    System.out.println("Invalid bubble color. Skipping color");
+                    reset();
+                }
             }
             else {
                 this.color = -1;

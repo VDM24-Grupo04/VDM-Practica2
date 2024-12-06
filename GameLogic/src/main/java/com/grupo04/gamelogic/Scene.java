@@ -54,7 +54,6 @@ public abstract class Scene implements IScene {
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
         this.engine.setWorldSize(this.worldWidth, this.worldHeight);
-        this.engine.getGraphics().setClearColor(new Color(255, 255, 255));
 
         this.fadePos = new Vector(this.worldWidth / 2.0f, this.worldHeight / 2.0f);
         this.bgImagePos = new Vector(this.worldWidth / 2.0f, this.worldHeight / 2.0f);

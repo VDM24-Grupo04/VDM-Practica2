@@ -123,20 +123,15 @@ public class GameScene extends Scene {
 
     @Override
     public void init() {
-        // Se cambia el color de fondo si hay uno seleccionado
-        Color bgColor = gameManager.getBgColor();
-        if (bgColor != null) {
+        // Se quita la imagen de fondo si hay un color de fondo seleccionado
+        if (gameManager.getBgColor(true) != null) {
             super.bgImage = null;
-            this.engine.getGraphics().setClearColor(bgColor);
         }
-
         super.init();
     }
 
     @Override
     public void dereference() {
-        // Al salir de la escena reinicia el color del fondo para ponerlo en blanco
-        this.engine.getGraphics().setClearColor(new Color(255, 255, 255));
         super.dereference();
     }
 

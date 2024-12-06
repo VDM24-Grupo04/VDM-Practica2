@@ -15,8 +15,6 @@ import com.grupo04.gamelogic.gameobjects.Text;
 import com.grupo04.gamelogic.listview.LevelButton;
 
 public class LevelsScene extends Scene {
-    private final Color BG_COLOR = new Color(255, 255, 255);
-
     private final int HEADER_SIZE = 40;
     private final int HEADER_OFFSET = 20;
     private final int HEADER_REAL_SIZE = HEADER_SIZE + HEADER_OFFSET;
@@ -46,15 +44,14 @@ public class LevelsScene extends Scene {
 
     @Override
     public void init() {
-        IGraphics graphics = this.getEngine().getGraphics();
-        graphics.setClearColor(BG_COLOR);
+        Color[][] styles = this.gameManager.getLevelsStyle();
 
         float height = this.worldHeight - HEADER_REAL_SIZE;
         float y = HEADER_REAL_SIZE + height / 1.95f;
         float maskHeight = HEADER_REAL_SIZE * 2f;
-        VerticalListview listview = new VerticalListview(new Vector(this.worldWidth / 2f, y),
-                this.worldWidth, height, BG_COLOR,
-                maskHeight, maskHeight, 3, 20, 20);
+        
+        VerticalListview listview = new VerticalListview(new Vector(this.worldWidth / 2f, y ),
+                this.worldWidth, height, maskHeight, maskHeight, 3, 20, 20);
         addGameObject(listview);
 
         int levelProgress = this.gameManager.getLevelProgress();

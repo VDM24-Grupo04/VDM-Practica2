@@ -47,7 +47,7 @@ public class VictoryScene extends Scene {
     private int levelNumber;
 
     public VictoryScene(IEngine engine, int score, int levelNumber) {
-        super(engine, 400, 600, new Color(255, 255, 255));
+        super(engine, 400, 600);
 
         this.levelNumber = levelNumber;
 

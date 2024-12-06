@@ -5,6 +5,7 @@ import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.ITouchEvent;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
+import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.GameObject;
 
 import java.util.ArrayList;
@@ -17,7 +18,6 @@ public class VerticalListview extends GameObject {
     private float width;
     private float height;
     private float totalHeight;
-    private Color color;
 
     private float headerTopHeight;
     private Vector headerMediumPos;
@@ -34,7 +34,9 @@ public class VerticalListview extends GameObject {
     private float itemOffsetX, itemOffsetY;
     private float itemSize;
 
-    public VerticalListview(Vector pos, float width, float height, Color color,
+    private GameManager gameManager;
+
+    public VerticalListview(Vector pos, float width, float height,
                             float headerHeight, float footerHeight,
                             int elementsPerRow, float itemOffsetX, float itemOffsetY) {
         this.topLeftOriginalPos = new Vector(pos.x - width / 2f, pos.y - height / 2f);
@@ -43,7 +45,6 @@ public class VerticalListview extends GameObject {
         this.width = width;
         this.height = height;
         this.totalHeight = itemOffsetX;
-        this.color = color;
 
         this.headerTopHeight = this.topLeftOriginalPos.y - headerHeight;
         this.headerMediumPos = new Vector(this.topLeftOriginalPos.x + width / 2f, this.topLeftOriginalPos.y - headerHeight / 2f);
@@ -76,8 +77,9 @@ public class VerticalListview extends GameObject {
 
     @Override
     public void init() {
-        IEngine engine = scene.getEngine();
+        this.gameManager = scene.getGameManager();
 
+        IEngine engine = scene.getEngine();
         for (ListviewButton button : buttons) {
             float x = this.itemIndex % this.itemsPerRow * (this.itemSize + this.itemOffsetX) + this.itemOffsetX + this.itemSize / 2f;
             float y = this.itemIndex / this.itemsPerRow * (this.itemSize + this.itemOffsetY) + this.itemOffsetY + this.itemSize / 2f;
@@ -143,7 +145,7 @@ public class VerticalListview extends GameObject {
             button.render(graphics);
         }
 
-        graphics.setColor(this.color);
+        graphics.setColor(gameManager.getBgColor(false));
         graphics.fillRectangle(this.headerMediumPos, this.width, this.headerHeight);
         graphics.fillRectangle(this.footerMediumPos, this.width, this.footerHeight);
     }

@@ -286,7 +286,8 @@ public class Grid extends GameObject {
                     iterator.remove();
                 }
             }
-        } else if (this.won) {
+        }
+        else if (this.won) {
             this.audio.stopSound(this.attachSound);
             this.audio.stopSound(this.explosionSound);
             this.end = true;
@@ -321,13 +322,16 @@ public class Grid extends GameObject {
 
                     // Se generan las burbujas de la fila
                     for (int j = 0; j < bPerRow; j++) {
-                        this.bubbles[i][j] = readBubbles[i][j];
+                        int color = readBubbles[i][j];
 
-                        int color = this.bubbles[i][j];
-                        this.bubbleColors.addColor(color);
                         if (color >= 0 && color < this.bubbleColors.getTotalColors()) {
+                            this.bubbles[i][j] = color;
+                            this.bubbleColors.addColor(color);
                             this.colorCount[color]++;
                             this.totalBubbles++;
+                        }
+                        else if (color > this.bubbleColors.getTotalColors()){
+                            System.out.println("Invalid bubble color at (" + i + ", " + j + "). Skipping color");
                         }
                     }
                 }
@@ -501,8 +505,8 @@ public class Grid extends GameObject {
     }
 
     // A partir de la lista de coordenadas adyacentes, obtenida tras la eliminacion de la bolas del mismo color
-// bolas, se sacan los diferentes conjuntos con dfs y se comprueba si en cada conjunto hay al menos una bola
-// pegada al techo. En ese caso, todas las bolas de ese conjunto no se caen
+    // bolas, se sacan los diferentes conjuntos con dfs y se comprueba si en cada conjunto hay al menos una bola
+    // pegada al techo. En ese caso, todas las bolas de ese conjunto no se caen
     private boolean manageFall(List<Pair<Integer, Integer>> bubblesToFall) {
         int numBubblesToFall = 0;
         for (Pair<Integer, Integer> v : bubblesToFall) {

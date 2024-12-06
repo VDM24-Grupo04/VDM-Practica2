@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class ShopScene extends Scene {
-    private final Color BG_COLOR = new Color(255, 255, 255);
-
     private final String FONT_NAME = "kimberley.ttf";
     private final int HEADER_SIZE = 40, HEADER_OFFSET = 20, FONT_SIZE = 20;
     private final int HEADER_REAL_SIZE = HEADER_SIZE + HEADER_OFFSET;
@@ -55,7 +53,7 @@ public class ShopScene extends Scene {
     private List<ShopBgColorButton> colors;
 
     public ShopScene(IEngine engine) {
-        super(engine, 400, 600, new Color(255, 255, 255));
+        super(engine, 400, 600);
 
         items = new HashMap<>();
         colors = new ArrayList<>();
@@ -69,7 +67,7 @@ public class ShopScene extends Scene {
         float y = HEADER_REAL_SIZE + height / 1.95f;
         float maskHeight = HEADER_REAL_SIZE * 2f;
         this.listview = new VerticalListview(new Vector(this.worldWidth / 2f, y ),
-                this.worldWidth, height, BG_COLOR, maskHeight, maskHeight, ITEMS_PER_ROW, ITEM_OFFSET, this.itemSize + this.FONT_SIZE * 3);
+                this.worldWidth, height, maskHeight, maskHeight, ITEMS_PER_ROW, ITEM_OFFSET, this.itemSize + this.FONT_SIZE * 3);
         addGameObject(listview);
 
         // Se anaden los objetos del header
@@ -196,7 +194,7 @@ public class ShopScene extends Scene {
                 if (Objects.equals(obj.getString("type"), "bgColor")) {
                     addBgColor(obj.getString("id"), obj.getInt("price"), obj.getInt("r"), obj.getInt("g"), obj.getInt("b"), obj.getInt("a"));
                 }
-                else if (Objects.equals((String) obj.get("type"), "ballSkin")) {
+                else if (Objects.equals(obj.getString("type"), "ballSkin")) {
                     addBallSkin(obj.getString("id"), obj.getInt("price"), obj.getString("path"), obj.getInt("colorId"));
                 }
             }
@@ -222,13 +220,13 @@ public class ShopScene extends Scene {
                     // Si el objeto leido tiene el atributo bought, se
                     // pone el valor bought del objeto por el leido
                     if (obj.get("bought") != null) {
-                        item.setBought((Boolean) obj.get("bought"));
+                        item.setBought(obj.getBoolean("bought"));
                     }
 
                     // Si el objeto leido tiene el atributo active y
                     // el objeto esta activo, se selecciona
                     if (obj.get("active") != null) {
-                        if ((Boolean) obj.get("active")) {
+                        if (obj.getBoolean("active")) {
                             item.select();
                         }
                     }

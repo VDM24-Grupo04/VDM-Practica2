@@ -27,7 +27,7 @@ public class GameOverScene extends Scene {
     private final float BUTTON_OFFSET_Y = 25f;
 
     public GameOverScene(IEngine engine, int levelNumber) {
-        super(engine, 400, 600, new Color(255, 255, 255));
+        super(engine, 400, 600);
 
         Text title = new Text(new Vector(this.worldWidth / 2f, this.worldHeight / 4f), new String[]{"Game", "Over!"},
                 TEXT_FONT, TEXT_SIZE, false, false, TEXT_COLOR,
