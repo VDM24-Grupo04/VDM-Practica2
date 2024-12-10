@@ -19,14 +19,14 @@ public class TextButton extends Button {
 
     private IFont font;
     private final String text;
-    private float fontSize;
+    private final float fontSize;
     private final String fontName;
     private final Color fontColor;
     private final boolean bold;
 
     private IImage image;
-    private int imageSize;
-    private Vector imagePos;
+    private final int imageSize;
+    private final Vector imagePos;
     private String imagePath;
     private boolean hasCalculateParams;
 
