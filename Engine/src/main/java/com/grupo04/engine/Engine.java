@@ -219,6 +219,7 @@ public abstract class Engine implements IEngine, Runnable {
         if (file != null) {
             try {
                 file.write(info.getBytes());
+                file.close();
             } catch (IOException e) {
                 System.err.println("Error while writing in file: " + e.getMessage());
             }
@@ -237,6 +238,8 @@ public abstract class Engine implements IEngine, Runnable {
                 while ((line = reader.readLine()) != null) {
                     stringBuilder.append(line);
                 }
+                reader.close();
+                inputStreamReader.close();
                 return stringBuilder.toString();
             } catch (IOException e) {
                 System.err.println("Error while reading file: " + e.getMessage());
