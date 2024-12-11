@@ -2,10 +2,8 @@ package com.grupo04.gamelogic.scenes;
 
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IFont;
-import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.interfaces.ISound;
-import com.grupo04.engine.utilities.Callback;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.Scene;
@@ -49,15 +47,14 @@ public class LevelsScene extends Scene {
         float height = this.worldHeight - HEADER_REAL_SIZE;
         float y = HEADER_REAL_SIZE + height / 1.95f;
         float maskHeight = HEADER_REAL_SIZE * 2f;
-        
-        VerticalListview listview = new VerticalListview(new Vector(this.worldWidth / 2f, y ),
+
+        VerticalListview listview = new VerticalListview(new Vector(this.worldWidth / 2f, y),
                 this.worldWidth, height, maskHeight, maskHeight, 3, 20, 20);
         addGameObject(listview);
 
         int levelProgress = this.gameManager.getLevelProgress();
 
-        int nWorlds = gameManager.getNWorlds();
-        int levelsPerWorld = gameManager.getLevelsPerWorld();
+        int[] worlds = gameManager.getWorlds();
 
         Color[][] levelsStyle = this.gameManager.getLevelsStyle();
         float fontSize = listview.getItemSize() / 1.8f;
@@ -65,10 +62,12 @@ public class LevelsScene extends Scene {
         IImage levelImage = getEngine().getGraphics().newImage(LEVEL_BUTTON_IMAGE);
         ISound levelSound = getEngine().getAudio().newSound(BUTTON_SOUND);
 
-        for (int i = 0; i < nWorlds; ++i) {
-            for (int j = 0; j < levelsPerWorld; ++j) {
-                this.addLevelButton(listview, i, j, levelProgress, levelFont, levelImage,
+        int k = 1;
+        for (int i = 0; i < worlds.length; ++i) {
+            for (int j = 0; j < worlds[i]; ++j) {
+                this.addLevelButton(listview, k, levelProgress, levelFont, levelImage,
                         levelSound, levelsStyle[i]);
+                ++k;
             }
         }
 
@@ -100,11 +99,8 @@ public class LevelsScene extends Scene {
         super.init();
     }
 
-
-    private void addLevelButton(VerticalListview listview, int world, int level, int levelProgress,
+    private void addLevelButton(VerticalListview listview, int levelNumber, int levelProgress,
                                 IFont font, IImage image, ISound onClickSound, Color[] style) {
-        int levelsPerWorld = this.gameManager.getLevelsPerWorld();
-        int levelNumber = world * levelsPerWorld + (level + 1);
         boolean locked = levelNumber > levelProgress;
 
         LevelButton levelButton = new LevelButton(levelNumber, locked, style,

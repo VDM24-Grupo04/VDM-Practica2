@@ -25,8 +25,8 @@ import java.util.Objects;
 public class GameManager extends SceneManager {
     private final Color DEFAULT_BG_COLOR = new Color(255, 255, 255);
 
-    private final int NUM_WORLDS = 3;
-    private final int LEVELS_PER_WORLD = 4;
+    private final int[] WORLDS = {5, 5, 5};
+    private final int COLORS_PER_WORLD = 3;
 
     private final String SECRET = "VDM24-Grupo04-Practica2";
     private final int MIN_HASH_SIZE = 64;
@@ -41,6 +41,8 @@ public class GameManager extends SceneManager {
     private final String progressFileName;
     private JSONObject progressJsonObject;
 
+    private int totalLevels;
+
     // Tienda dirigida por datos
     private final String shopFileName;
     private final List<String> shopItemsKeys;
@@ -54,6 +56,11 @@ public class GameManager extends SceneManager {
         super(engine);
         this.progressFileName = fileName;
         this.progressJsonObject = null;
+
+        this.totalLevels = 0;
+        for (int levels : WORLDS) {
+            this.totalLevels += levels;
+        }
 
         this.shopFileName = shopFileName;
 
@@ -85,8 +92,7 @@ public class GameManager extends SceneManager {
                 }
                 // ... (resto de recompensas)
             }
-        }
-        else {
+        } else {
             pushScene(new CheaterScene(this.engine));
         }
     }
@@ -121,13 +127,11 @@ public class GameManager extends SceneManager {
                     return false;
                 }
                 this.progressJsonObject = new JSONObject(progressStr);
-            }
-            else {
+            } else {
                 System.err.println("Something went wrong. Progress and hash string is not bigger or equal to 256.");
                 return false;
             }
-        }
-        else {
+        } else {
             this.progressJsonObject = new JSONObject();
         }
 
@@ -143,8 +147,7 @@ public class GameManager extends SceneManager {
         if (shopStr != null) {
             try {
                 readShop(new JSONObject(shopStr));
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 System.out.println("Invalid shop file");
             }
         }
@@ -158,12 +161,10 @@ public class GameManager extends SceneManager {
                 FileOutputStream progressFile = this.engine.getFileOutputStream(this.progressFileName);
                 String progressStr = this.progressJsonObject.toString();
                 this.engine.writeFile(progressFile, progressStr + this.engine.getHash(progressStr + SECRET));
-            }
-            else {
+            } else {
                 this.engine.eraseFile(this.progressFileName);
             }
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             System.err.println("Error while writing info to system: " + e.getMessage());
         }
     }
@@ -202,8 +203,7 @@ public class GameManager extends SceneManager {
                     String id = obj.getString("id");
                     this.shopItemsByKey.put(id, obj);
                     this.shopItemsKeys.add(id);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     System.out.println("Invalid item (doesn't have an id)");
                 }
             }
@@ -261,37 +261,33 @@ public class GameManager extends SceneManager {
 
                     try {
                         obj.get("grid");
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         System.out.println("Grid not found. Generating qickplay grid");
                         return null;
                     }
 
                     try {
                         obj.get("colors");
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         System.out.println("Bubble colors not found. Generating qickplay grid");
                         return null;
                     }
                     return obj;
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     System.out.println("Invalid level. Generating quickplay grid");
                     return null;
                 }
             }
-        }
-        else {
+        } else {
             System.out.println("World " + levelWorld.getFirst() + " level " + levelNumber + " not found. Generating quickplay grid");
         }
         return null;
     }
 
     public Color[][] getLevelsStyle() {
-        Color[][] colors = new Color[NUM_WORLDS][3];
+        Color[][] colors = new Color[this.WORLDS.length][COLORS_PER_WORLD];
 
-        for (int i = 0; i < NUM_WORLDS; i++) {
+        for (int i = 0; i < this.WORLDS.length; i++) {
             String worldStyleFileName = "levels/world" + (i + 1) + "/style.json";
             InputStream styleFile = this.engine.getFileInputStream(worldStyleFileName, IEngine.FileType.GAME_DATA);
 
@@ -344,17 +340,14 @@ public class GameManager extends SceneManager {
                             try {
                                 if (Objects.equals(shopItem.get("type"), "bgColor")) {
                                     this.setBgColor(new Color(shopItem.getInt("r"), shopItem.getInt("g"), shopItem.getInt("b"), shopItem.getInt("a")));
-                                }
-                                else if (Objects.equals(shopItem.get("type"), "ballSkin")) {
+                                } else if (Objects.equals(shopItem.get("type"), "ballSkin")) {
                                     setBallSkin(shopItem.getInt("colorId"), this.engine.getGraphics().newImage(shopItem.getString("path")));
                                 }
-                            }
-                            catch (JSONException e) {
+                            } catch (JSONException e) {
                                 System.out.println("Error while trying to apply active item: " + e.getMessage());
                             }
                         }
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         System.out.println("Item " + key + " doesn't have active property");
                     }
                 }
@@ -365,6 +358,7 @@ public class GameManager extends SceneManager {
     public void setAdventureJsonObject(JSONObject adventureJsonObject) {
         this.progressJsonObject.put(ADVENTURE_KEY, adventureJsonObject);
     }
+
     public JSONObject getAdventureJSONObj() {
         return getProgressJsonObject(ADVENTURE_KEY);
     }
@@ -372,6 +366,7 @@ public class GameManager extends SceneManager {
     public void setQuickPlayJsonObject(JSONObject quickPlayJsonObject) {
         this.progressJsonObject.put(QUICK_PLAY_KEY, quickPlayJsonObject);
     }
+
     public JSONObject getQuickPlayJSONObj() {
         return getProgressJsonObject(QUICK_PLAY_KEY);
     }
@@ -381,12 +376,14 @@ public class GameManager extends SceneManager {
         currCoins += coins;
         this.progressJsonObject.put(COINS_KEY, currCoins);
     }
+
     public void decreaseCoins(int coins) {
         int currCoins = getCoins();
         currCoins -= coins;
         currCoins = Math.max(currCoins, 0);
         this.progressJsonObject.put(COINS_KEY, currCoins);
     }
+
     public int getCoins() {
         if (this.progressJsonObject.has(COINS_KEY)) {
             return this.progressJsonObject.getInt(COINS_KEY);
@@ -400,6 +397,7 @@ public class GameManager extends SceneManager {
             this.progressJsonObject.put(LEVEL_PROGRESS_KEY, levelNumber);
         }
     }
+
     public int getLevelProgress() {
         if (this.progressJsonObject.has(LEVEL_PROGRESS_KEY)) {
             return this.progressJsonObject.getInt(LEVEL_PROGRESS_KEY);
@@ -408,22 +406,41 @@ public class GameManager extends SceneManager {
     }
 
     public Pair<Integer, Integer> getLevelWorld(int levelNumber) {
-        int world = (levelNumber - 1) / LEVELS_PER_WORLD + 1;
-        int level = (levelNumber - 1) % LEVELS_PER_WORLD + 1;
-        return new Pair<>(world, level);
+        boolean found = false;
+        Pair<Integer, Integer> levelWorld = new Pair<>(0, 0);
+
+        int k = 1;
+        int i = 0;
+        while (i < WORLDS.length && !found) {
+            int j = 0;
+            while (j < WORLDS[i] && !found) {
+                if (levelNumber == k) {
+                    levelWorld.setFirst(i + 1);
+                    levelWorld.setSecond(j + 1);
+                    found = true;
+                }
+                ++j;
+                ++k;
+            }
+            ++i;
+        }
+
+        return levelWorld;
     }
 
-    public int getNWorlds() {
-        return NUM_WORLDS;
+    public int getTotalLevels() {
+        return this.totalLevels;
     }
-    public int getLevelsPerWorld() {
-        return LEVELS_PER_WORLD;
+
+    public int[] getWorlds() {
+        return WORLDS;
     }
 
     // Metodos tienda
     public List<String> getShopItemsKeys() {
         return this.shopItemsKeys;
     }
+
     public HashMap<String, JSONObject> getShopItemsByKey() {
         return this.shopItemsByKey;
     }
@@ -431,6 +448,7 @@ public class GameManager extends SceneManager {
     public JSONObject getSavedShopJsonObject() {
         return getProgressJsonObject(SHOP_KEY);
     }
+
     public void setSavedShopJsonObject(JSONObject obj) {
         this.progressJsonObject.put(SHOP_KEY, obj);
     }
@@ -443,11 +461,11 @@ public class GameManager extends SceneManager {
         engine.getGraphics().setClearColor(col);
         this.bgColor = c;
     }
+
     public Color getBgColor(boolean ignoreDefault) {
         if (this.bgColor != null) {
             return this.bgColor;
-        }
-        else {
+        } else {
             if (ignoreDefault) {
                 return null;
             }
@@ -458,6 +476,7 @@ public class GameManager extends SceneManager {
     public void setBallSkin(int i, IImage img) {
         activeSkins[i] = img;
     }
+
     public IImage getBallSkin(int i) {
         return activeSkins[i];
     }

@@ -110,9 +110,9 @@ public class VictoryScene extends Scene {
         // Se reproduce una vez cargado el sonido
         ISound winSound = engine.getAudio().newSound("win.wav", true);
 
-        int totalNLevels = gameManager.getNWorlds() * gameManager.getLevelsPerWorld();
+        int totalLevels = this.gameManager.getTotalLevels();
         String playButtonText = "Play again";
-        if (this.levelNumber > 0 && this.levelNumber < totalNLevels) {
+        if (this.levelNumber > 0 && this.levelNumber < totalLevels) {
             playButtonText = "Next";
         }
 
@@ -128,7 +128,7 @@ public class VictoryScene extends Scene {
                         this.engine.getAudio().stopSound(winSound);
                         if (this.gameManager != null) {
                             int nextLevelNumber = this.levelNumber;
-                            if (this.levelNumber > 0 && this.levelNumber < totalNLevels) {
+                            if (this.levelNumber > 0 && this.levelNumber < totalLevels) {
                                 nextLevelNumber += 1;
                             }
                             this.gameManager.changeToGameScene(nextLevelNumber);
