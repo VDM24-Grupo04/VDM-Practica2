@@ -1,5 +1,6 @@
 package com.grupo04.engine.interfaces;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
@@ -10,6 +11,7 @@ public interface IEngine {
     IAudio getAudio();
     IMobile getMobile();
 
+    File getFile(String fileName);
     InputStream getFileInputStream(String fileName, FileType type);
     FileOutputStream getFileOutputStream(String fileName);
     void writeFile(FileOutputStream file, String info);

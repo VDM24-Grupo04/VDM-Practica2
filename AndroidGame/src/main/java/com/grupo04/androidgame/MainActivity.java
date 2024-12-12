@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 R.string.workers_tag);
 
         // Bloquear la orientacion
-        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        //this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // Opcional: sensor de acelerometro
         this.sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);

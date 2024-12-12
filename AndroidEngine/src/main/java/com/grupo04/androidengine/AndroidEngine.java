@@ -39,6 +39,17 @@ public class AndroidEngine extends Engine {
     }
 
     @Override
+    public File getFile(String fileName) {
+        File file = new File(String.valueOf(this.mainActivity.getAssets()), fileName);
+        if (!file.exists()) {
+            System.out.println("File not found: " + fileName);
+            return null;
+        } else {
+            return file;
+        }
+    }
+
+    @Override
     public InputStream getFileInputStream(String fileName, FileType type) {
         if (type == FileType.PROGRESS_DATA) {
             File file = new File(this.mainActivity.getFilesDir(), fileName);

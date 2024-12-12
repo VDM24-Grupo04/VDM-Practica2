@@ -17,6 +17,8 @@ public class LevelsScene extends Scene {
     private final int HEADER_OFFSET = 20;
     private final int HEADER_REAL_SIZE = HEADER_SIZE + HEADER_OFFSET;
 
+    private final int LEVELS_PER_ROW = 3;
+
     private final String FONT_NAME = "kimberley.ttf";
 
     private final String BUTTON_SOUND = "button.wav";
@@ -42,14 +44,15 @@ public class LevelsScene extends Scene {
 
     @Override
     public void init() {
-        Color[][] styles = this.gameManager.getLevelsStyle();
+        int totalLevels = gameManager.getTotalLevels();
+        int nRows = (int) Math.ceil((double) totalLevels / LEVELS_PER_ROW);
 
         float height = this.worldHeight - HEADER_REAL_SIZE;
         float y = HEADER_REAL_SIZE + height / 1.95f;
-        float maskHeight = HEADER_REAL_SIZE * 2f;
+        float maskHeight = HEADER_REAL_SIZE * nRows * 2f;
 
         VerticalListview listview = new VerticalListview(new Vector(this.worldWidth / 2f, y),
-                this.worldWidth, height, maskHeight, maskHeight, 3, 20, 20);
+                this.worldWidth, height, maskHeight, maskHeight, LEVELS_PER_ROW, 20, 20);
         addGameObject(listview);
 
         int levelProgress = this.gameManager.getLevelProgress();

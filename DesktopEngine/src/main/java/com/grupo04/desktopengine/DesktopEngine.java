@@ -106,6 +106,19 @@ public class DesktopEngine extends Engine {
     }
 
     @Override
+    public File getFile(String fileName) {
+        String path = "./assets/" + fileName;
+
+        // Comprobar si existe el archivo en Documentos del usuario
+        File file = new File(path);
+        if (file.exists()) {
+            return new File(path);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public FileInputStream getFileInputStream(String fileName, FileType type) {
         String path = "./assets/" + fileName;
         if (type == FileType.PROGRESS_DATA) {
