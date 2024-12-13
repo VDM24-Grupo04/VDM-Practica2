@@ -219,22 +219,25 @@ public class AndroidGraphics extends Graphics {
     @Override
     public void drawImage(IImage img, Vector position) {
         AndroidImage androidImg = (AndroidImage) img;
-        float w = (float) androidImg.getWidth();
-        float h = (float) androidImg.getHeight();
-        this.canvas.drawBitmap(androidImg.getImg(),
-                position.x - w / 2,
-                position.y - h / 2, this.paint);
+        if (img.isValid()) {
+            float w = (float) androidImg.getWidth();
+            float h = (float) androidImg.getHeight();
+            this.canvas.drawBitmap(androidImg.getImg(),
+                    position.x - w / 2,
+                    position.y - h / 2, this.paint);
+        }
     }
 
     @Override
     public void drawImage(IImage img, Vector position, int w, int h) {
         AndroidImage androidImg = (AndroidImage) img;
-
-        this.src.set(0, 0, androidImg.getWidth(), androidImg.getHeight());
-        this.dest.set((int) (position.x - w / 2f), (int) (position.y - h / 2f),
-                (int) (position.x + w - w / 2f),
-                (int) (position.y + h - h / 2f));
-        this.canvas.drawBitmap(androidImg.getImg(), this.src, this.dest, this.paint);
+        if (img.isValid()) {
+            this.src.set(0, 0, androidImg.getWidth(), androidImg.getHeight());
+            this.dest.set((int) (position.x - w / 2f), (int) (position.y - h / 2f),
+                    (int) (position.x + w - w / 2f),
+                    (int) (position.y + h - h / 2f));
+            this.canvas.drawBitmap(androidImg.getImg(), this.src, this.dest, this.paint);
+        }
     }
 
     @Override

@@ -18,10 +18,11 @@ public class ShopBgImageButton extends ShopItemButton {
     private IImage image;
 
     public ShopBgImageButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
-                             Color selectedColor, ISound buttonClickSound, GameManager gameManager, String path) {
+                             Color selectedColor, ISound buttonClickSound, GameManager gameManager, String path, IImage image) {
         super(price, priceFont, priceColor, coinImage, coinSize, selectedColor, buttonClickSound, gameManager);
 
         this.path = path;
+        this.image = image;
 
         // Al deseleccionar el objeto, se pone la imagen del fondo en el gameManager a null
         super.onDeselect = () -> {
@@ -35,13 +36,6 @@ public class ShopBgImageButton extends ShopItemButton {
             super.setSelected(true);
             gameManager.setBgImage(this.path);
         };
-    }
-
-    @Override
-    public void init(IEngine engine, Vector relativePos, Vector listviewPos, float width, float height) {
-        super.init(engine, relativePos, listviewPos, width, height);
-
-        this.image = engine.getGraphics().newImage(this.path);
     }
 
     @Override

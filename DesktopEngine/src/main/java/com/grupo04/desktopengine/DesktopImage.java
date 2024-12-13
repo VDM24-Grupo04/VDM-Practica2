@@ -14,7 +14,8 @@ public class DesktopImage implements IImage {
     DesktopImage(String fileName) {
         try {
             this.img = ImageIO.read(new File("./assets/images/" + fileName));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             System.err.println("Error in the image with name " + fileName + ": " + e.getMessage());
         }
     }
@@ -32,4 +33,7 @@ public class DesktopImage implements IImage {
     public int getHeight() {
         return this.img.getHeight();
     }
+
+    @Override
+    public boolean isValid() { return this.img != null; }
 }

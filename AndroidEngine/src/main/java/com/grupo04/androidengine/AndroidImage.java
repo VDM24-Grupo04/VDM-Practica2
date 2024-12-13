@@ -34,4 +34,7 @@ public class AndroidImage implements IImage {
     public int getHeight() {
         return this.img.getHeight();
     }
+
+    @Override
+    public boolean isValid() { return this.img != null; }
 }

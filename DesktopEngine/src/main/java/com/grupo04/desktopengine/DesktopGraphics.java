@@ -228,19 +228,23 @@ public class DesktopGraphics extends Graphics {
     @Override
     public void drawImage(IImage img, Vector position) {
         DesktopImage desktopImage = (DesktopImage) img;
-        this.graphics2D.drawImage(desktopImage.getImg(),
-                (int) (position.x - desktopImage.getWidth() / 2f),
-                (int) (position.y - desktopImage.getHeight() / 2f), null);
-        this.graphics2D.setPaintMode();
+        if (img.isValid()) {
+            this.graphics2D.drawImage(desktopImage.getImg(),
+                    (int) (position.x - desktopImage.getWidth() / 2f),
+                    (int) (position.y - desktopImage.getHeight() / 2f), null);
+            this.graphics2D.setPaintMode();
+        }
     }
 
     @Override
     public void drawImage(IImage img, Vector position, int w, int h) {
         DesktopImage desktopImage = (DesktopImage) img;
-        this.graphics2D.drawImage(desktopImage.getImg(),
-                (int) (position.x - w / 2f),
-                (int) (position.y - h / 2f), w, h, null);
-        this.graphics2D.setPaintMode();
+        if (img.isValid()) {
+            this.graphics2D.drawImage(desktopImage.getImg(),
+                    (int) (position.x - w / 2f),
+                    (int) (position.y - h / 2f), w, h, null);
+            this.graphics2D.setPaintMode();
+        }
     }
 
     @Override

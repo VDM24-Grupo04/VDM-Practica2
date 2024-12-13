@@ -210,7 +210,12 @@ public class ShopScene extends Scene {
                 }
 
                 if (item != null) {
-                    addItem(obj.getString("id"), item);
+                    // Anade un objeto a la lista si su id no esta ya
+                    // Si el objeto no esta ya en la lista
+                    if (!this.items.containsKey(key)) {
+                        this.listview.addButton(item);
+                        this.items.put(key, item);
+                    }
                 }
             }
             catch (JSONException e) {
@@ -285,20 +290,24 @@ public class ShopScene extends Scene {
     private ShopItemButton createBallSkin(int price, String imgPath, int id) {
         if (id < BubbleColors.getTotalColors()) {
             IImage img = getEngine().getGraphics().newImage(imgPath);
+            if (img.isValid()) {
+                ShopBallSkinButton skin = new ShopBallSkinButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
+                        SELECTED_COLOR, this.buttonSound, this.gameManager, img, id);
 
-            ShopBallSkinButton skin = new ShopBallSkinButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
-                    SELECTED_COLOR, this.buttonSound, this.gameManager, img, id);
+                // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
+                skin.setOnSelectExtra(() -> {
+                    for (ShopBallSkinButton s : this.ballSkins[id]) {
+                        s.setSelected(false);
+                    }
+                });
+                // Anade la skin a las skins de ese color disponibles
+                this.ballSkins[id].add(skin);
 
-            // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
-            skin.setOnSelectExtra(() -> {
-                for (ShopBallSkinButton s : this.ballSkins[id]) {
-                    s.setSelected(false);
-                }
-            });
-            // Anade la skin a las skins de ese color disponibles
-            this.ballSkins[id].add(skin);
-
-            return skin;
+                return skin;
+            }
+            else {
+                System.out.println("Invalid image path");
+            }
         }
         else {
             System.out.println("Ball id doesn't match with the available balls");
@@ -307,27 +316,27 @@ public class ShopScene extends Scene {
     }
 
     private ShopItemButton createBgImage(int price, String imgPath) {
-        ShopBgImageButton img = new ShopBgImageButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
-                SELECTED_COLOR, this.buttonSound, this.gameManager, imgPath);
+        IImage image = engine.getGraphics().newImage(imgPath);
 
-        // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
-        img.setOnSelectExtra(() -> {
-            for (ShopBgImageButton i : this.bgImages) {
-                i.setSelected(false);
-            }
-        });
-        // Anade la imagen a las imagenes de fondo disponibles
-        this.bgImages.add(img);
+        if (image.isValid()) {
+            ShopBgImageButton img = new ShopBgImageButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
+                    SELECTED_COLOR, this.buttonSound, this.gameManager, imgPath, image);
 
-        return img;
-    }
+            // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
+            img.setOnSelectExtra(() -> {
+                for (ShopBgImageButton i : this.bgImages) {
+                    i.setSelected(false);
+                }
+            });
+            // Anade la imagen a las imagenes de fondo disponibles
+            this.bgImages.add(img);
 
-    // Anade un objeto a la lista
-    private void addItem(String key, ShopItemButton item) {
-        // Si el objeto no esta ya en la lista
-        if (!this.items.containsKey(key)) {
-            this.listview.addButton(item);
-            this.items.put(key, item);
+            return img;
         }
+        else {
+            System.out.println("Invalid image path");
+        }
+        return null;
     }
+
 }
