@@ -156,14 +156,12 @@ public class DesktopEngine extends Engine {
 
     @Override
     public String[] listDirectories(String filePath, FileType type) {
-        String path;
         if (type == FileType.PROGRESS_DATA) {
-            path = System.getProperty("user.home") + File.separator + "Documents" + File.separator;
-        } else {
-            path = "./assets/";
+            System.out.println("For security reasons, it is not allowed to list directories from game progress path.");
+            return new String[0];
         }
-        path += filePath;
 
+        String path = "./assets/" + filePath;
         File dir = new File(path);
         File[] files = dir.listFiles();
         // Si no hay ficheros, devuelve []
@@ -179,14 +177,12 @@ public class DesktopEngine extends Engine {
 
     @Override
     public String[] listFiles(String filePath, FileType type) {
-        String path;
         if (type == FileType.PROGRESS_DATA) {
-            path = System.getProperty("user.home") + File.separator + "Documents" + File.separator;
-        } else {
-            path = "./assets/";
+            System.out.println("For security reasons, it is not allowed to list files from game progress path.");
+            return new String[0];
         }
-        path += filePath;
 
+        String path = "./assets/" + filePath;
         File dir = new File(path);
         File[] files = dir.listFiles();
         if (files == null) {

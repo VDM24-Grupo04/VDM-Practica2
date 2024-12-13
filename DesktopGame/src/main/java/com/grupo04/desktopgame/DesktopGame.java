@@ -17,9 +17,9 @@ public class DesktopGame {
         window.setIgnoreRepaint(true);
 
         // Pantalla completa
-        //window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        window.setExtendedState(JFrame.MAXIMIZED_BOTH);
         // Sin bordes
-         //window.setUndecorated(true);
+        window.setUndecorated(true);
 
         window.setVisible(true);
 
