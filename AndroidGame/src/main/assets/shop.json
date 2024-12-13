@@ -54,6 +54,19 @@
             "type": "ballSkin",
             "colorId": 3,
             "path": "emotiguy3.png"
+        },
+        {
+            "price": 14,
+            "id": "bgImage1",
+            "type": "bgImage",
+            "path": "background1.jpg"
+        },
+        {
+            "price": 0,
+            "id": "bgImage2",
+            "type": "bgImage",
+            "path": "background2.jpg"
         }
+
     ]
 }

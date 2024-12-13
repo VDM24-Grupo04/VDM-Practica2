@@ -49,7 +49,7 @@ public class GameScene extends Scene {
     boolean checkEnded;
 
     public GameScene(IEngine engine, JSONObject json, int levelNumber) {
-        super(engine, 400, 600, "background.jpg");
+        super(engine, 400, 600);
 
         this.levelNumber = levelNumber;
 
@@ -119,10 +119,7 @@ public class GameScene extends Scene {
 
     @Override
     public void init() {
-        // Se quita la imagen de fondo si hay un color de fondo seleccionado
-        if (this.gameManager.getBgColor(true) != null) {
-            super.bgImage = null;
-        }
+        super.bgImage = engine.getGraphics().newImage(gameManager.getBgImage());
         super.init();
     }
 

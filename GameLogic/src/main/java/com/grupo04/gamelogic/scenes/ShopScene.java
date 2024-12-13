@@ -15,6 +15,7 @@ import com.grupo04.gamelogic.listview.ShopItemButton;
 import com.grupo04.gamelogic.listview.VerticalListview;
 import com.grupo04.gamelogic.listview.shopItems.ShopBallSkinButton;
 import com.grupo04.gamelogic.listview.shopItems.ShopBgColorButton;
+import com.grupo04.gamelogic.listview.shopItems.ShopBgImageButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,12 +52,14 @@ public class ShopScene extends Scene {
 
     private final HashMap<String, ShopItemButton> items;
     private final List<ShopBgColorButton> colors;
+    private final List<ShopBgImageButton> bgImages;
 
     public ShopScene(IEngine engine) {
         super(engine, 400, 600);
 
         this.items = new HashMap<>();
         this.colors = new ArrayList<>();
+        this.bgImages = new ArrayList<>();
     }
 
     @Override
@@ -190,12 +193,22 @@ public class ShopScene extends Scene {
         for (String key : itemsKeys) {
             JSONObject obj = itemsByKey.get(key);
             try {
+                ShopItemButton item = null;
                 if (Objects.equals(obj.getString("type"), "bgColor")) {
-                    addBgColor(obj.getString("id"), obj.getInt("price"), obj.getInt("r"), obj.getInt("g"), obj.getInt("b"), obj.getInt("a"));
-                } else if (Objects.equals(obj.getString("type"), "ballSkin")) {
-                    addBallSkin(obj.getString("id"), obj.getInt("price"), obj.getString("path"), obj.getInt("colorId"));
+                    item = createBgColor(obj.getInt("price"), obj.getInt("r"), obj.getInt("g"), obj.getInt("b"), obj.getInt("a"));
                 }
-            } catch (JSONException e) {
+                else if (Objects.equals(obj.getString("type"), "ballSkin")) {
+                    item = createBallSkin(obj.getInt("price"), obj.getString("path"), obj.getInt("colorId"));
+                }
+                else if (Objects.equals(obj.getString("type"), "bgImage")) {
+                    item = createBgImage(obj.getInt("price"), obj.getString("path"));
+                }
+
+                if (item != null) {
+                    addItem(obj.getString("id"), item);
+                }
+            }
+            catch (JSONException e) {
                 System.out.println("Error while trying to add item to shop: " + e.getMessage());
             }
         }
@@ -217,7 +230,8 @@ public class ShopScene extends Scene {
                     try {
                         // Se pone el valor bought del objeto por el leido
                         item.setBought(obj.getBoolean("bought"));
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         System.out.println("Item " + key + " doesn't have bought property");
                         item.setBought(false);
                     }
@@ -227,7 +241,8 @@ public class ShopScene extends Scene {
                         if (obj.getBoolean("active")) {
                             item.select();
                         }
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         System.out.println("Item " + key + " doesn't have active property");
                     }
 
@@ -237,7 +252,7 @@ public class ShopScene extends Scene {
     }
 
     // Crea un elemento de tipo color de fondo
-    private void addBgColor(String key, int price, int r, int g, int b, int a) {
+    private ShopItemButton createBgColor(int price, int r, int g, int b, int a) {
         if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255 && a >= 0 && a <= 255) {
             Color col = new Color(r, g, b, a);
 
@@ -250,27 +265,43 @@ public class ShopScene extends Scene {
                     c.setSelected(false);
                 }
             });
-
-            // Anade el objeto al mapa de objetos y el color a la lista de colores
-            addItem(key, color);
             this.colors.add(color);
-        } else {
+
+            return color;
+        }
+        else {
             System.out.println("Color out of valid range");
         }
+        return null;
     }
 
     // Crea un elemento de tipo skin de bola
-    private void addBallSkin(String key, int price, String imgPath, int id) {
+    private ShopItemButton createBallSkin(int price, String imgPath, int id) {
         if (id < BubbleColors.getTotalColors()) {
             IImage img = getEngine().getGraphics().newImage(imgPath);
 
-            ShopBallSkinButton skin = new ShopBallSkinButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
+            return new ShopBallSkinButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
                     SELECTED_COLOR, this.buttonSound, this.gameManager, img, id);
-
-            addItem(key, skin);
-        } else {
+        }
+        else {
             System.out.println("Ball id doesn't match with the available balls");
         }
+        return null;
+    }
+
+    private ShopItemButton createBgImage(int price, String imgPath) {
+        ShopBgImageButton img = new ShopBgImageButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
+                SELECTED_COLOR, this.buttonSound, this.gameManager, imgPath);
+
+        // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
+        img.setOnSelect(() -> {
+            for (ShopBgImageButton i : this.bgImages) {
+                i.setSelected(false);
+            }
+        });
+        this.bgImages.add(img);
+
+        return img;
     }
 
     // Anade un objeto a la lista

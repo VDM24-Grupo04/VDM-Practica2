@@ -1,27 +1,34 @@
 package com.grupo04.gamelogic.listview.shopItems;
 
+import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IFont;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.engine.utilities.Callback;
 import com.grupo04.engine.utilities.Color;
+import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.listview.ShopItemButton;
 
-public class ShopBgColorButton extends ShopItemButton {
-    private Color color;
+import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
+
+public class ShopBgImageButton extends ShopItemButton {
+    private final float IMG_SCALE = 0.8f;
+
+    private String path;
+    private IImage image;
     private final Callback baseOnSelect;
 
-    public ShopBgColorButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
-                             Color selectedColor, ISound buttonClickSound, GameManager gameManager, Color color) {
+    public ShopBgImageButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
+                             Color selectedColor, ISound buttonClickSound, GameManager gameManager, String path) {
         super(price, priceFont, priceColor, coinImage, coinSize, selectedColor, buttonClickSound, gameManager);
 
-        this.color = color;
+        this.path = path;
 
-        // Al deseleccionar el objeto, se pone el color del fondo en el gameManager a null
+        // Al deseleccionar el objeto, se pone la imagen del fondo en el gameManager a null
         super.onDeselect = () -> {
-            gameManager.setBgColor(null);
+            gameManager.setBgImage("");
         };
 
         // El resto de la funcion de seleccion se establece desde fuera con el setOnSelect(),
@@ -29,17 +36,20 @@ public class ShopBgColorButton extends ShopItemButton {
         this.baseOnSelect = () -> {
             // Selecciona el objeto y cambia el color del fondo
             super.setSelected(true);
-            gameManager.setBgColor(this.color);
+            gameManager.setBgImage(this.path);
         };
     }
 
     @Override
-    public void render(IGraphics graphics) {
-        // Pinta primero el rectangulo con el color y luego pinta los elementos
-        // del padre (para que se pinte el rectangulo por debajo del borde)
-        graphics.setColor(this.color);
-        graphics.fillRoundRectangle(super.pos, super.width, super.height, this.BORDER_RADIUS);
+    public void init(IEngine engine, Vector relativePos, Vector listviewPos, float width, float height) {
+        super.init(engine, relativePos, listviewPos, width, height);
 
+        this.image = engine.getGraphics().newImage(this.path);
+    }
+
+    @Override
+    public void render(IGraphics graphics) {
+        graphics.drawImage(image, super.pos, (int) (width * this.IMG_SCALE), (int) (height * this.IMG_SCALE));
         super.render(graphics);
     }
 
@@ -47,7 +57,7 @@ public class ShopBgColorButton extends ShopItemButton {
     public void dereference() {
         super.dereference();
 
-        this.color = null;
+        this.image = null;
     }
 
     // Hace que la funcion onSelect sea una llamada a la funcion indicada

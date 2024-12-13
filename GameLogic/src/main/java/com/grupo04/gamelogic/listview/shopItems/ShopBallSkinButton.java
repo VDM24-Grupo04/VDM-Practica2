@@ -5,12 +5,17 @@ import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.engine.utilities.Color;
+import com.grupo04.gamelogic.BubbleColors;
 import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.listview.ShopItemButton;
 
 public class ShopBallSkinButton extends ShopItemButton {
     private IImage image;
     private final int colorId;
+
+    private final int elementOffset = 15;
+    private final float IMG_SCALE = 0.5f;
+    private final int radius = 15;
 
     public ShopBallSkinButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
                               Color selectedColor, ISound buttonClickSound, GameManager gameManager,
@@ -31,8 +36,17 @@ public class ShopBallSkinButton extends ShopItemButton {
 
     @Override
     public void render(IGraphics graphics) {
-        graphics.drawImage(image, super.pos, (int) (width * 0.8f), (int) (height * 0.8f));
+        super.pos.x += elementOffset;
+        super.pos.y += elementOffset;
+        graphics.drawImage(image, super.pos, (int) (width * this.IMG_SCALE), (int) (height * this.IMG_SCALE));
 
+        super.pos.x -= elementOffset * 2;
+        super.pos.y -= elementOffset * 2;
+        graphics.setColor(BubbleColors.getColor(this.colorId));
+        graphics.fillCircle(super.pos, this.radius);
+
+        super.pos.x += elementOffset;
+        super.pos.y += elementOffset;
         super.render(graphics);
     }
 

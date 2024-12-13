@@ -139,7 +139,7 @@ public class VerticalListview extends GameObject {
             button.render(graphics);
         }
 
-        graphics.setColor(this.gameManager.getBgColor(false));
+        graphics.setColor(this.gameManager.getBgColor());
         graphics.fillRectangle(this.headerMediumPos, this.width, this.totalHeight);
         graphics.fillRectangle(this.footerMediumPos, this.width, this.totalHeight);
     }

@@ -38,7 +38,7 @@ public class BubbleColors {
         availableColors.clear();
     }
 
-    public Color getColor(int i) {
+    public static Color getColor(int i) {
         return colors[i];
     }
 
