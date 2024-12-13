@@ -12,11 +12,13 @@ import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
 
 public class LevelButton extends ListviewButton {
-    private final boolean locked;
+    public enum State {UNLOCKED, PASSED, LOCKED}
+
+    private State state;
 
     private Color bgCol;
-    private final Color unlockedCol;
-    private final Color unlockedPointoverCol;
+    private final Color baseCol;
+    private final Color pointerOverCol;
 
     private final Color borderCol;
     private final float arc;
@@ -33,19 +35,22 @@ public class LevelButton extends ListviewButton {
     private final ISound onClickSound;
     private final Callback onClick;
 
-    public LevelButton(int levelNumber, boolean locked, Color[] colors,
+    public LevelButton(int levelNumber, State state, Color[] colors,
                        Color borderCol, float arc, float borderWidth,
                        Color fontColor, IFont font, IImage image, ISound onClickSound,
                        Callback onClick) {
+        this.state = state;
 
-        this.locked = locked;
-
-        this.unlockedCol = colors[0];
-        this.bgCol = this.unlockedCol;
-        if (this.locked) {
-            this.bgCol = colors[2];
+        if (this.state == State.UNLOCKED) {
+            this.baseCol = colors[0];
+        } else if (this.state == State.PASSED) {
+            this.baseCol = colors[1];
+        } else {
+            this.baseCol = colors[2];
         }
-        this.unlockedPointoverCol = colors[1];
+        this.bgCol = this.baseCol;
+
+        this.pointerOverCol = colors[3];
 
         this.borderCol = borderCol;
         this.arc = arc;
@@ -73,7 +78,7 @@ public class LevelButton extends ListviewButton {
 
     @Override
     public void handleEvent(ITouchEvent touchEvent) {
-        if (!this.locked) {
+        if (this.state != State.LOCKED) {
             switch (touchEvent.getType()) {
                 case PRESS:
                     if (withinArea(touchEvent.getPos())) {
@@ -86,11 +91,10 @@ public class LevelButton extends ListviewButton {
                 case MOTION:
                     if (withinArea(touchEvent.getPos())) {
                         // Se podria añadir un sonido cuando este encima
-                        this.bgCol = this.unlockedPointoverCol;
-                    }
-                    else {
+                        this.bgCol = this.pointerOverCol;
+                    } else {
                         // Se podria añadir un sonido cuando no este encima
-                        this.bgCol = this.unlockedCol;
+                        this.bgCol = this.baseCol;
                     }
                     break;
             }
@@ -106,10 +110,9 @@ public class LevelButton extends ListviewButton {
         graphics.fillRoundRectangle(this.pos, this.width, this.height, this.arc);
         graphics.setColor(this.fontColor);
 
-        if (this.locked) {
+        if (this.state == State.LOCKED) {
             graphics.drawImage(image, this.pos, this.imageSize, this.imageSize);
-        }
-        else {
+        } else {
             graphics.setColor(this.fontColor);
             graphics.setFont(this.font);
             graphics.drawText(this.text, this.pos);

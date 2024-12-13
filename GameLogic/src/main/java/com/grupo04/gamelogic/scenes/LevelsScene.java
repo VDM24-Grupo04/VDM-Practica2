@@ -100,9 +100,14 @@ public class LevelsScene extends Scene {
 
     private void addLevelButton(VerticalListview listview, int levelNumber, int levelProgress,
                                 IFont font, IImage image, ISound onClickSound, Color[] style) {
-        boolean locked = levelNumber > levelProgress;
+        LevelButton.State state = LevelButton.State.LOCKED;
+        if (levelNumber < levelProgress) {
+            state = LevelButton.State.PASSED;
+        } else if (levelNumber == levelProgress) {
+            state = LevelButton.State.UNLOCKED;
+        }
 
-        LevelButton levelButton = new LevelButton(levelNumber, locked, style,
+        LevelButton levelButton = new LevelButton(levelNumber, state, style,
                 LEVEL_BUTTON_BORDER_COLOR, LEVEL_BUTTON_ARC, LEVEL_BUTTON_BORDER_WIDTH,
                 FONT_COLOR, font, image, onClickSound, () -> {
             this.gameManager.changeToGameScene(levelNumber);

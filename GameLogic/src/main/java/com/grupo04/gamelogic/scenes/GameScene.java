@@ -143,8 +143,13 @@ public class GameScene extends Scene {
                 this.setFadeCallback(() -> {
                     GameManager gameManager = this.getGameManager();
                     if (gameManager != null) {
-                        gameManager.setLevelProgress(this.levelNumber + 1);
-                        gameManager.changeScene(new VictoryScene(this.engine, this.grid.getScore(), this.levelNumber));
+                        boolean firstTime = true;
+                        if (this.levelNumber > 0) {
+                            int levelProgress = gameManager.getLevelProgress();
+                            firstTime = levelProgress == this.levelNumber;
+                            gameManager.setLevelProgress(this.levelNumber + 1);
+                        }
+                        gameManager.changeScene(new VictoryScene(this.engine, this.grid.getScore(), this.levelNumber, firstTime));
                     }
                 });
             } else {

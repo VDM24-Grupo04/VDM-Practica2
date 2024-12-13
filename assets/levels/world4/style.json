@@ -1,17 +1,22 @@
 {
-    "colorUnlocked": {
-        "r": 255,
-        "g": 80,
-        "b": 0
-    },
-    "pointoverUnlocked": {
-        "r": 255,
+    "unlocked": {
+        "r": 30,
         "g": 50,
-        "b": 10
+        "b": 255
     },
-    "colorLocked": {
-        "r": 255,
-        "g": 0,
-        "b": 0
+    "passed": {
+        "r": 20,
+        "g": 35,
+        "b": 220  
+    },
+    "locked": {
+        "r": 60,
+        "g": 80,
+        "b": 255
+    },
+    "pointerOver": {
+        "r": 20,
+        "g": 40,
+        "b": 180
     }
 }

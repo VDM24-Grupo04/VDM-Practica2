@@ -12,7 +12,7 @@ import com.grupo04.gamelogic.gameobjects.Text;
 
 public class VictoryScene extends Scene {
     private final Color BLACK_TEXT_COLOR = new Color(0, 0, 0);
-    private final Color YELLOW_TEXT_COLOR  = new Color(252, 228, 5);
+    private final Color YELLOW_TEXT_COLOR = new Color(252, 228, 5);
     private final String TITLE_FONT = "TheMeshroomRegular.ttf";
     private final float TITLE_SIZE = 65;
 
@@ -44,11 +44,13 @@ public class VictoryScene extends Scene {
     private TextButton x2Button;
     private TextWithIcon coins;
     private final int levelNumber;
+    private boolean firstTime;
 
-    public VictoryScene(IEngine engine, int score, int levelNumber) {
+    public VictoryScene(IEngine engine, int score, int levelNumber, boolean firstTime) {
         super(engine, 400, 600);
 
         this.levelNumber = levelNumber;
+        this.firstTime = firstTime;
 
         Text title = new Text(new Vector(this.worldWidth / 2f, this.worldHeight / 8f), "Victory!",
                 TITLE_FONT, TITLE_SIZE, false, false, BLACK_TEXT_COLOR);
@@ -67,12 +69,14 @@ public class VictoryScene extends Scene {
         if (mobile != null) {
             coinsPos = new Vector(this.worldWidth / 2f - BUTTON_WIDTH / 3f, 4f * this.worldHeight / 9f);
 
-            Vector x2ButtonPos = new Vector(this.worldWidth / 2f + BUTTON_WIDTH / 4f, coinsPos.y);
-            this.x2Button = new TextButton(x2ButtonPos,
-                    BUTTON_WIDTH / 2f, BUTTON_HEIGHT, BUTTON_ARC, YELLOW_BUTTON_BASE_COLOR, YELLOW_BUTTON_OVER_COLOR,
-                    "x2", BUTTON_FONT, BLACK_TEXT_COLOR, false, AD_IMAGE_PATH, BUTTON_SOUND,
-                    () -> mobile.showRewardedAd(this::onReward));
-            addGameObject(this.x2Button);
+            if (this.firstTime) {
+                Vector x2ButtonPos = new Vector(this.worldWidth / 2f + BUTTON_WIDTH / 4f, coinsPos.y);
+                this.x2Button = new TextButton(x2ButtonPos,
+                        BUTTON_WIDTH / 2f, BUTTON_HEIGHT, BUTTON_ARC, YELLOW_BUTTON_BASE_COLOR, YELLOW_BUTTON_OVER_COLOR,
+                        "x2", BUTTON_FONT, BLACK_TEXT_COLOR, false, AD_IMAGE_PATH, BUTTON_SOUND,
+                        () -> mobile.showRewardedAd(this::onReward));
+                addGameObject(this.x2Button);
+            }
 
             Vector shareButtonPos = new Vector(this.worldWidth / 2f, coinsPos.y + BUTTON_HEIGHT + BUTTON_OFFSET_Y);
             TextButton shareButton = new TextButton(shareButtonPos,
@@ -95,11 +99,13 @@ public class VictoryScene extends Scene {
             addGameObject(shareButton);
         }
 
-        String text = "+" + NUM_COINS_EARNED;
-        this.coins = new TextWithIcon(coinsPos, COINS_SIZE, COINS_SPACING,
-                text, COINS_TEXT_FONT, BLACK_TEXT_COLOR, false,
-                COINS_IMAGE_PATH);
-        addGameObject(this.coins);
+        if (this.firstTime) {
+            String text = "+" + NUM_COINS_EARNED;
+            this.coins = new TextWithIcon(coinsPos, COINS_SIZE, COINS_SPACING,
+                    text, COINS_TEXT_FONT, BLACK_TEXT_COLOR, false,
+                    COINS_IMAGE_PATH);
+            addGameObject(this.coins);
+        }
 
         setFade(Fade.OUT, 0.25);
     }
@@ -140,7 +146,7 @@ public class VictoryScene extends Scene {
         menuButtonPos.y += BUTTON_HEIGHT + BUTTON_OFFSET_Y;
         TextButton menuButton = new TextButton(menuButtonPos,
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BLACK_BUTTON_BASE_COLOR, BLACK_BUTTON_OVER_COLOR,
-                "Menu", BUTTON_FONT,  YELLOW_TEXT_COLOR, false, BUTTON_SOUND,
+                "Menu", BUTTON_FONT, YELLOW_TEXT_COLOR, false, BUTTON_SOUND,
                 () -> {
                     // Al pulsar el boton se hace un fade in y cuando
                     // acaba la animacion se cambia al menu principal
@@ -157,7 +163,7 @@ public class VictoryScene extends Scene {
                 });
         addGameObject(menuButton);
 
-        if (this.gameManager != null) {
+        if (this.gameManager != null && this.firstTime) {
             this.gameManager.increaseCoins(NUM_COINS_EARNED);
         }
 
