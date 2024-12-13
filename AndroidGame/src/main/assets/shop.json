@@ -42,6 +42,13 @@
             "path": "emotiguy1.png"
         },
         {
+            "price": 1,
+            "id": "ball0Skin15",
+            "type": "ballSkin",
+            "colorId": 1,
+            "path": "adIcon.png"
+        },
+        {
             "price": 3,
             "id": "ball0Skin3",
             "type": "ballSkin",

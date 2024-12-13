@@ -51,14 +51,19 @@ public class ShopScene extends Scene {
     VerticalListview listview;
 
     private final HashMap<String, ShopItemButton> items;
-    private final List<ShopBgColorButton> colors;
+    private final List<ShopBgColorButton> bgColors;
+    private final ArrayList<ShopBallSkinButton>[] ballSkins;
     private final List<ShopBgImageButton> bgImages;
 
     public ShopScene(IEngine engine) {
         super(engine, 400, 600);
 
         this.items = new HashMap<>();
-        this.colors = new ArrayList<>();
+        this.bgColors = new ArrayList<>();
+        this.ballSkins = new ArrayList[BubbleColors.getTotalColors()];
+        for(int i = 0; i < this.ballSkins.length; i++) {
+            this.ballSkins[i] =  new ArrayList<ShopBallSkinButton>();
+        }
         this.bgImages = new ArrayList<>();
     }
 
@@ -260,12 +265,13 @@ public class ShopScene extends Scene {
                     SELECTED_COLOR, this.buttonSound, this.gameManager, col);
 
             // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
-            color.setOnSelect(() -> {
-                for (ShopBgColorButton c : this.colors) {
+            color.setOnSelectExtra(() -> {
+                for (ShopBgColorButton c : this.bgColors) {
                     c.setSelected(false);
                 }
             });
-            this.colors.add(color);
+            // Anade el color a los colores de fondo disponibles
+            this.bgColors.add(color);
 
             return color;
         }
@@ -280,8 +286,19 @@ public class ShopScene extends Scene {
         if (id < BubbleColors.getTotalColors()) {
             IImage img = getEngine().getGraphics().newImage(imgPath);
 
-            return new ShopBallSkinButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
+            ShopBallSkinButton skin = new ShopBallSkinButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
                     SELECTED_COLOR, this.buttonSound, this.gameManager, img, id);
+
+            // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
+            skin.setOnSelectExtra(() -> {
+                for (ShopBallSkinButton s : this.ballSkins[id]) {
+                    s.setSelected(false);
+                }
+            });
+            // Anade la skin a las skins de ese color disponibles
+            this.ballSkins[id].add(skin);
+
+            return skin;
         }
         else {
             System.out.println("Ball id doesn't match with the available balls");
@@ -294,11 +311,12 @@ public class ShopScene extends Scene {
                 SELECTED_COLOR, this.buttonSound, this.gameManager, imgPath);
 
         // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
-        img.setOnSelect(() -> {
+        img.setOnSelectExtra(() -> {
             for (ShopBgImageButton i : this.bgImages) {
                 i.setSelected(false);
             }
         });
+        // Anade la imagen a las imagenes de fondo disponibles
         this.bgImages.add(img);
 
         return img;

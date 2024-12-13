@@ -25,7 +25,7 @@ public class ShopItemButton extends ListviewButton {
 
     private IAudio audio;
     private final ISound onClickSound;
-    protected Callback onSelect, onDeselect;
+    protected Callback onSelect, baseOnSelect, onDeselect;
 
     private boolean bought;         // Si se ha comprado el objeto o no
     private boolean selected;       // Si el objeto esta seleccionado o no
@@ -209,5 +209,14 @@ public class ShopItemButton extends ListviewButton {
 
         this.coinImagePos.x = this.pricePos.x - this.coinSize;
         this.coinImagePos.y = this.pricePos.y;
+    }
+
+    // Hace que la funcion onSelect sea una llamada a la funcion indicada
+    // y una llamada a la funcion onSelect base (en vez de sobreescribirla)
+    public void setOnSelectExtra(Callback extraFunc) {
+        this.onSelect = () -> {
+            extraFunc.call();
+            baseOnSelect.call();
+        };
     }
 }

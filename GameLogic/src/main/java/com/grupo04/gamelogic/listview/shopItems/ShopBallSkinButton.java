@@ -10,12 +10,12 @@ import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.listview.ShopItemButton;
 
 public class ShopBallSkinButton extends ShopItemButton {
-    private IImage image;
-    private final int colorId;
-
     private final int elementOffset = 15;
     private final float IMG_SCALE = 0.5f;
     private final int radius = 15;
+
+    private IImage image;
+    private final int colorId;
 
     public ShopBallSkinButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
                               Color selectedColor, ISound buttonClickSound, GameManager gameManager,
@@ -29,7 +29,12 @@ public class ShopBallSkinButton extends ShopItemButton {
         super.onDeselect = () -> {
             gameManager.setBallSkin(this.colorId, null);
         };
-        super.onSelect = () -> {
+
+        // El resto de la funcion de seleccion se establece desde fuera con el setOnSelect(),
+        // ya que al seleccionar un objeto ademas hay que deseleccionar el resto
+        super.baseOnSelect = () -> {
+            // Selecciona el objeto y cambia el color del fondo
+            super.setSelected(true);
             gameManager.setBallSkin(this.colorId, this.image);
         };
     }

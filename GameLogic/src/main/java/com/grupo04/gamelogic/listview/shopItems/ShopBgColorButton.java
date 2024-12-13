@@ -4,14 +4,12 @@ import com.grupo04.engine.interfaces.IFont;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.interfaces.ISound;
-import com.grupo04.engine.utilities.Callback;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.listview.ShopItemButton;
 
 public class ShopBgColorButton extends ShopItemButton {
     private Color color;
-    private final Callback baseOnSelect;
 
     public ShopBgColorButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
                              Color selectedColor, ISound buttonClickSound, GameManager gameManager, Color color) {
@@ -48,14 +46,5 @@ public class ShopBgColorButton extends ShopItemButton {
         super.dereference();
 
         this.color = null;
-    }
-
-    // Hace que la funcion onSelect sea una llamada a la funcion indicada
-    // y una llamada a la funcion onSelect base (en vez de sobreescribirla)
-    public void setOnSelect(Callback extraFunc) {
-        super.onSelect = () -> {
-            extraFunc.call();
-            baseOnSelect.call();
-        };
     }
 }

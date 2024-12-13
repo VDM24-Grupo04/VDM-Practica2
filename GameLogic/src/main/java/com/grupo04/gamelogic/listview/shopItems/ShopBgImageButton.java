@@ -11,14 +11,11 @@ import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.listview.ShopItemButton;
 
-import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
-
 public class ShopBgImageButton extends ShopItemButton {
     private final float IMG_SCALE = 0.8f;
 
     private String path;
     private IImage image;
-    private final Callback baseOnSelect;
 
     public ShopBgImageButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
                              Color selectedColor, ISound buttonClickSound, GameManager gameManager, String path) {
@@ -60,12 +57,4 @@ public class ShopBgImageButton extends ShopItemButton {
         this.image = null;
     }
 
-    // Hace que la funcion onSelect sea una llamada a la funcion indicada
-    // y una llamada a la funcion onSelect base (en vez de sobreescribirla)
-    public void setOnSelect(Callback extraFunc) {
-        super.onSelect = () -> {
-            extraFunc.call();
-            baseOnSelect.call();
-        };
-    }
 }
