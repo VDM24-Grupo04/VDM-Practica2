@@ -11,7 +11,7 @@ import com.grupo04.gamelogic.listview.ShopItemButton;
 
 public class ShopBgColorButton extends ShopItemButton {
     private Color color;
-    private Callback baseOnSelect;
+    private final Callback baseOnSelect;
 
     public ShopBgColorButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
                              Color selectedColor, ISound buttonClickSound, GameManager gameManager, Color color) {
@@ -46,6 +46,7 @@ public class ShopBgColorButton extends ShopItemButton {
     @Override
     public void dereference() {
         super.dereference();
+
         this.color = null;
     }
 

@@ -47,6 +47,5 @@ public class DesktopInput extends Input {
                 addEvent(TouchEvent.TouchEventType.MOTION, e.getX(), e.getY());
             }
         });
-
     }
 }

@@ -3,7 +3,6 @@ package com.grupo04.gamelogic.listview;
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.ITouchEvent;
-import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.GameObject;
@@ -12,27 +11,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VerticalListview extends GameObject {
-    private Vector topLeftOriginalPos;
-    private Vector topLeftPos;
+    private final Vector topLeftOriginalPos;
+    private final Vector topLeftPos;
     private float previousDrag;
-    private float width;
-    private float height;
+    private final float width;
+    private final float height;
     private float totalHeight;
 
-    private float headerTopHeight;
-    private Vector headerMediumPos;
-    private float headerHeight;
+    private final float headerTopHeight;
+    private final Vector headerMediumPos;
+    private final float headerHeight;
 
-    private float footerBottomHeight;
-    private Vector footerMediumPos;
-    private float footerHeight;
+    private final float footerBottomHeight;
+    private final Vector footerMediumPos;
+    private final float footerHeight;
 
     private boolean resetButtonColors;
     private int itemIndex;
-    private List<ListviewButton> buttons;
-    private int itemsPerRow;
-    private float itemOffsetX, itemOffsetY;
-    private float itemSize;
+    private final List<ListviewButton> buttons;
+    private final int itemsPerRow;
+    private final float itemOffsetX;
+    private final float itemOffsetY;
+    private final float itemSize;
 
     private GameManager gameManager;
 
@@ -70,17 +70,17 @@ public class VerticalListview extends GameObject {
     private void move(float dragDiff) {
         this.topLeftPos.y += dragDiff;
 
-        for (ListviewButton button : buttons) {
+        for (ListviewButton button : this.buttons) {
             button.move(this.topLeftPos.y);
         }
     }
 
     @Override
     public void init() {
-        this.gameManager = scene.getGameManager();
+        this.gameManager = this.scene.getGameManager();
 
-        IEngine engine = scene.getEngine();
-        for (ListviewButton button : buttons) {
+        IEngine engine = this.scene.getEngine();
+        for (ListviewButton button : this.buttons) {
             float x = this.itemIndex % this.itemsPerRow * (this.itemSize + this.itemOffsetX) + this.itemOffsetX + this.itemSize / 2f;
             float y = this.itemIndex / this.itemsPerRow * (this.itemSize + this.itemOffsetY) + this.itemOffsetY + this.itemSize / 2f;
             Vector relativePos = new Vector(x, y);
@@ -88,12 +88,12 @@ public class VerticalListview extends GameObject {
 
             button.init(engine, relativePos, listviewPos, this.itemSize, this.itemSize);
 
-            if (this.itemIndex % itemsPerRow == 0) {
+            if (this.itemIndex % this.itemsPerRow == 0) {
                 this.totalHeight += this.itemOffsetY;
                 this.totalHeight += this.itemSize;
             }
 
-            ++itemIndex;
+            ++this.itemIndex;
         }
     }
 
@@ -108,20 +108,20 @@ public class VerticalListview extends GameObject {
                         break;
                     case DRAG:
                         float currentDrag = touchEventPos.y;
-                        float dragDiff = currentDrag - previousDrag;
+                        float dragDiff = currentDrag - this.previousDrag;
                         this.previousDrag = currentDrag;
 
                         // Se mueve hacia abajo
                         if (dragDiff > 0) {
                             float bottomHeight = this.topLeftPos.y + this.totalHeight;
-                            if (bottomHeight < footerBottomHeight) {
+                            if (bottomHeight < this.footerBottomHeight) {
                                 this.move(dragDiff);
                             }
                         }
                         // Se mueve hacia arriba
                         else {
                             float topHeight = this.topLeftPos.y + dragDiff;
-                            if (topHeight > headerTopHeight) {
+                            if (topHeight > this.headerTopHeight) {
                                 this.move(dragDiff);
                             }
                         }
@@ -132,7 +132,7 @@ public class VerticalListview extends GameObject {
                 }
 
                 this.resetButtonColors = true;
-                for (ListviewButton button : buttons) {
+                for (ListviewButton button : this.buttons) {
                     button.handleEvent(touchEvent);
                 }
             }
@@ -141,31 +141,31 @@ public class VerticalListview extends GameObject {
 
     @Override
     public void render(IGraphics graphics) {
-        for (ListviewButton button : buttons) {
+        for (ListviewButton button : this.buttons) {
             button.render(graphics);
         }
 
-        graphics.setColor(gameManager.getBgColor(false));
+        graphics.setColor(this.gameManager.getBgColor(false));
         graphics.fillRectangle(this.headerMediumPos, this.width, this.headerHeight);
         graphics.fillRectangle(this.footerMediumPos, this.width, this.footerHeight);
     }
 
     @Override
     public void update(double deltaTime) {
-        for (ListviewButton button : buttons) {
+        for (ListviewButton button : this.buttons) {
             button.update(deltaTime);
         }
     }
 
     @Override
     public void dereference() {
-        for (ListviewButton button : buttons) {
+        for (ListviewButton button : this.buttons) {
             button.dereference();
         }
     }
 
     public void addButton(ListviewButton button) {
-        buttons.add(button);
+        this.buttons.add(button);
     }
     public float getItemSize() { return this.itemSize; }
 }

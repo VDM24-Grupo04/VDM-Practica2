@@ -15,6 +15,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Objects;
 
 import javax.swing.JFrame;
 
@@ -106,24 +108,14 @@ public class DesktopEngine extends Engine {
     }
 
     @Override
-    public File getFile(String fileName) {
-        String path = "./assets/" + fileName;
-
-        // Comprobar si existe el archivo en Documentos del usuario
-        File file = new File(path);
-        if (file.exists()) {
-            return new File(path);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
     public FileInputStream getFileInputStream(String fileName, FileType type) {
-        String path = "./assets/" + fileName;
+        String path;
         if (type == FileType.PROGRESS_DATA) {
-            path = System.getProperty("user.home") + File.separator + "Documents" + File.separator + fileName;
+            path = System.getProperty("user.home") + File.separator + "Documents" + File.separator;
+        } else {
+             path = "./assets/";
         }
+        path += fileName;
 
         // Comprobar si existe el archivo en Documentos del usuario
         File file = new File(path);
@@ -131,7 +123,7 @@ public class DesktopEngine extends Engine {
             try {
                 return new FileInputStream(file);
             } catch (IOException e) {
-                System.err.println("Error while getting FileInputStream from: " + file.getPath() + ": " + e.getMessage());
+                System.err.println("Error while getting FileInputStream from " + file.getPath() + ": " + e.getMessage());
             }
         }
         return null;
@@ -144,8 +136,8 @@ public class DesktopEngine extends Engine {
             return new FileOutputStream(file);
         } catch (IOException e) {
             System.err.println("Error while getting FileOutputStream from: " + file.getPath() + ": " + e.getMessage());
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -158,8 +150,53 @@ public class DesktopEngine extends Engine {
                 System.err.println("Failed to delete the file");
             }
         } else {
-            System.err.println("File does not exist.");
+            System.err.println("File does not exist");
         }
+    }
+
+    @Override
+    public String[] listDirectories(String filePath, FileType type) {
+        String path;
+        if (type == FileType.PROGRESS_DATA) {
+            path = System.getProperty("user.home") + File.separator + "Documents" + File.separator;
+        } else {
+            path = "./assets/";
+        }
+        path += filePath;
+
+        File dir = new File(path);
+        File[] files = dir.listFiles();
+        // Si no hay ficheros, devuelve []
+        if (files == null) {
+            return new String[0];
+        }
+        // Filtra aquellos que sean directorios y los devuelve
+        return Arrays.stream(files)
+                .filter(File::isDirectory)
+                .map(File::getName)
+                .toArray(String[]::new);
+    }
+
+    @Override
+    public String[] listFiles(String filePath, FileType type) {
+        String path;
+        if (type == FileType.PROGRESS_DATA) {
+            path = System.getProperty("user.home") + File.separator + "Documents" + File.separator;
+        } else {
+            path = "./assets/";
+        }
+        path += filePath;
+
+        File dir = new File(path);
+        File[] files = dir.listFiles();
+        if (files == null) {
+            return new String[0];
+        }
+        // Filtra aquellos que sean ficheros normales y los devuelve
+        return Arrays.stream(files)
+                .filter(File::isFile)
+                .map(File::getName)
+                .toArray(String[]::new);
     }
 
     @Override

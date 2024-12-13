@@ -13,27 +13,27 @@ import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.GameManager;
 
 public class ShopItemButton extends ListviewButton {
-    private int price;          // Precio
+    private final int price;    // Precio
     private Vector pricePos;    // Posicion del texto del precio
     private IFont priceFont;    // IFont que usara el texto
-    private Color priceColor;
-    private final int PRICE_OFFSET = 10;            // Separacion entre el texto y el cuadro con el objeto
+    private final Color priceColor;
+    private final int PRICE_OFFSET = 10; // Separacion entre el texto y el cuadro con el objeto
 
-    private IImage coinImage;       // Imagen de la moneda
+    private final IImage coinImage; // Imagen de la moneda
     private Vector coinImagePos;    // Posicion de la imagen de la moneda
-    private float coinSize;     // Tamano de la imagen de la moneda
+    private final float coinSize;   // Tamano de la imagen de la moneda
 
     private IAudio audio;
-    private ISound onClickSound;
+    private final ISound onClickSound;
     protected Callback onSelect, onDeselect;
 
     private boolean bought;         // Si se ha comprado el objeto o no
     private boolean selected;       // Si el objeto esta seleccionado o no
-    private Color selectedColor;
-    protected int BORDER_RADIUS = 25;         // Radio del rectangulo del borde
-    protected final int BORDER_THICKNESS = 3;       // Grosor del rectanguglo del borde
+    private final Color selectedColor;
+    protected int BORDER_RADIUS = 25;           // Radio del rectangulo del borde
+    protected final int BORDER_THICKNESS = 3;   // Grosor del rectanguglo del borde
 
-    private final double DOUBLE_TOUCH_THRESHOLD = 0.5;      // Tiempo en segundos maximo para detectar dobles pulsaciones
+    private final double DOUBLE_TOUCH_THRESHOLD = 0.5; // Tiempo en segundos maximo para detectar dobles pulsaciones
     private boolean hasTouched;     // Si se ha pulsado una vez (para detectar una segunda pulsacion)
     private double touchTimer;      // Tiempo desde la primera pulsacion
 
@@ -42,6 +42,7 @@ public class ShopItemButton extends ListviewButton {
     public ShopItemButton(int price, IFont priceFont, Color priceColor, IImage coinImage,
                           int coinSize, Color selectedColor, ISound buttonClickSound, GameManager gameManager) {
         super();
+
         this.price = price;
         this.priceFont = priceFont;
         this.priceColor = priceColor;
@@ -76,8 +77,8 @@ public class ShopItemButton extends ListviewButton {
         this.audio = engine.getAudio();
 
         // Cambia la posicion y la esquina superior izquierda del padre
-        this.pos.x = topLeft.x + this.width / 2;
-        this.pos.y = topLeft.y + this.height / 2;
+        this.pos.x = this.topLeft.x + this.width / 2;
+        this.pos.y = this.topLeft.y + this.height / 2;
         updatePricePos();
     }
 
@@ -127,7 +128,7 @@ public class ShopItemButton extends ListviewButton {
     @Override
     public void render(IGraphics graphics) {
         // Si no se ha comprado el objeto
-        if (!bought) {
+        if (!this.bought) {
             // Se pinta el texto del precio
             graphics.setColor(this.priceColor);
             graphics.setFont(this.priceFont);
@@ -140,7 +141,7 @@ public class ShopItemButton extends ListviewButton {
             graphics.setColor(this.priceColor);
         }
         // Si no, si se se ha comprado y esta seleccionado, se pone el color del borde al seleccionado
-        else if (selected) {
+        else if (this.selected) {
             graphics.setColor(this.selectedColor);
         }
         // Si no, es que se ha comprado pero no se ha seleccionado y se
@@ -158,12 +159,12 @@ public class ShopItemButton extends ListviewButton {
         updatePricePos();
 
         // Si se ha pulsado una vez y el objeto no ha sido comprado
-        if (hasTouched && !bought) {
+        if (this.hasTouched && !this.bought) {
             // Actualiza el contador para detectar una doble pulsacion
             this.touchTimer += deltaTime;
 
             // Si no se ha detectado una doble pulsacion, pone que se ha pulsado a false
-            if (this.touchTimer >= this.DOUBLE_TOUCH_THRESHOLD) {
+            if (this.touchTimer >= DOUBLE_TOUCH_THRESHOLD) {
                 this.hasTouched = false;
             }
         }
@@ -174,7 +175,6 @@ public class ShopItemButton extends ListviewButton {
         this.pricePos = null;
         this.priceFont = null;
 
-        // this.coinImage = null;
         this.coinImagePos = null;
     }
 

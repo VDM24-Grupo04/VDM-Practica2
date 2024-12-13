@@ -1,6 +1,5 @@
 package com.grupo04.gamelogic.gameobjects.buttons;
 
-import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IFont;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
@@ -88,8 +87,8 @@ public class TextButton extends Button {
 
         IGraphics graphics = this.scene.getEngine().getGraphics();
         this.font = graphics.newFont(this.fontName, this.fontSize, this.bold, false);
-        if (imagePath != null) {
-            this.image = graphics.newImage(imagePath);
+        if (this.imagePath != null) {
+            this.image = graphics.newImage(this.imagePath);
         }
     }
 
@@ -134,6 +133,7 @@ public class TextButton extends Button {
     @Override
     public void dereference() {
         super.dereference();
+
         this.font = null;
     }
 }

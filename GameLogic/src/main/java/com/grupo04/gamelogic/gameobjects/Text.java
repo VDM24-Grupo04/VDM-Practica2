@@ -134,27 +134,27 @@ public class Text extends GameObject {
         graphics.setFont(this.font);
 
         // Centrar el texto horziontalmente
-        textPos.x = 0f;
-        textPos.y = this.pos.y + this.firstTextHeight / 2f - this.fullHeight / 2f;
+        this.textPos.x = 0f;
+        this.textPos.y = this.pos.y + this.firstTextHeight / 2f - this.fullHeight / 2f;
         for (int i = 0; i < this.texts.length; ++i) {
             String currentText = this.texts[i];
-            textPos.x = this.pos.x;
+            this.textPos.x = this.pos.x;
             // Para textos que que no sean el de la primera linea...
             if (i > 0) {
                 // Se alinea a la izquiera con el texto de la primera linea...
                 float widthDiff = this.textsWidths[i] - this.firstTextWidth;
-                textPos.x += widthDiff / 2f;
+                this.textPos.x += widthDiff / 2f;
 
                 // Se coloca en otra linea con un interlineado...
                 float textHeight = this.textsHeights[i - 1];
-                textPos.y += textHeight + this.lineSpacing;
+                this.textPos.y += textHeight + this.lineSpacing;
             }
             // Se indenta si fuera necesario
             if (i < this.indentation.length) {
-                textPos.x += this.indentation[i];
+                this.textPos.x += this.indentation[i];
             }
 
-            graphics.drawText(currentText, textPos);
+            graphics.drawText(currentText, this.textPos);
         }
     }
 
@@ -170,6 +170,7 @@ public class Text extends GameObject {
     @Override
     public void dereference() {
         super.dereference();
+
         this.font = null;
     }
 }

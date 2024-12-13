@@ -117,7 +117,7 @@ public class Grid extends GameObject {
         this.totalBubbles = 0;
 
         this.bubbleColors = bubbleColors;
-        this.colorCount = new int[this.bubbleColors.getTotalColors()];
+        this.colorCount = new int[BubbleColors.getTotalColors()];
         this.bubbleColors.reset();
 
         this.bubbles = new int[this.rows][this.cols];
@@ -135,7 +135,7 @@ public class Grid extends GameObject {
                     int color = this.bubbleColors.generateRandomColor();
                     this.bubbles[i][j] = color;
                     this.bubbleColors.addColor(color);
-                    if (color >= 0 && color < this.bubbleColors.getTotalColors()) {
+                    if (color >= 0 && color < BubbleColors.getTotalColors()) {
                         this.colorCount[color]++;
                         this.totalBubbles++;
                     }
@@ -199,7 +199,6 @@ public class Grid extends GameObject {
                 bubblesToExplode, greatScore, smallScore, bubbleColors, 350f, 60f);
     }
 
-
     @Override
     public void init() {
         this.engine = this.scene.getEngine();
@@ -244,14 +243,14 @@ public class Grid extends GameObject {
         // Recorre las bolas que han colisionado y las pintas
         if (!this.collidedBubbles.isEmpty()) {
             for (AnimCollidedBubbles anim : this.collidedBubbles) {
-                this.bubbleColors.drawBall(graphics, scene.getGameManager(), anim.color, anim.pos, (int) anim.radius);
+                this.bubbleColors.drawBall(graphics, this.scene.getGameManager(), anim.color, anim.pos, (int) anim.radius);
             }
         }
 
         // Recorre las bolas caidas y las pinta
         if (!this.fallingBubbles.isEmpty()) {
             for (Pair<Vector, Integer> bubble : this.fallingBubbles) {
-                this.bubbleColors.drawBall(graphics, scene.getGameManager(), bubble.getSecond(), bubble.getFirst(), this.r);
+                this.bubbleColors.drawBall(graphics, this.scene.getGameManager(), bubble.getSecond(), bubble.getFirst(), this.r);
             }
         }
     }
@@ -324,13 +323,13 @@ public class Grid extends GameObject {
                     for (int j = 0; j < bPerRow; j++) {
                         int color = readBubbles[i][j];
 
-                        if (color >= 0 && color < this.bubbleColors.getTotalColors()) {
+                        if (color >= 0 && color < BubbleColors.getTotalColors()) {
                             this.bubbles[i][j] = color;
                             this.bubbleColors.addColor(color);
                             this.colorCount[color]++;
                             this.totalBubbles++;
                         }
-                        else if (color > this.bubbleColors.getTotalColors()){
+                        else if (color > BubbleColors.getTotalColors()){
                             System.out.println("Invalid bubble color at (" + i + ", " + j + "). Skipping color");
                         }
                     }
@@ -604,7 +603,6 @@ public class Grid extends GameObject {
         }
     }
 
-
     public boolean hasEnded() {
         return this.end;
     }
@@ -649,5 +647,4 @@ public class Grid extends GameObject {
             graphics.drawHexagon(pos, this.hexagonRadius, 90, this.lineThickness * 2);
         }
     }
-
 }

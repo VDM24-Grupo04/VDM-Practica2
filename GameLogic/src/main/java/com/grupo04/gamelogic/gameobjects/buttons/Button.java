@@ -45,7 +45,7 @@ public abstract class Button extends GameObject {
         this.width = width;
         this.height = height;
         // Punto superior izquierdo
-        this.topLeft = new Vector(pos.x - (float) width / 2, pos.y - (float) height / 2);
+        this.topLeft = new Vector(pos.x - width / 2, pos.y - height / 2);
 
         this.audio = null;
         this.onClickSoundPath = onClickSoundPath;

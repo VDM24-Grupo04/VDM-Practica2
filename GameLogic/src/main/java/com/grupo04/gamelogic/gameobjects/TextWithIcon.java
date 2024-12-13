@@ -9,19 +9,19 @@ import com.grupo04.gamelogic.GameObject;
 
 public class TextWithIcon extends GameObject {
     private Vector pos;
-    private float spacing;
+    private final float spacing;
 
-    private float fontSize;
+    private final float fontSize;
     private Vector textPos;
     private String text;
-    private String fontName;
-    private Color fontColor;
-    private boolean bold;
+    private final String fontName;
+    private final Color fontColor;
+    private final boolean bold;
     private IFont font;
 
-    private int imageSize;
+    private final int imageSize;
     private Vector imagePos;
-    private String imagePath;
+    private final String imagePath;
     private IImage image;
 
     private boolean hasCalculateParams;

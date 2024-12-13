@@ -10,7 +10,7 @@ import com.grupo04.gamelogic.listview.ShopItemButton;
 
 public class ShopBallSkinButton extends ShopItemButton {
     private IImage image;
-    private int colorId;
+    private final int colorId;
 
     public ShopBallSkinButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
                               Color selectedColor, ISound buttonClickSound, GameManager gameManager,
@@ -39,6 +39,7 @@ public class ShopBallSkinButton extends ShopItemButton {
     @Override
     public void dereference() {
         super.dereference();
+
         this.image = null;
     }
 }

@@ -27,7 +27,7 @@ public class ImageButton extends Button {
         
         IEngine engine = this.scene.getEngine();
         IGraphics graphics = engine.getGraphics();
-        this.image = graphics.newImage(imagePath);
+        this.image = graphics.newImage(this.imagePath);
     }
 
     @Override
@@ -38,6 +38,7 @@ public class ImageButton extends Button {
     @Override
     public void dereference() {
         super.dereference();
+
         this.image = null;
     }
 }

@@ -44,7 +44,7 @@ public class LevelsScene extends Scene {
 
     @Override
     public void init() {
-        int totalLevels = gameManager.getTotalLevels();
+        int totalLevels = this.gameManager.getTotalLevels();
         int nRows = (int) Math.ceil((double) totalLevels / LEVELS_PER_ROW);
 
         float height = this.worldHeight - HEADER_REAL_SIZE;
@@ -57,7 +57,7 @@ public class LevelsScene extends Scene {
 
         int levelProgress = this.gameManager.getLevelProgress();
 
-        int[] worlds = gameManager.getWorlds();
+        int[] worlds = this.gameManager.getWorlds();
 
         Color[][] levelsStyle = this.gameManager.getLevelsStyle();
         float fontSize = listview.getItemSize() / 1.8f;
@@ -109,10 +109,9 @@ public class LevelsScene extends Scene {
         LevelButton levelButton = new LevelButton(levelNumber, locked, style,
                 LEVEL_BUTTON_BORDER_COLOR, LEVEL_BUTTON_ARC, LEVEL_BUTTON_BORDER_WIDTH,
                 FONT_COLOR, font, image, onClickSound, () -> {
-            gameManager.changeToGameScene(levelNumber);
+            this.gameManager.changeToGameScene(levelNumber);
         });
 
         listview.addButton(levelButton);
     }
-
 }

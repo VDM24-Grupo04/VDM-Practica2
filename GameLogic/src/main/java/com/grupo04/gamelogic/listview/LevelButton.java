@@ -12,26 +12,26 @@ import com.grupo04.engine.utilities.Color;
 import com.grupo04.engine.utilities.Vector;
 
 public class LevelButton extends ListviewButton {
-    private boolean locked;
+    private final boolean locked;
 
     private Color bgCol;
     private final Color unlockedCol;
     private final Color unlockedPointoverCol;
 
-    private Color borderCol;
-    private float arc;
-    private float borderWidth;
+    private final Color borderCol;
+    private final float arc;
+    private final float borderWidth;
 
-    private IFont font;
+    private final IFont font;
     private final String text;
     private final Color fontColor;
 
-    private IImage image;
+    private final IImage image;
     private int imageSize;
 
     private IAudio audio;
-    private ISound onClickSound;
-    private Callback onClick;
+    private final ISound onClickSound;
+    private final Callback onClick;
 
     public LevelButton(int levelNumber, boolean locked, Color[] colors,
                        Color borderCol, float arc, float borderWidth,
@@ -92,6 +92,7 @@ public class LevelButton extends ListviewButton {
                         // Se podria añadir un sonido cuando no este encima
                         this.bgCol = this.unlockedCol;
                     }
+                    break;
             }
         }
     }

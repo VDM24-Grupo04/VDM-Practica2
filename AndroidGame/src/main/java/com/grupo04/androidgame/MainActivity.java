@@ -48,14 +48,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String fileName = "game.json";
         String shopFileName = "shop.json";
         this.gameManager = new GameManager(this.androidEngine, fileName, shopFileName);
-        this.androidEngine.setScene(gameManager);
+        this.androidEngine.setScene(this.gameManager);
 
         this.androidEngine.getMobile().initializeNotifications(R.string.channel_id,
                 R.string.channel_name, R.string.channel_description,
                 R.string.workers_tag);
 
         // Bloquear la orientacion
-        //this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // Opcional: sensor de acelerometro
         this.sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -94,13 +94,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             float x = sensorEvent.values[0];
             float y = sensorEvent.values[1];
             float z = sensorEvent.values[2];
-            float lastAcceleration = currentAcceleration;
+            float lastAcceleration = this.currentAcceleration;
 
-            currentAcceleration = (float) Math.sqrt(x * x + y * y + z * z);
-            float delta = currentAcceleration - lastAcceleration;
-            acceleration = acceleration * 0.9f + delta;
+            this.currentAcceleration = (float) Math.sqrt(x * x + y * y + z * z);
+            float delta = this.currentAcceleration - lastAcceleration;
+            this.acceleration = this.acceleration * 0.9f + delta;
 
-            if (acceleration > SHAKE_ACCELERATION) {
+            if (this.acceleration > SHAKE_ACCELERATION) {
                 this.gameManager.increaseCoins(1);
             }
         }
@@ -108,6 +108,5 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
-
     }
 }

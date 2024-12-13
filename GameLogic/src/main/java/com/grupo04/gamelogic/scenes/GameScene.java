@@ -3,7 +3,6 @@ package com.grupo04.gamelogic.scenes;
 import static com.grupo04.engine.utilities.JSONConverter.convertLinkedListToJSONArray;
 import static com.grupo04.engine.utilities.JSONConverter.convertMatrixToJSONArray;
 
-import com.grupo04.engine.utilities.Pair;
 import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.Scene;
 import com.grupo04.engine.interfaces.IEngine;
@@ -20,10 +19,9 @@ import com.grupo04.gamelogic.gameobjects.Walls;
 import org.json.JSONObject;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class GameScene extends Scene {
-    private final int n_COLS = 10;
+    private final int NUM_COLS = 10;
     private final int INIT_ROWS = 5;
     private final int HEADER_WIDTH = 50;
     private final int WALL_THICKNESS = 20;
@@ -45,8 +43,7 @@ public class GameScene extends Scene {
     private final String SCORE_TEXT_FONT = "kimberley.ttf";
     private final float SCORE_TEXT_SIZE = 35;
 
-    private int levelNumber;
-    private final JSONObject json;
+    private final int levelNumber;
     private final Grid grid;
     private final CurrentBubble currentBubble;
     boolean checkEnded;
@@ -54,7 +51,6 @@ public class GameScene extends Scene {
     public GameScene(IEngine engine, JSONObject json, int levelNumber) {
         super(engine, 400, 600, "background.jpg");
 
-        this.json = json;
         this.levelNumber = levelNumber;
 
         this.checkEnded = true;
@@ -63,7 +59,7 @@ public class GameScene extends Scene {
         setFade(Fade.OUT, 0.25);
 
         // Radio de las burbujas en el mapa
-        float r = (((float) this.worldWidth - (WALL_THICKNESS * 2)) / n_COLS) / 2;
+        float r = (((float) this.worldWidth - (WALL_THICKNESS * 2)) / NUM_COLS) / 2;
         int bubbleOffset = (int) (r * 0.3);
         int rows = ((int) ((this.worldHeight - HEADER_WIDTH - WALL_THICKNESS) / (r * 2)));
 
@@ -92,8 +88,8 @@ public class GameScene extends Scene {
         addGameObject(menuButton);
 
         String text = "Score: 0";
-        if (this.json != null && this.json.has("score")) {
-            text = "Score: " + this.json.get("score");
+        if (json != null && json.has("score")) {
+            text = "Score: " + json.get("score");
         }
         Text scoreText = new Text(new Vector(this.worldWidth / 2f, HEADER_WIDTH / 2f), text,
                 SCORE_TEXT_FONT, SCORE_TEXT_SIZE, false, false, TEXT_COLOR);
@@ -112,9 +108,9 @@ public class GameScene extends Scene {
         Walls walls = new Walls(WALL_THICKNESS, HEADER_WIDTH, this.worldWidth, this.worldHeight);
         addGameObject(walls);
 
-        this.grid = new Grid(json, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH, (int) r, bubbleOffset, rows, n_COLS,
+        this.grid = new Grid(json, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH, (int) r, bubbleOffset, rows, NUM_COLS,
                 INIT_ROWS, BUBBLES_TO_EXPLODE, GREAT_SCORE, SMALL_SCORE, bubbleColors);
-        addGameObject(grid, "grid");
+        addGameObject(this.grid, "grid");
 
         this.currentBubble = new CurrentBubble(json, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH,
                 (int) r, bubbleOffset, rows, bubbleColors);
@@ -124,7 +120,7 @@ public class GameScene extends Scene {
     @Override
     public void init() {
         // Se quita la imagen de fondo si hay un color de fondo seleccionado
-        if (gameManager.getBgColor(true) != null) {
+        if (this.gameManager.getBgColor(true) != null) {
             super.bgImage = null;
         }
         super.init();

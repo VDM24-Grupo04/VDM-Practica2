@@ -11,7 +11,6 @@ import com.grupo04.engine.interfaces.ISound;
 import com.grupo04.engine.interfaces.ITouchEvent;
 import com.grupo04.gamelogic.BubbleColors;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
@@ -226,7 +225,7 @@ public class CurrentBubble extends GameObject {
             if (!this.adventureModeColors.isEmpty()) {
                 this.color = this.adventureModeColors.getFirst();
                 this.adventureModeColors.pop();
-                if (this.color < 0 || this.color >= this.bubbleColors.getTotalColors()) {
+                if (this.color < 0 || this.color >= BubbleColors.getTotalColors()) {
                     System.out.println("Invalid bubble color. Skipping color");
                     reset();
                 }
@@ -248,7 +247,6 @@ public class CurrentBubble extends GameObject {
         this.dragging = false;
         this.shot = false;
     }
-
 
     public int getColor() {
         return this.color;

@@ -2,7 +2,6 @@ package com.grupo04.gamelogic.scenes;
 
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IMobile;
-import com.grupo04.engine.utilities.Callback;
 import com.grupo04.engine.utilities.Color;
 import com.grupo04.gamelogic.Scene;
 import com.grupo04.engine.utilities.Vector;
@@ -40,7 +39,7 @@ public class VictoryScene extends Scene {
     private final Color BLACK_BUTTON_BASE_COLOR = new Color(62, 62, 62);
     private final Color BLACK_BUTTON_OVER_COLOR = new Color(0, 0, 0);
 
-    private final int N_COINS_EARNED = 10;
+    private final int NUM_COINS_EARNED = 10;
 
     private TextButton x2Button;
     private TextWithIcon coins;
@@ -96,7 +95,7 @@ public class VictoryScene extends Scene {
             addGameObject(shareButton);
         }
 
-        String text = "+" + N_COINS_EARNED;
+        String text = "+" + NUM_COINS_EARNED;
         this.coins = new TextWithIcon(coinsPos, COINS_SIZE, COINS_SPACING,
                 text, COINS_TEXT_FONT, BLACK_TEXT_COLOR, false,
                 COINS_IMAGE_PATH);
@@ -108,7 +107,7 @@ public class VictoryScene extends Scene {
     @Override
     public void init() {
         // Se reproduce una vez cargado el sonido
-        ISound winSound = engine.getAudio().newSound("win.wav", true);
+        ISound winSound = this.engine.getAudio().newSound("win.wav", true);
 
         int totalLevels = this.gameManager.getTotalLevels();
         String playButtonText = "Play again";
@@ -159,7 +158,7 @@ public class VictoryScene extends Scene {
         addGameObject(menuButton);
 
         if (this.gameManager != null) {
-            this.gameManager.increaseCoins(N_COINS_EARNED);
+            this.gameManager.increaseCoins(NUM_COINS_EARNED);
         }
 
         super.init();
@@ -167,10 +166,10 @@ public class VictoryScene extends Scene {
 
     private void onReward() {
         this.x2Button.setAlive(false);
-        this.coins.setText("+" + N_COINS_EARNED * 2);
+        this.coins.setText("+" + NUM_COINS_EARNED * 2);
         this.coins.setPos(worldWidth / 2f);
         if (this.gameManager != null) {
-            this.gameManager.increaseCoins(N_COINS_EARNED);
+            this.gameManager.increaseCoins(NUM_COINS_EARNED);
         }
     }
 }

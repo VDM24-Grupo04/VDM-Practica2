@@ -215,6 +215,12 @@ public abstract class Engine implements IEngine, Runnable {
     public IMobile getMobile() { return this.mobile; }
 
     @Override
+    public abstract InputStream getFileInputStream(String fileName, FileType type);
+
+    @Override
+    public abstract FileOutputStream getFileOutputStream(String fileName);
+
+    @Override
     public void writeFile(FileOutputStream file, String info) {
         if (file != null) {
             try {
@@ -252,4 +258,10 @@ public abstract class Engine implements IEngine, Runnable {
 
     @Override
     public abstract void eraseFile(String fileName);
+
+    @Override
+    public abstract String[] listDirectories(String filePath, FileType type);
+
+    @Override
+    public abstract String[] listFiles(String filePath, FileType type);
 }

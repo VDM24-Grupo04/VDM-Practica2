@@ -19,7 +19,6 @@ import com.grupo04.gamelogic.listview.shopItems.ShopBgColorButton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.spec.ECField;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,18 +45,18 @@ public class ShopScene extends Scene {
 
     private IFont pricesFont;
     private float itemSize;
-    private int coinsImageSize = this.FONT_SIZE;
+    private final int coinsImageSize = this.FONT_SIZE;
 
     VerticalListview listview;
 
-    private HashMap<String, ShopItemButton> items;
-    private List<ShopBgColorButton> colors;
+    private final HashMap<String, ShopItemButton> items;
+    private final List<ShopBgColorButton> colors;
 
     public ShopScene(IEngine engine) {
         super(engine, 400, 600);
 
-        items = new HashMap<>();
-        colors = new ArrayList<>();
+        this.items = new HashMap<>();
+        this.colors = new ArrayList<>();
     }
 
     @Override
@@ -69,18 +68,18 @@ public class ShopScene extends Scene {
         float maskHeight = HEADER_REAL_SIZE * 2f;
         this.listview = new VerticalListview(new Vector(this.worldWidth / 2f, y ),
                 this.worldWidth, height, maskHeight, maskHeight, ITEMS_PER_ROW, ITEM_OFFSET, this.itemSize + this.FONT_SIZE * 3);
-        addGameObject(listview);
+        addGameObject(this.listview);
 
         // Se anaden los objetos del header
         createHeader(graphics);
 
         // Se crea la fuente y el audio de los botones
-        this.pricesFont = graphics.newFont(this.FONT_NAME, this.FONT_SIZE, true, false);
+        this.pricesFont = graphics.newFont(FONT_NAME, FONT_SIZE, true, false);
         this.buttonSound = getEngine().getAudio().newSound(BUTTON_SOUND);
 
         // Se calcula el tamano de los objetos dependiendo del numero de objetos por fila
-        float freeSpace = this.worldWidth - this.HEADER_OFFSET * 2 - this.ITEM_OFFSET * (this.ITEMS_PER_ROW - 1);
-        this.itemSize = freeSpace / this.ITEMS_PER_ROW;
+        float freeSpace = this.worldWidth - HEADER_OFFSET * 2 - ITEM_OFFSET * (ITEMS_PER_ROW - 1);
+        this.itemSize = freeSpace / ITEMS_PER_ROW;
 
         // Anadir los objetos
         readItems();
@@ -96,9 +95,9 @@ public class ShopScene extends Scene {
         super.render(graphics);
 
         graphics.setFont(this.headerCoinsFont);
-        graphics.setColor(this.TEXT_COLOR);
-        graphics.drawText(((Integer) (gameManager.getCoins())).toString(), headerCoinsTextPos, false, true);
-        graphics.drawImage(this.coinImg, this.headerCoinsImgPos, (int) this.COINS_IMAGE_SIZE, (int) this.COINS_IMAGE_SIZE);
+        graphics.setColor(TEXT_COLOR);
+        graphics.drawText(((Integer) (this.gameManager.getCoins())).toString(), this.headerCoinsTextPos, false, true);
+        graphics.drawImage(this.coinImg, this.headerCoinsImgPos, (int) COINS_IMAGE_SIZE, (int) COINS_IMAGE_SIZE);
     }
 
     @Override
@@ -114,18 +113,18 @@ public class ShopScene extends Scene {
 
         this.pricesFont = null;
         this.buttonSound = null;
-        items.clear();
+        this.items.clear();
     }
 
     @Override
     public void saveJson() {
-        JSONObject savedItems = gameManager.getSavedShopJsonObject();
+        JSONObject savedItems = this.gameManager.getSavedShopJsonObject();
         if (savedItems == null) {
            savedItems = new JSONObject();
         }
         // Recorre todas las keys de los objetos de la tienda
-        for (String key : items.keySet()) {
-            ShopItemButton item = items.get(key);
+        for (String key : this.items.keySet()) {
+            ShopItemButton item = this.items.get(key);
 
             // Se crea un JsonObject en el que guardar los atributos del objeto
             JSONObject savedItem = new JSONObject();
@@ -139,7 +138,7 @@ public class ShopScene extends Scene {
             }
         }
 
-        gameManager.setSavedShopJsonObject(savedItems);
+        this.gameManager.setSavedShopJsonObject(savedItems);
     }
 
 
@@ -150,8 +149,8 @@ public class ShopScene extends Scene {
 
         // UI de la parte superior
         ImageButton menuButton = new ImageButton(
-                new Vector(this.HEADER_SIZE / 2f + this.HEADER_OFFSET, this.HEADER_OFFSET + this.HEADER_SIZE / 2.0f),
-                this.HEADER_SIZE, this.HEADER_SIZE, MENU_BUTTON_IMG, this.BUTTON_SOUND,
+                new Vector(HEADER_SIZE / 2f + HEADER_OFFSET, HEADER_OFFSET + HEADER_SIZE / 2.0f),
+                HEADER_SIZE, HEADER_SIZE, MENU_BUTTON_IMG, BUTTON_SOUND,
                 () -> {
                     // Al pulsar el boton se hace un fade in y cuando
                     // acaba la animacion se cambia al menu principal
@@ -169,24 +168,24 @@ public class ShopScene extends Scene {
 
         // Se anade el texto del titulo
         Text title = new Text(
-                new Vector(this.worldWidth / 2f, this.HEADER_OFFSET + this.HEADER_SIZE / 2.0f),
-                "Tienda", this.FONT_NAME, this.HEADER_SIZE, false, false, this.TEXT_COLOR);
+                new Vector(this.worldWidth / 2f, HEADER_OFFSET + HEADER_SIZE / 2.0f),
+                "Tienda", FONT_NAME, HEADER_SIZE, false, false, TEXT_COLOR);
         addGameObject(title);
 
         // Se crea la imagen de las monedas
         this.coinImg = graphics.newImage("coin.png");
 
         // Se crean las posiciones de los elementos del header
-        this.headerCoinsTextPos = new Vector(this.worldWidth * 0.84f + COINS_IMAGE_SIZE / 2.0f, this.HEADER_OFFSET + this.HEADER_SIZE / 2.0f);
-        this.headerCoinsFont = graphics.newFont(this.FONT_NAME, COINS_IMAGE_SIZE, false, false);
-        this.headerCoinsImgPos = new Vector(this.headerCoinsTextPos.x - this.COINS_IMAGE_SIZE, this.headerCoinsTextPos.y);
+        this.headerCoinsTextPos = new Vector(this.worldWidth * 0.84f + COINS_IMAGE_SIZE / 2.0f, HEADER_OFFSET + HEADER_SIZE / 2.0f);
+        this.headerCoinsFont = graphics.newFont(FONT_NAME, COINS_IMAGE_SIZE, false, false);
+        this.headerCoinsImgPos = new Vector(this.headerCoinsTextPos.x - COINS_IMAGE_SIZE, this.headerCoinsTextPos.y);
     }
 
     // Lee los objetos del json de la tienda
     private void readItems() {
-        List<String> itemsKeys =  gameManager.getShopItemsKeys();
-        HashMap<String, JSONObject> itemsByKey = gameManager.getShopItemsByKey();
-        JSONObject savedItems = gameManager.getSavedShopJsonObject();
+        List<String> itemsKeys = this.gameManager.getShopItemsKeys();
+        HashMap<String, JSONObject> itemsByKey = this.gameManager.getShopItemsByKey();
+        JSONObject savedItems = this.gameManager.getSavedShopJsonObject();
 
         // Recorre (en orden) todas las keys de los objetos leidos y los anade a la tienda segun su tipo
         for(String key : itemsKeys) {
@@ -247,19 +246,19 @@ public class ShopScene extends Scene {
         if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255 && a >= 0 && a <= 255) {
             Color col = new Color(r, g, b, a);
 
-            ShopBgColorButton color = new ShopBgColorButton(price, this.pricesFont, TEXT_COLOR, coinImg, coinsImageSize,
-                    SELECTED_COLOR, this.buttonSound, gameManager, col);
+            ShopBgColorButton color = new ShopBgColorButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
+                    SELECTED_COLOR, this.buttonSound, this.gameManager, col);
 
             // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
             color.setOnSelect(() -> {
-                for (ShopBgColorButton c : colors) {
+                for (ShopBgColorButton c : this.colors) {
                     c.setSelected(false);
                 }
             });
 
             // Anade el objeto al mapa de objetos y el color a la lista de colores
-            addItem(key, color, colors.size());
-            colors.add(color);
+            addItem(key, color);
+            this.colors.add(color);
         }
         else {
             System.out.println("Color out of valid range");
@@ -271,13 +270,10 @@ public class ShopScene extends Scene {
         if (id < BubbleColors.getTotalColors()) {
             IImage img = getEngine().getGraphics().newImage(imgPath);
 
-            ShopBallSkinButton skin = new ShopBallSkinButton(price, this.pricesFont, TEXT_COLOR, coinImg, coinsImageSize,
-                    SELECTED_COLOR, this.buttonSound, gameManager, img, id);
+            ShopBallSkinButton skin = new ShopBallSkinButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
+                    SELECTED_COLOR, this.buttonSound, this.gameManager, img, id);
 
-            // Siguiente fila al ultimo color
-            int row = 1 + (colors.size() / ITEMS_PER_ROW);
-            int col = items.size() - colors.size();
-            addItem(key, skin, (row * ITEMS_PER_ROW) + col);
+            addItem(key, skin);
         }
         else {
             System.out.println("Ball id doesn't match with the available balls");
@@ -285,12 +281,11 @@ public class ShopScene extends Scene {
     }
 
     // Anade un objeto a la lista
-    private void addItem(String key, ShopItemButton item, int index) {
+    private void addItem(String key, ShopItemButton item) {
         // Si el objeto no esta ya en la lista
-        if (!items.containsKey(key)) {
+        if (!this.items.containsKey(key)) {
             this.listview.addButton(item);
-            items.put(key, item);
+            this.items.put(key, item);
         }
     }
-
 }

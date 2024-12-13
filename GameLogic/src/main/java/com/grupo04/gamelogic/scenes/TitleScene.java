@@ -7,8 +7,6 @@ import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.gameobjects.buttons.TextButton;
 import com.grupo04.gamelogic.gameobjects.Text;
 
-import org.json.JSONObject;
-
 public class TitleScene extends Scene {
     private final String TEXT_FONT = "TheMeshroomRegular.ttf";
     private final Color TEXT_COLOR = new Color(0, 0, 0);

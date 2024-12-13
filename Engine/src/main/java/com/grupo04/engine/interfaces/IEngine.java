@@ -1,6 +1,5 @@
 package com.grupo04.engine.interfaces;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
@@ -11,12 +10,13 @@ public interface IEngine {
     IAudio getAudio();
     IMobile getMobile();
 
-    File getFile(String fileName);
     InputStream getFileInputStream(String fileName, FileType type);
     FileOutputStream getFileOutputStream(String fileName);
     void writeFile(FileOutputStream file, String info);
     String readFile(InputStream file);
     void eraseFile(String fileName);
+    String[] listDirectories(String path, FileType type);
+    String[] listFiles(String path, FileType type);
     String getHash(String data);
 
     enum FileType { GAME_DATA, PROGRESS_DATA }

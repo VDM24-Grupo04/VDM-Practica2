@@ -61,12 +61,7 @@ public class AndroidMobile implements IMobile {
         this.window = window;
         this.rewardedAd = null;
 
-        MobileAds.initialize(this.mainActivity, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
-                System.out.println("Advertisements loaded");
-            }
-        });
+        MobileAds.initialize(this.mainActivity, initializationStatus -> System.out.println("Advertisements loaded"));
 
         loadBannerAd(adView);
         loadRewardedAd();
