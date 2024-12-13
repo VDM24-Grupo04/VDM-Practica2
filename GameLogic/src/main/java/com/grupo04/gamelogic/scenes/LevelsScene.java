@@ -44,15 +44,11 @@ public class LevelsScene extends Scene {
 
     @Override
     public void init() {
-        int totalLevels = this.gameManager.getTotalLevels();
-        int nRows = (int) Math.ceil((double) totalLevels / LEVELS_PER_ROW);
-
         float height = this.worldHeight - HEADER_REAL_SIZE;
         float y = HEADER_REAL_SIZE + height / 1.95f;
-        float maskHeight = HEADER_REAL_SIZE * nRows * 2f;
 
         VerticalListview listview = new VerticalListview(new Vector(this.worldWidth / 2f, y),
-                this.worldWidth, height, maskHeight, maskHeight, LEVELS_PER_ROW, 20, 20);
+                this.worldWidth, height, LEVELS_PER_ROW, 20, 20);
         addGameObject(listview);
 
         int levelProgress = this.gameManager.getLevelProgress();

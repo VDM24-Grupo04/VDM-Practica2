@@ -65,9 +65,8 @@ public class ShopScene extends Scene {
 
         float height = this.worldHeight - HEADER_REAL_SIZE;
         float y = HEADER_REAL_SIZE + height / 1.95f;
-        float maskHeight = HEADER_REAL_SIZE * 2f;
-        this.listview = new VerticalListview(new Vector(this.worldWidth / 2f, y ),
-                this.worldWidth, height, maskHeight, maskHeight, ITEMS_PER_ROW, ITEM_OFFSET, this.itemSize + this.FONT_SIZE * 3);
+        this.listview = new VerticalListview(new Vector(this.worldWidth / 2f, y),
+                this.worldWidth, height, ITEMS_PER_ROW, ITEM_OFFSET, this.itemSize + this.FONT_SIZE * 3);
         addGameObject(this.listview);
 
         // Se anaden los objetos del header
@@ -120,7 +119,7 @@ public class ShopScene extends Scene {
     public void saveJson() {
         JSONObject savedItems = this.gameManager.getSavedShopJsonObject();
         if (savedItems == null) {
-           savedItems = new JSONObject();
+            savedItems = new JSONObject();
         }
         // Recorre todas las keys de los objetos de la tienda
         for (String key : this.items.keySet()) {
@@ -188,17 +187,15 @@ public class ShopScene extends Scene {
         JSONObject savedItems = this.gameManager.getSavedShopJsonObject();
 
         // Recorre (en orden) todas las keys de los objetos leidos y los anade a la tienda segun su tipo
-        for(String key : itemsKeys) {
+        for (String key : itemsKeys) {
             JSONObject obj = itemsByKey.get(key);
             try {
                 if (Objects.equals(obj.getString("type"), "bgColor")) {
                     addBgColor(obj.getString("id"), obj.getInt("price"), obj.getInt("r"), obj.getInt("g"), obj.getInt("b"), obj.getInt("a"));
-                }
-                else if (Objects.equals(obj.getString("type"), "ballSkin")) {
+                } else if (Objects.equals(obj.getString("type"), "ballSkin")) {
                     addBallSkin(obj.getString("id"), obj.getInt("price"), obj.getString("path"), obj.getInt("colorId"));
                 }
-            }
-            catch (JSONException e) {
+            } catch (JSONException e) {
                 System.out.println("Error while trying to add item to shop: " + e.getMessage());
             }
         }
@@ -220,8 +217,7 @@ public class ShopScene extends Scene {
                     try {
                         // Se pone el valor bought del objeto por el leido
                         item.setBought(obj.getBoolean("bought"));
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         System.out.println("Item " + key + " doesn't have bought property");
                         item.setBought(false);
                     }
@@ -231,8 +227,7 @@ public class ShopScene extends Scene {
                         if (obj.getBoolean("active")) {
                             item.select();
                         }
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         System.out.println("Item " + key + " doesn't have active property");
                     }
 
@@ -242,7 +237,7 @@ public class ShopScene extends Scene {
     }
 
     // Crea un elemento de tipo color de fondo
-    private void addBgColor(String key, int price,  int r, int g, int b, int a) {
+    private void addBgColor(String key, int price, int r, int g, int b, int a) {
         if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255 && a >= 0 && a <= 255) {
             Color col = new Color(r, g, b, a);
 
@@ -259,8 +254,7 @@ public class ShopScene extends Scene {
             // Anade el objeto al mapa de objetos y el color a la lista de colores
             addItem(key, color);
             this.colors.add(color);
-        }
-        else {
+        } else {
             System.out.println("Color out of valid range");
         }
     }
@@ -274,8 +268,7 @@ public class ShopScene extends Scene {
                     SELECTED_COLOR, this.buttonSound, this.gameManager, img, id);
 
             addItem(key, skin);
-        }
-        else {
+        } else {
             System.out.println("Ball id doesn't match with the available balls");
         }
     }

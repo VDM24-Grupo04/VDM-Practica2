@@ -18,26 +18,19 @@ public class VerticalListview extends GameObject {
     private final float height;
     private float totalHeight;
 
-    private final float headerTopHeight;
-    private final Vector headerMediumPos;
-    private final float headerHeight;
+    private Vector headerMediumPos;
+    private Vector footerMediumPos;
 
-    private final float footerBottomHeight;
-    private final Vector footerMediumPos;
-    private final float footerHeight;
-
-    private boolean resetButtonColors;
-    private int itemIndex;
     private final List<ListviewButton> buttons;
     private final int itemsPerRow;
     private final float itemOffsetX;
     private final float itemOffsetY;
     private final float itemSize;
+    private int itemIndex;
 
     private GameManager gameManager;
 
     public VerticalListview(Vector pos, float width, float height,
-                            float headerHeight, float footerHeight,
                             int elementsPerRow, float itemOffsetX, float itemOffsetY) {
         this.topLeftOriginalPos = new Vector(pos.x - width / 2f, pos.y - height / 2f);
         this.topLeftPos = new Vector(this.topLeftOriginalPos);
@@ -46,20 +39,17 @@ public class VerticalListview extends GameObject {
         this.height = height;
         this.totalHeight = itemOffsetX;
 
-        this.headerTopHeight = this.topLeftOriginalPos.y - headerHeight;
-        this.headerMediumPos = new Vector(this.topLeftOriginalPos.x + width / 2f, this.topLeftOriginalPos.y - headerHeight / 2f);
-        this.headerHeight = headerHeight;
+        this.headerMediumPos = null;
+        this.footerMediumPos = null;
 
-        this.footerBottomHeight = this.topLeftOriginalPos.y + height + footerHeight;
-        this.footerMediumPos = new Vector(this.topLeftOriginalPos.x + width / 2f, this.topLeftOriginalPos.y + height + footerHeight / 2f);
-        this.footerHeight = footerHeight;
-
-        this.resetButtonColors = false;
         this.buttons = new ArrayList<>();
         this.itemsPerRow = elementsPerRow;
         this.itemOffsetX = itemOffsetX;
         this.itemOffsetY = itemOffsetY;
         this.itemSize = (this.width - 2 * itemOffsetX - (elementsPerRow - 1) * itemOffsetX) / elementsPerRow;
+        this.itemIndex = 0;
+
+        this.gameManager = null;
     }
 
     private boolean withinArea(Vector pos) {
@@ -95,6 +85,10 @@ public class VerticalListview extends GameObject {
 
             ++this.itemIndex;
         }
+
+        this.headerMediumPos = new Vector(this.topLeftOriginalPos.x + width / 2f, this.topLeftOriginalPos.y - this.totalHeight / 2f);
+
+        this.footerMediumPos = new Vector(this.topLeftOriginalPos.x + width / 2f, this.topLeftOriginalPos.y + height + this.totalHeight / 2f);
     }
 
     @Override
@@ -113,15 +107,16 @@ public class VerticalListview extends GameObject {
 
                         // Se mueve hacia abajo
                         if (dragDiff > 0) {
-                            float bottomHeight = this.topLeftPos.y + this.totalHeight;
-                            if (bottomHeight < this.footerBottomHeight) {
+                            //float bottomHeight = this.topLeftPos.y + this.totalHeight;
+                            if (this.topLeftPos.y < this.topLeftOriginalPos.y) {
                                 this.move(dragDiff);
                             }
                         }
                         // Se mueve hacia arriba
                         else {
-                            float topHeight = this.topLeftPos.y + dragDiff;
-                            if (topHeight > this.headerTopHeight) {
+                            float originalBottomHeight = this.topLeftOriginalPos.y + this.height;
+                            float bottomHeight = this.topLeftPos.y + this.totalHeight;
+                            if (bottomHeight > originalBottomHeight) {
                                 this.move(dragDiff);
                             }
                         }
@@ -131,7 +126,6 @@ public class VerticalListview extends GameObject {
                         break;
                 }
 
-                this.resetButtonColors = true;
                 for (ListviewButton button : this.buttons) {
                     button.handleEvent(touchEvent);
                 }
@@ -146,8 +140,8 @@ public class VerticalListview extends GameObject {
         }
 
         graphics.setColor(this.gameManager.getBgColor(false));
-        graphics.fillRectangle(this.headerMediumPos, this.width, this.headerHeight);
-        graphics.fillRectangle(this.footerMediumPos, this.width, this.footerHeight);
+        graphics.fillRectangle(this.headerMediumPos, this.width, this.totalHeight);
+        graphics.fillRectangle(this.footerMediumPos, this.width, this.totalHeight);
     }
 
     @Override
@@ -167,5 +161,8 @@ public class VerticalListview extends GameObject {
     public void addButton(ListviewButton button) {
         this.buttons.add(button);
     }
-    public float getItemSize() { return this.itemSize; }
+
+    public float getItemSize() {
+        return this.itemSize;
+    }
 }
