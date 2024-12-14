@@ -8,6 +8,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
@@ -295,22 +297,39 @@ public class AndroidMobile implements IMobile {
     public void programNotification(int duration, TimeUnit unit, String key, String title, String message,
                                     int icon, NotificationPriority priority, NotificationVisibility visibility) {
         String packageName = this.mainActivity.getPackageName();
-        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(ReminderWorker.class)
-                .setInitialDelay(duration, unit)
-                .setInputData(new Data.Builder()
-                        .putString("package_name", packageName)
-                        .putString("channel_id", CHANNEL_ID)
-                        .putString("key", key)
-                        .putString("title", title)
-                        .putString("message", message)
-                        .putInt("icon", icon)
-                        .putInt("priority", convertPriority(priority))
-                        .putInt("visibility", convertVisibility(visibility))
-                        .build())
-                .addTag(WORKERS_TAG)
-                .build();
+        icon = validateIcon(icon);
+        if (icon != -1) {
+            OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(ReminderWorker.class)
+                    .setInitialDelay(duration, unit)
+                    .setInputData(new Data.Builder()
+                            .putString("package_name", packageName)
+                            .putString("channel_id", CHANNEL_ID)
+                            .putString("key", key)
+                            .putString("title", title)
+                            .putString("message", message)
+                            .putInt("icon", icon)
+                            .putInt("priority", convertPriority(priority))
+                            .putInt("visibility", convertVisibility(visibility))
+                            .build())
+                    .addTag(WORKERS_TAG)
+                    .build();
 
-        WorkManager.getInstance(this.mainActivity.getApplicationContext()).enqueue(request);
+            WorkManager.getInstance(this.mainActivity.getApplicationContext()).enqueue(request);
+        } else {
+            System.err.println("Didn't program any notification");
+        }
+    }
+
+    private int validateIcon(int iconId) {
+        // Intenta acceder al icono
+        try {
+            Resources res = this.mainActivity.getResources();
+            ResourcesCompat.getDrawable(res, iconId, this.mainActivity.getTheme());
+            return iconId;
+        } catch (Resources.NotFoundException e) {
+            System.err.println("Notification icon id was not found");
+            return -1;
+        }
     }
 
     @Override
