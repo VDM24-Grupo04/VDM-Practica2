@@ -176,7 +176,7 @@ public class ShopScene extends Scene {
         // Se anade el texto del titulo
         Text title = new Text(
                 new Vector(this.worldWidth / 2f, HEADER_OFFSET + HEADER_SIZE / 2.0f),
-                "Tienda", FONT_NAME, HEADER_SIZE, false, false, TEXT_COLOR);
+                "Shop", FONT_NAME, HEADER_SIZE, false, false, TEXT_COLOR);
         addGameObject(title);
 
         // Se crea la imagen de las monedas

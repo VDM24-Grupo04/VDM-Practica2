@@ -44,7 +44,7 @@ public class VictoryScene extends Scene {
     private TextButton x2Button;
     private TextWithIcon coins;
     private final int levelNumber;
-    private boolean firstTime;
+    private final boolean firstTime;
 
     public VictoryScene(IEngine engine, int score, int levelNumber, boolean firstTime) {
         super(engine, 400, 600);
@@ -153,7 +153,12 @@ public class VictoryScene extends Scene {
                     // con animacion de fade out
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
-                        TitleScene scene = new TitleScene(this.engine);
+                        Scene scene;
+                        if (this.levelNumber <= 0) {
+                            scene = new TitleScene(this.engine);
+                        } else {
+                            scene = new LevelsScene(this.engine);
+                        }
                         scene.setFade(Fade.OUT, 0.25);
                         this.engine.getAudio().stopSound(winSound);
                         if (this.gameManager != null) {

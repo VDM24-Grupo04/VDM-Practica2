@@ -24,8 +24,12 @@ public class GameOverScene extends Scene {
     private final String BUTTON_FONT = "kimberley.ttf";
     private final float BUTTON_OFFSET_Y = 25f;
 
+    private final int levelNumber;
+
     public GameOverScene(IEngine engine, int levelNumber) {
         super(engine, 400, 600);
+
+        this.levelNumber = levelNumber;
 
         Text title = new Text(new Vector(this.worldWidth / 2f, this.worldHeight / 4f), new String[]{"Game", "Over!"},
                 TEXT_FONT, TEXT_SIZE, false, false, TEXT_COLOR,
@@ -63,7 +67,12 @@ public class GameOverScene extends Scene {
                     // con animacion de fade out
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
-                        TitleScene scene = new TitleScene(this.engine);
+                        Scene scene;
+                        if (this.levelNumber <= 0) {
+                            scene = new TitleScene(this.engine);
+                        } else {
+                            scene = new LevelsScene(this.engine);
+                        }
                         scene.setFade(Fade.OUT, 0.25);
                         this.engine.getAudio().stopSound(loseSound);
                         if (this.gameManager != null) {
