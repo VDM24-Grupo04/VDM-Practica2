@@ -19,6 +19,7 @@ import android.view.SurfaceView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
@@ -288,5 +289,25 @@ public class AndroidMobile implements IMobile {
         Intent intent = this.mainActivity.getIntent();
         // Comprueba especificamente que sea la clave key de la Uri en data
         return intent != null && Objects.equals(intent.getDataString(), type);
+    }
+
+    @Override
+    public int getAsset(String fileName, String defType) {
+        return this.mainActivity.getResources().getIdentifier(fileName, defType, this.mainActivity.getPackageName());
+    }
+
+    @Override
+    public int getAsset(String fileName) {
+        return this.getAsset(fileName, "drawable");
+    }
+
+    @Override
+    public int getHighPriorityValue() {
+        return NotificationCompat.PRIORITY_HIGH;
+    }
+
+    @Override
+    public int getPublicVisibilityValue() {
+        return NotificationCompat.VISIBILITY_PUBLIC;
     }
 }

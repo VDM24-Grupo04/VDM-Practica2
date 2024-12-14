@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Creacion de la escena
         String fileName = "game.json";
         String shopFileName = "shop.json";
-        this.gameManager = new GameManager(this.androidEngine, fileName, shopFileName);
+        this.gameManager = new GameManager(this.androidEngine, fileName, shopFileName, "ic_notification");
         this.androidEngine.setScene(this.gameManager);
 
         this.androidEngine.getMobile().initializeNotifications(R.string.channel_id,
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Bloquear la orientacion
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        // Opcional: sensor de acelerometro
+        // Opcional: sensor de giroscopio
         this.sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         this.gyroscopeSensor = this.sensorManager.getDefaultSensor(SENSOR_TYPE);
         this.sensorManager.registerListener(this, this.gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -80,11 +80,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onStop() {
         super.onStop();
-        this.androidEngine.getMobile().programNotification(3, TimeUnit.SECONDS,
-                "Reward1",
-                "¡Entra ahora para conseguir tu recompensa diaria!",
-                "1 moneda gratis para ti porque me caes bien", R.drawable.ic_notification,
-                NotificationCompat.PRIORITY_HIGH, NotificationCompat.VISIBILITY_PUBLIC);
         this.androidEngine.onStop();
     }
 
