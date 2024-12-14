@@ -17,7 +17,7 @@ public class VerticalListview extends GameObject {
     private final float width;
     private final float height;
     private float totalHeight;
-    private float originalBottomHeight;
+    private final float originalBottomHeight;
 
     private Vector headerMediumPos;
     private Vector footerMediumPos;
@@ -88,9 +88,9 @@ public class VerticalListview extends GameObject {
             ++this.itemIndex;
         }
 
-        this.headerMediumPos = new Vector(this.topLeftOriginalPos.x + width / 2f, this.topLeftOriginalPos.y - this.totalHeight / 2f);
+        this.headerMediumPos = new Vector(this.topLeftOriginalPos.x + this.width / 2f, this.topLeftOriginalPos.y - this.totalHeight / 2f);
 
-        this.footerMediumPos = new Vector(this.topLeftOriginalPos.x + width / 2f, this.topLeftOriginalPos.y + height + this.totalHeight / 2f);
+        this.footerMediumPos = new Vector(this.topLeftOriginalPos.x + this.width / 2f, this.topLeftOriginalPos.y + this.height + this.totalHeight / 2f);
     }
 
     @Override
@@ -116,7 +116,7 @@ public class VerticalListview extends GameObject {
                         // Se mueve hacia arriba
                         else {
                             float bottomHeight = this.topLeftPos.y + this.totalHeight;
-                            if (bottomHeight > originalBottomHeight) {
+                            if (bottomHeight > this.originalBottomHeight) {
                                 this.move(dragDiff);
                             }
                         }

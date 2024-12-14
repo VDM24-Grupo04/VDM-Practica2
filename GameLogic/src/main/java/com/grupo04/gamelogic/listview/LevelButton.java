@@ -14,7 +14,7 @@ import com.grupo04.engine.utilities.Vector;
 public class LevelButton extends ListviewButton {
     public enum State {UNLOCKED, PASSED, LOCKED}
 
-    private State state;
+    private final State state;
 
     private Color bgCol;
     private final Color baseCol;

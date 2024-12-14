@@ -40,8 +40,8 @@ public class ImageToggleButton extends ToggleButton {
 
         IEngine engine = this.scene.getEngine();
         IGraphics graphics = engine.getGraphics();
-        this.uncheckedImage = graphics.newImage(uncheckedImagePath);
-        this.checkedImage = graphics.newImage(checkedImagePath);
+        this.uncheckedImage = graphics.newImage(this.uncheckedImagePath);
+        this.checkedImage = graphics.newImage(this.checkedImagePath);
         this.image = this.uncheckedImage;
     }
 

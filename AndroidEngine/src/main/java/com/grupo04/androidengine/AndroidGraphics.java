@@ -86,7 +86,7 @@ public class AndroidGraphics extends Graphics {
 
     @Override
     protected boolean endFrame() {
-        this.holder.unlockCanvasAndPost(canvas);
+        this.holder.unlockCanvasAndPost(this.canvas);
         return true;
     }
 

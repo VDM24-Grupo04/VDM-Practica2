@@ -20,12 +20,12 @@ public class BubbleColors {
     // Obtiene un color aleatorio de entre los que hay actualmente en el mapa
     public int getRandomColor() {
         // Si esta vacio (no hay mas bolas) devuelve "sin color"
-        if (availableColors.isEmpty()) {
+        if (this.availableColors.isEmpty()) {
             return -1;
         }
         // Coge las claves disponibles del hashmap
-        Integer[] keys = availableColors.keySet().toArray(new Integer[0]);
-        return keys[randomNumbers.nextInt(keys.length)];
+        Integer[] keys = this.availableColors.keySet().toArray(new Integer[0]);
+        return keys[this.randomNumbers.nextInt(keys.length)];
     }
 
     public static int getTotalColors() { return colors.length; }
@@ -35,7 +35,7 @@ public class BubbleColors {
     }
 
     public void reset() {
-        availableColors.clear();
+        this.availableColors.clear();
     }
 
     public static Color getColor(int i) {
@@ -43,12 +43,12 @@ public class BubbleColors {
     }
 
     public void removeColor(int i) {
-        availableColors.remove(i);
+        this.availableColors.remove(i);
     }
 
     public void addColor(int i) {
         if (i >= 0 && i < colors.length) {
-            availableColors.put(i, colors[i]);
+            this.availableColors.put(i, colors[i]);
         }
     }
 

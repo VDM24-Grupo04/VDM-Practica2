@@ -109,7 +109,7 @@ public class ShopItemButton extends ListviewButton {
                         this.touchTimer = 0;
                     }
                     // Si no, si se detecta doble pulsacion, intenta comprar el objeto
-                    else if (this.touchTimer < this.DOUBLE_TOUCH_THRESHOLD) {
+                    else if (this.touchTimer < DOUBLE_TOUCH_THRESHOLD) {
                         // Si el numero de monedas tras comprar el objeto es >= que 0,
                         // compra el objeto, cambia el numero de monedas
                         if (this.gameManager.getCoins() - this.price >= 0) {
@@ -151,7 +151,7 @@ public class ShopItemButton extends ListviewButton {
         }
 
         // Dibuja el rectangulo del borde
-        graphics.drawRoundRectangle(super.pos, super.width, super.height, this.BORDER_RADIUS, this.BORDER_THICKNESS);
+        graphics.drawRoundRectangle(super.pos, super.width, super.height, BORDER_RADIUS, BORDER_THICKNESS);
     }
 
     @Override
@@ -216,7 +216,7 @@ public class ShopItemButton extends ListviewButton {
     public void setOnSelectExtra(Callback extraFunc) {
         this.onSelect = () -> {
             extraFunc.call();
-            baseOnSelect.call();
+            this.baseOnSelect.call();
         };
     }
 }

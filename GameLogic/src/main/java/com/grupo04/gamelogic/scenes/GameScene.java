@@ -73,7 +73,7 @@ public class GameScene extends Scene {
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
                         Scene scene = null;
-                        if (levelNumber == 0) {
+                        if (this.levelNumber == 0) {
                             scene = new TitleScene(this.engine);
                         } else {
                             scene = new LevelsScene(this.engine);
@@ -114,12 +114,12 @@ public class GameScene extends Scene {
 
         this.currentBubble = new CurrentBubble(json, this.worldWidth, WALL_THICKNESS, HEADER_WIDTH,
                 (int) r, bubbleOffset, rows, bubbleColors);
-        addGameObject(currentBubble);
+        addGameObject(this.currentBubble);
     }
 
     @Override
     public void init() {
-        super.bgImage = engine.getGraphics().newImage(gameManager.getBgImage());
+        super.bgImage = this.engine.getGraphics().newImage(this.gameManager.getBgImage());
         super.init();
     }
 

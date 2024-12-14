@@ -10,9 +10,9 @@ import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.listview.ShopItemButton;
 
 public class ShopBallSkinButton extends ShopItemButton {
-    private final int elementOffset = 15;
+    private final int ELEMENT_OFFSET = 15;
     private final float IMG_SCALE = 0.5f;
-    private final int radius = 15;
+    private final int RADIUS = 15;
 
     private IImage image;
     private final int colorId;
@@ -41,17 +41,17 @@ public class ShopBallSkinButton extends ShopItemButton {
 
     @Override
     public void render(IGraphics graphics) {
-        super.pos.x += elementOffset;
-        super.pos.y += elementOffset;
-        graphics.drawImage(image, super.pos, (int) (width * this.IMG_SCALE), (int) (height * this.IMG_SCALE));
+        super.pos.x += ELEMENT_OFFSET;
+        super.pos.y += ELEMENT_OFFSET;
+        graphics.drawImage(this.image, super.pos, (int) (this.width * IMG_SCALE), (int) (this.height * IMG_SCALE));
 
-        super.pos.x -= elementOffset * 2;
-        super.pos.y -= elementOffset * 2;
+        super.pos.x -= ELEMENT_OFFSET * 2;
+        super.pos.y -= ELEMENT_OFFSET * 2;
         graphics.setColor(BubbleColors.getColor(this.colorId));
-        graphics.fillCircle(super.pos, this.radius);
+        graphics.fillCircle(super.pos, RADIUS);
 
-        super.pos.x += elementOffset;
-        super.pos.y += elementOffset;
+        super.pos.x += ELEMENT_OFFSET;
+        super.pos.y += ELEMENT_OFFSET;
         super.render(graphics);
     }
 

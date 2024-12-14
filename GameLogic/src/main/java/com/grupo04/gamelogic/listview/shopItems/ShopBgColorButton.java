@@ -36,7 +36,7 @@ public class ShopBgColorButton extends ShopItemButton {
         // Pinta primero el rectangulo con el color y luego pinta los elementos
         // del padre (para que se pinte el rectangulo por debajo del borde)
         graphics.setColor(this.color);
-        graphics.fillRoundRectangle(super.pos, super.width, super.height, this.BORDER_RADIUS);
+        graphics.fillRoundRectangle(super.pos, super.width, super.height, BORDER_RADIUS);
 
         super.render(graphics);
     }

@@ -118,7 +118,7 @@ public class CurrentBubble extends GameObject {
     public void render(IGraphics graphics) {
         super.render(graphics);
 
-        this.bubbleColors.drawBall(graphics, scene.getGameManager(), this.color, pos, this.r);
+        this.bubbleColors.drawBall(graphics, this.scene.getGameManager(), this.color, pos, this.r);
 
         // Si se esta manteniendo pulsado, se dibuja la linea en direccion al lugar que se pulsa
         if (this.dragging) {

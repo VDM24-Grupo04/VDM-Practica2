@@ -178,7 +178,7 @@ public class VictoryScene extends Scene {
     private void onReward() {
         this.x2Button.setAlive(false);
         this.coins.setText("+" + NUM_COINS_EARNED * 2);
-        this.coins.setPos(worldWidth / 2f);
+        this.coins.setPos(this.worldWidth / 2f);
         if (this.gameManager != null) {
             this.gameManager.increaseCoins(NUM_COINS_EARNED);
         }

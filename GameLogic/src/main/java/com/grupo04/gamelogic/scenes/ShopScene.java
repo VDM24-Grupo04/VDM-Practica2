@@ -46,7 +46,7 @@ public class ShopScene extends Scene {
 
     private IFont pricesFont;
     private float itemSize;
-    private final int coinsImageSize = this.FONT_SIZE;
+    private final int coinsImageSize = FONT_SIZE;
 
     VerticalListview listview;
 
@@ -62,7 +62,7 @@ public class ShopScene extends Scene {
         this.bgColors = new ArrayList<>();
         this.ballSkins = new ArrayList[BubbleColors.getTotalColors()];
         for(int i = 0; i < this.ballSkins.length; i++) {
-            this.ballSkins[i] =  new ArrayList<ShopBallSkinButton>();
+            this.ballSkins[i] = new ArrayList<>();
         }
         this.bgImages = new ArrayList<>();
     }
@@ -316,7 +316,7 @@ public class ShopScene extends Scene {
     }
 
     private ShopItemButton createBgImage(int price, String imgPath) {
-        IImage image = engine.getGraphics().newImage(imgPath);
+        IImage image = this.engine.getGraphics().newImage(imgPath);
 
         if (image.isValid()) {
             ShopBgImageButton img = new ShopBgImageButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
@@ -338,5 +338,4 @@ public class ShopScene extends Scene {
         }
         return null;
     }
-
 }

@@ -71,7 +71,7 @@ public class TextWithIcon extends GameObject {
             this.hasCalculateParams = true;
         }
 
-        graphics.drawImage(this.image, this.imagePos, imageSize, imageSize);
+        graphics.drawImage(this.image, this.imagePos, this.imageSize, this.imageSize);
 
         graphics.setColor(this.fontColor);
         graphics.drawText(this.text, this.textPos);

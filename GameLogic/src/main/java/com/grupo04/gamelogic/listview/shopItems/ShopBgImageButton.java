@@ -1,20 +1,17 @@
 package com.grupo04.gamelogic.listview.shopItems;
 
-import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IFont;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IImage;
 import com.grupo04.engine.interfaces.ISound;
-import com.grupo04.engine.utilities.Callback;
 import com.grupo04.engine.utilities.Color;
-import com.grupo04.engine.utilities.Vector;
 import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.listview.ShopItemButton;
 
 public class ShopBgImageButton extends ShopItemButton {
     private final float IMG_SCALE = 0.8f;
 
-    private String path;
+    private final String path;
     private IImage image;
 
     public ShopBgImageButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
@@ -40,7 +37,7 @@ public class ShopBgImageButton extends ShopItemButton {
 
     @Override
     public void render(IGraphics graphics) {
-        graphics.drawImage(image, super.pos, (int) (width * this.IMG_SCALE), (int) (height * this.IMG_SCALE));
+        graphics.drawImage(this.image, super.pos, (int) (this.width * this.IMG_SCALE), (int) (this.height * this.IMG_SCALE));
         super.render(graphics);
     }
 
@@ -50,5 +47,4 @@ public class ShopBgImageButton extends ShopItemButton {
 
         this.image = null;
     }
-
 }
