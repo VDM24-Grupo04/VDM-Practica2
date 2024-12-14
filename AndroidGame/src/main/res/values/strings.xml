@@ -1,7 +1,3 @@
 <resources>
     <string name="app_name">Puzzle Booble</string>
-    <string name="channel_id">Reward Channel ID</string>
-    <string name="channel_name">Reward Channel</string>
-    <string name="channel_description">This channel gives rewards to the user</string>
-    <string name="workers_tag">Rewards workers</string>
 </resources>

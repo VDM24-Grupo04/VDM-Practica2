@@ -1,5 +1,6 @@
 package com.grupo04.androidengine;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -31,8 +32,6 @@ import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.OnUserEarnedRewardListener;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
@@ -52,15 +51,17 @@ public class AndroidMobile implements IMobile {
     private final SurfaceView window;
     private RewardedAd rewardedAd;
 
-    public static String CHANNEL_ID = "channel_id";
-    public static String CHANNEL_NAME = "channel_name";
-    public static String CHANNEL_DESCRIPTION = "channel_description";
-    public static String WORKERS_TAG = "workers_tag";
+    public static String CHANNEL_ID = "Reward Channel ID";
+    public static String CHANNEL_NAME = "Reward Channel";
+    public static String CHANNEL_DESCRIPTION = "This channel gives rewards to the user";
+    public static String WORKERS_TAG = "Rewards workers";
 
     public AndroidMobile(Activity mainActivity, SurfaceView window, AdView adView) {
         this.mainActivity = mainActivity;
         this.window = window;
         this.rewardedAd = null;
+
+        this.initializeNotifications();
 
         MobileAds.initialize(this.mainActivity, initializationStatus -> System.out.println("Advertisements loaded"));
 
@@ -160,7 +161,7 @@ public class AndroidMobile implements IMobile {
         switch (type) {
             case IMAGE:
                 if (params.fullScreen) {
-                    this.shareImageAction(params.extraText, 0,0, this.window.getWidth(), this.window.getHeight(), params.shareTitle);
+                    this.shareImageAction(params.extraText, 0, 0, this.window.getWidth(), this.window.getHeight(), params.shareTitle);
                 } else {
                     // worldWidth y worldHeight no pueden ser 0
                     if (params.worldWidth == 0 || params.worldHeight == 0) {
@@ -168,16 +169,18 @@ public class AndroidMobile implements IMobile {
                         return;
                     }
 
-                    float scaleX = this.window.getWidth() / (float)(params.worldWidth);
-                    float scaleY = this.window.getHeight() / (float)(params.worldHeight);
-                    int x = (int)(params.x * scaleX);
-                    int y = (int)(params.y * scaleY);
-                    int w = (int)(params.w * scaleX);
-                    int h = (int)(params.h * scaleY);
+                    float scaleX = this.window.getWidth() / (float) (params.worldWidth);
+                    float scaleY = this.window.getHeight() / (float) (params.worldHeight);
+                    int x = (int) (params.x * scaleX);
+                    int y = (int) (params.y * scaleY);
+                    int w = (int) (params.w * scaleX);
+                    int h = (int) (params.h * scaleY);
                     this.shareImageAction(params.extraText, x, y, w, h, params.shareTitle);
                 }
                 break;
-            case TEXT: this.shareTextAction(params.extraText, params.shareTitle); break;
+            case TEXT:
+                this.shareTextAction(params.extraText, params.shareTitle);
+                break;
             // ...
         }
     }
@@ -249,13 +252,8 @@ public class AndroidMobile implements IMobile {
     }
 
     @Override
-    public void initializeNotifications(int channel_id, int channel_name, int channel_description, int notifications_workers_tag) {
-        CHANNEL_ID = this.mainActivity.getString(channel_id);
-        CHANNEL_NAME = this.mainActivity.getString(channel_name);
-        CHANNEL_DESCRIPTION = this.mainActivity.getString(channel_description);
-        WORKERS_TAG = this.mainActivity.getString(notifications_workers_tag);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES. O) {
+    public void initializeNotifications() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription(CHANNEL_DESCRIPTION);
             NotificationManager notificationManager = this.mainActivity.getSystemService(NotificationManager.class);
@@ -263,21 +261,52 @@ public class AndroidMobile implements IMobile {
         }
     }
 
+    private int convertPriority(NotificationPriority priority) {
+        switch (priority) {
+            case HIGH:
+                return NotificationCompat.PRIORITY_HIGH;
+            case DEFAULT:
+                return NotificationCompat.PRIORITY_DEFAULT;
+            case LOW:
+                return NotificationCompat.PRIORITY_LOW;
+            case MAN:
+                return NotificationCompat.PRIORITY_MAX;
+            case MIN:
+                return NotificationCompat.PRIORITY_MIN;
+            default:
+                return 0;
+        }
+    }
+
+    private int convertVisibility(NotificationVisibility visibility) {
+        switch (visibility) {
+            case PUBLIC:
+                return NotificationCompat.VISIBILITY_PUBLIC;
+            case PRIVATE:
+                return NotificationCompat.VISIBILITY_PRIVATE;
+            case SECRET:
+                return NotificationCompat.VISIBILITY_SECRET;
+            default:
+                return 0;
+        }
+    }
+
     @Override
-    public void programNotification(int duration, TimeUnit unit, String key, String title, String message, int icon, int priority, int visibility) {
+    public void programNotification(int duration, TimeUnit unit, String key, String title, String message,
+                                    int icon, NotificationPriority priority, NotificationVisibility visibility) {
         String packageName = this.mainActivity.getPackageName();
         OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(ReminderWorker.class)
                 .setInitialDelay(duration, unit)
                 .setInputData(new Data.Builder()
-                    .putString("package_name", packageName)
-                    .putString("channel_id", CHANNEL_ID)
-                    .putString("key", key)
-                    .putString("title", title)
-                    .putString("message", message)
-                    .putInt("icon", icon)
-                    .putInt("priority", priority)
-                    .putInt("visibility", visibility)
-                    .build())
+                        .putString("package_name", packageName)
+                        .putString("channel_id", CHANNEL_ID)
+                        .putString("key", key)
+                        .putString("title", title)
+                        .putString("message", message)
+                        .putInt("icon", icon)
+                        .putInt("priority", convertPriority(priority))
+                        .putInt("visibility", convertVisibility(visibility))
+                        .build())
                 .addTag(WORKERS_TAG)
                 .build();
 
@@ -291,6 +320,7 @@ public class AndroidMobile implements IMobile {
         return intent != null && Objects.equals(intent.getDataString(), type);
     }
 
+    @SuppressLint("DiscouragedApi")
     @Override
     public int getAsset(String fileName, String defType) {
         return this.mainActivity.getResources().getIdentifier(fileName, defType, this.mainActivity.getPackageName());
@@ -299,15 +329,5 @@ public class AndroidMobile implements IMobile {
     @Override
     public int getAsset(String fileName) {
         return this.getAsset(fileName, "drawable");
-    }
-
-    @Override
-    public int getHighPriorityValue() {
-        return NotificationCompat.PRIORITY_HIGH;
-    }
-
-    @Override
-    public int getPublicVisibilityValue() {
-        return NotificationCompat.VISIBILITY_PUBLIC;
     }
 }
