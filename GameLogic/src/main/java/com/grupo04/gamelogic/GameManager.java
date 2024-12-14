@@ -353,6 +353,7 @@ public class GameManager extends SceneManager {
         return 1;
     }
 
+    // Metodos de informacion de los niveles (no de progreso)
     public int getTotalLevels() {
         return this.gameDataManager.getTotalLevels();
     }
@@ -365,7 +366,7 @@ public class GameManager extends SceneManager {
         return this.gameDataManager.getLevelsStyle();
     }
 
-    // Metodos tienda
+    // Metodos del archivo de la tienda (no de progreso)
     public List<String> getShopItemsKeys() {
         return this.gameDataManager.getShopItemsKeys();
     }
@@ -374,6 +375,7 @@ public class GameManager extends SceneManager {
         return this.gameDataManager.getShopItemsByKey();
     }
 
+    // Metodos del progreso de la tienda
     public JSONObject getSavedShopJsonObject() {
         return getProgressJsonObject(SHOP_KEY);
     }
