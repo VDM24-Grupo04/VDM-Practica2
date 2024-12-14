@@ -35,7 +35,7 @@ public abstract class Engine implements IEngine, Runnable {
     private Graphics graphics;
     private Audio audio;
     private Input input;
-    private IMobile mobile;
+    protected Mobile mobile;
 
     private IScene scene;
 
@@ -48,7 +48,7 @@ public abstract class Engine implements IEngine, Runnable {
         this.scene = null;
     }
 
-    protected void initModules(Graphics graphics, Audio audio, Input input, IMobile mobile) {
+    protected void initModules(Graphics graphics, Audio audio, Input input, Mobile mobile) {
         this.graphics = graphics;
         this.audio = audio;
         this.input = input;
@@ -212,7 +212,15 @@ public abstract class Engine implements IEngine, Runnable {
     }
 
     @Override
-    public IMobile getMobile() { return this.mobile; }
+    public IMobile getMobile() {
+        return this.mobile;
+    }
+
+    public void sensorChanged(Sensor sensor) {
+        if (this.scene != null) {
+            this.scene.sensorChanged(sensor);
+        }
+    }
 
     @Override
     public abstract InputStream getFileInputStream(String fileName, FileType type);

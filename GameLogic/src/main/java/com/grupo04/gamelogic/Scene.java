@@ -1,5 +1,6 @@
 package com.grupo04.gamelogic;
 
+import com.grupo04.engine.Sensor;
 import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IScene;
@@ -265,6 +266,11 @@ public abstract class Scene implements IScene {
 
     @Override
     public void shutdown() {
+    }
+
+    @Override
+    public void sensorChanged(Sensor sensor) {
+        
     }
 
     public void saveJson() {

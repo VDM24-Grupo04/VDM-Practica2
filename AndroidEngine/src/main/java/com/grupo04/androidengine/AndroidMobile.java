@@ -10,6 +10,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.hardware.Sensor;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -38,7 +41,7 @@ import com.google.android.gms.ads.OnUserEarnedRewardListener;
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
-import com.grupo04.engine.interfaces.IMobile;
+import com.grupo04.engine.Mobile;
 import com.grupo04.engine.utilities.Callback;
 
 import java.io.IOException;
@@ -46,12 +49,17 @@ import java.io.OutputStream;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public class AndroidMobile implements IMobile {
+public class AndroidMobile implements Mobile {
     private final String REWARD_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
 
     private final Activity mainActivity;
     private final SurfaceView window;
+
     private RewardedAd rewardedAd;
+
+    private SensorManager sensorManager;
+    private Sensor gyroscopeSensor;
+    private SensorEventListener sensorEventListener;
 
     public static String CHANNEL_ID = "Reward Channel ID";
     public static String CHANNEL_NAME = "Reward Channel";
@@ -65,10 +73,22 @@ public class AndroidMobile implements IMobile {
 
         this.initializeNotifications();
 
+        this.initializeSensors();
+
         MobileAds.initialize(this.mainActivity, initializationStatus -> System.out.println("Advertisements loaded"));
 
         loadBannerAd(adView);
         loadRewardedAd();
+    }
+
+    private void initializeSensors() {
+        this.sensorEventListener = (SensorEventListener) this.mainActivity;
+
+        this.sensorManager = (SensorManager) this.mainActivity.getSystemService(Context.SENSOR_SERVICE);
+
+        // Opcional: sensor de giroscopio
+        this.gyroscopeSensor = this.sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        this.sensorManager.registerListener(this.sensorEventListener, this.gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     private void loadBannerAd(AdView adView) {
@@ -296,9 +316,9 @@ public class AndroidMobile implements IMobile {
     @Override
     public void programNotification(int duration, TimeUnit unit, String key, String title, String message,
                                     int icon, NotificationPriority priority, NotificationVisibility visibility) {
-        String packageName = this.mainActivity.getPackageName();
-        icon = validateIcon(icon);
+        icon = this.validateIcon(icon);
         if (icon != -1) {
+            String packageName = this.mainActivity.getPackageName();
             OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(ReminderWorker.class)
                     .setInitialDelay(duration, unit)
                     .setInputData(new Data.Builder()
@@ -327,7 +347,7 @@ public class AndroidMobile implements IMobile {
             ResourcesCompat.getDrawable(res, iconId, this.mainActivity.getTheme());
             return iconId;
         } catch (Resources.NotFoundException e) {
-            System.err.println("Notification icon id was not found");
+            System.err.println("Icon id was not found");
             return -1;
         }
     }
@@ -342,11 +362,26 @@ public class AndroidMobile implements IMobile {
     @SuppressLint("DiscouragedApi")
     @Override
     public int getAsset(String fileName, String defType) {
-        return this.mainActivity.getResources().getIdentifier(fileName, defType, this.mainActivity.getPackageName());
+        try {
+            return this.mainActivity.getResources().getIdentifier(fileName, defType, this.mainActivity.getPackageName());
+        } catch (Resources.NotFoundException exception) {
+            System.err.println("Icon id was not found");
+            return -1;
+        }
     }
 
     @Override
     public int getAsset(String fileName) {
         return this.getAsset(fileName, "drawable");
+    }
+
+    @Override
+    public void onResume() {
+        this.sensorManager.registerListener(this.sensorEventListener, this.gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    public void onPause() {
+        this.sensorManager.unregisterListener(this.sensorEventListener);
     }
 }
