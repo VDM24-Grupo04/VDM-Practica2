@@ -48,7 +48,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Creacion de la escena
         String fileName = "game.json";
         String shopFileName = "shop.json";
-        this.gameManager = new GameManager(this.androidEngine, fileName, shopFileName, "ic_notification");
+        String notificationIconName = "ic_notification";
+        this.gameManager = new GameManager(this.androidEngine, fileName, shopFileName, notificationIconName);
         this.androidEngine.setScene(this.gameManager);
 
         // Bloquear la orientacion
