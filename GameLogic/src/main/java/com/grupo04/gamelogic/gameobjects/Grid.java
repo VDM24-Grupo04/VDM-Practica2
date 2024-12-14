@@ -125,7 +125,13 @@ public class Grid extends GameObject {
             Arrays.fill(row, -1);
         }
 
+        // Por defecto, se ha ganado (por si se lee una grid con 0 bolas validas restantes)
+        this.won = true;
+        this.end = true;
+
+        // Intenta cargar el progreso del json. Si no puede, se genera una grid de quickplay
         if (!tryLoadingProgress(progressJson)) {
+
             for (int i = 0; i < initRows; i++) {
                 // En las filas impares hay una bola menos
                 int bPerRow = (i % 2 == 0) ? this.cols : (this.cols - 1);
@@ -141,6 +147,9 @@ public class Grid extends GameObject {
                     }
                 }
             }
+            // Se pone que no se ha ganado
+            this.won = false;
+            this.end = false;
 
             this.score = 0;
         }
@@ -172,8 +181,7 @@ public class Grid extends GameObject {
 
         this.fallingSpeed = fallingSpeed;
         this.fallingBubbles = new ArrayList<>();
-        this.won = false;
-        this.end = false;
+        
 
         this.collidedBubbles = new ArrayList<>();
         this.shrinkSpeed = shrinkSpeed;
@@ -310,20 +318,24 @@ public class Grid extends GameObject {
 
     private boolean tryLoadingProgress(JSONObject progressJson) {
         if (progressJson != null) {
-            // Si hay informacion guardada (ya sea del modo normal o modo nivel cargado)
-            if (progressJson.has("grid")) {
+            // Intenta leer el grid si hay informacion guardada (ya sea del modo normal o modo nivel cargado)
+            try {
                 int[][] readBubbles = convertJSONArrayToMatrix(progressJson.getJSONArray("grid"));
                 int rws = readBubbles.length;
 
                 for (int i = 0; i < rws; i++) {
                     // En las filas impares hay una bola menos
-                    int bPerRow = (i % 2 == 0) ? this.cols : (this.cols - 1);
+                    int bPerRow = (i % 2 == 0) ? readBubbles[i].length : (readBubbles[i].length - 1);
 
                     // Se generan las burbujas de la fila
                     for (int j = 0; j < bPerRow; j++) {
                         int color = readBubbles[i][j];
 
                         if (color >= 0 && color < BubbleColors.getTotalColors()) {
+                            // Si al menos hay una bola valida, se pone que no se ha terminado ni se ha ganado
+                            this.won = false;
+                            this.end = false;
+
                             this.bubbles[i][j] = color;
                             this.bubbleColors.addColor(color);
                             this.colorCount[color]++;
@@ -334,12 +346,15 @@ public class Grid extends GameObject {
                         }
                     }
                 }
-            }
 
-            if (progressJson.has("score")) {
-                this.score = progressJson.getInt("score");
+                if (progressJson.has("score")) {
+                    this.score = progressJson.getInt("score");
+                }
+                return true;
             }
-            return true;
+            catch(Exception e) {
+                System.out.println("Invalid grid format. Generating quickplay grid");
+            }
         }
         return false;
     }
