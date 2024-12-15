@@ -14,7 +14,7 @@ public class CheaterScene extends Scene {
     private final float TEXT_LINE_SPACING = -30f;
 
     public CheaterScene(IEngine engine, Color UIColor) {
-        super(engine, 400, 600, new Color(255, 0, 0));
+        super(engine, 400, 600, new Color(255, 0, 0), UIColor);
 
         Text title = new Text(new Vector(this.worldWidth / 2f, this.worldHeight / 2f), new String[]{"Cheater!"},
                 TEXT_FONT, TEXT_SIZE, false, false, TEXT_COLOR,

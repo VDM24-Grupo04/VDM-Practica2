@@ -202,8 +202,8 @@ public class ShopScene extends Scene {
             JSONObject obj = itemsByKey.get(key);
             try {
                 ShopItemButton item = null;
-                if (Objects.equals(obj.getString("type"), "bgColor")) {
-                    item = createBgColor(obj.getInt("price"), obj.getInt("r"), obj.getInt("g"), obj.getInt("b"), obj.getInt("a"));
+                if (Objects.equals(obj.getString("type"), "themeColor")) {
+                    item = createThemeColor(obj.getInt("price"), obj.getInt("r"), obj.getInt("g"), obj.getInt("b"), obj.getInt("a"));
                 }
                 else if (Objects.equals(obj.getString("type"), "ballSkin")) {
                     item = createBallSkin(obj.getInt("price"), obj.getString("path"), obj.getInt("colorId"));
@@ -264,8 +264,8 @@ public class ShopScene extends Scene {
         }
     }
 
-    // Crea un elemento de tipo color de fondo
-    private ShopItemButton createBgColor(int price, int r, int g, int b, int a) {
+    // Crea un elemento de tipo color de temática
+    private ShopItemButton createThemeColor(int price, int r, int g, int b, int a) {
         if (Color.isValidColor(r, g, b, a)) {
             Color col = new Color(r, g, b, a);
 

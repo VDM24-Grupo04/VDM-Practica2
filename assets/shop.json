@@ -2,8 +2,8 @@
     "items": [
         {
             "price": 50,
-            "id": "bgColor1",
-            "type": "bgColor",
+            "id": "themeColor1",
+            "type": "themeColor",
             "r": 244,
             "g": 20,
             "b": 2,
@@ -11,8 +11,8 @@
         },
         {
             "price": 15,
-            "id": "bgColor2",
-            "type": "bgColor",
+            "id": "themeColor2",
+            "type": "themeColor",
             "r": 123,
             "g": 12,
             "b": 222,
@@ -20,8 +20,8 @@
         },
         {
             "price": 20,
-            "id": "bgColor3",
-            "type": "bgColor",
+            "id": "themeColor3",
+            "type": "themeColor",
             "r": 31,
             "g": 64,
             "b": 64,

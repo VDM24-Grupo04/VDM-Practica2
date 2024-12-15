@@ -291,8 +291,8 @@ public class GameManager extends SceneManager {
 
                             // Intenta crear el objeto con los atributos correspondientes segun su tipo
                             try {
-                                if (Objects.equals(shopItem.get("type"), "bgColor")) {
-                                    this.setBgColor(new Color(shopItem.getInt("r"), shopItem.getInt("g"), shopItem.getInt("b"), shopItem.getInt("a")));
+                                if (Objects.equals(shopItem.get("type"), "themeColor")) {
+                                    this.setUIColor(new Color(shopItem.getInt("r"), shopItem.getInt("g"), shopItem.getInt("b"), shopItem.getInt("a")));
                                 } else if (Objects.equals(shopItem.get("type"), "ballSkin")) {
                                     setBallSkin(shopItem.getInt("colorId"), this.engine.getGraphics().newImage(shopItem.getString("path")));
                                 } else if (Objects.equals(shopItem.get("type"), "bgImage")) {
