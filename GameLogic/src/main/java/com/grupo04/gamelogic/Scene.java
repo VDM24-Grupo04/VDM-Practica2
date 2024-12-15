@@ -24,6 +24,7 @@ public abstract class Scene implements IScene {
 
     protected IImage bgImage;
     private final Vector bgImagePos;
+    protected Color UIColor;
 
     private Fade fade;
     private double fadeDuration;
@@ -38,12 +39,13 @@ public abstract class Scene implements IScene {
 
     protected GameManager gameManager;
 
-    protected Scene(IEngine engine, int worldWidth, int worldHeight) {
+    protected Scene(IEngine engine, int worldWidth, int worldHeight, Color UIColor) {
         this.alive = true;
         this.gameObjects = new ArrayList<>();
         this.handlers = new HashMap<>();
 
         this.bgImage = null;
+        this.UIColor = UIColor;
 
         this.fade = Fade.NONE;
         this.fadeDuration = 0;
@@ -62,24 +64,34 @@ public abstract class Scene implements IScene {
         this.gameManager = null;
     }
 
+    protected Scene(IEngine engine, int worldWidth, int worldHeight) {
+        this(engine, worldWidth, worldHeight, null);
+    }
+
     // Color del fondo de la ventana
-    protected Scene(IEngine engine, int worldWidth, int worldHeight, Color bgColor) {
+    protected Scene(IEngine engine, int worldWidth, int worldHeight, Color bgColor, Color UIColor) {
         this(engine, worldWidth, worldHeight);
         this.engine.getGraphics().setClearColor(bgColor);
+        this.UIColor = UIColor;
     }
 
     // Fondo del juego (ruta de una imagen)
-    protected Scene(IEngine engine, int worldWidth, int worldHeight, String bgImageFileName) {
+    protected Scene(IEngine engine, int worldWidth, int worldHeight, String bgImageFileName, Color UIColor) {
         this(engine, worldWidth, worldHeight);
         this.bgImage = this.engine.getGraphics().newImage(bgImageFileName);
+        this.UIColor = UIColor;
     }
 
     // Color del fondo de la ventana y fondo del juego (ruta de una imagen)
-    protected Scene(IEngine engine, int worldWidth, int worldHeight, Color bgColor, String bgImageFileName) {
+    protected Scene(IEngine engine, int worldWidth, int worldHeight, Color bgColor, String bgImageFileName, Color UIColor) {
         this(engine, worldWidth, worldHeight);
         this.engine.getGraphics().setClearColor(bgColor);
         this.bgImage = this.engine.getGraphics().newImage(bgImageFileName);
+        this.UIColor = UIColor;
     }
+
+    public void setUIColor(Color color) { this.UIColor = color; }
+    public Color getUIColor() { return this.UIColor; }
 
     // Hacer que la escena comience con un fade. Se le puede pasar solo el tipo de fade,
     // solo el tipo y la duracion, o el tipo, la duracion y el color del fade.
@@ -270,7 +282,6 @@ public abstract class Scene implements IScene {
 
     @Override
     public void sensorChanged(Sensor sensor) {
-        
     }
 
     public void saveJson() {
@@ -279,7 +290,6 @@ public abstract class Scene implements IScene {
     public int getWorldWidth() {
         return this.worldWidth;
     }
-
     public int getWorldHeight() {
         return this.worldHeight;
     }
@@ -291,7 +301,6 @@ public abstract class Scene implements IScene {
     public void setGameManager(GameManager gameManager) {
         this.gameManager = gameManager;
     }
-
     public GameManager getGameManager() {
         return this.gameManager;
     }

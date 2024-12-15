@@ -36,21 +36,26 @@ public class VictoryScene extends Scene {
 
     private final Color YELLOW_BUTTON_BASE_COLOR = new Color(252, 228, 5);
     private final Color YELLOW_BUTTON_OVER_COLOR = new Color(226, 205, 5);
-    private final Color BLACK_BUTTON_BASE_COLOR = new Color(62, 62, 62);
+    private final Color BLACK_BUTTON_BASE_COLOR = new Color(10, 10, 10);
     private final Color BLACK_BUTTON_OVER_COLOR = new Color(0, 0, 0);
 
     private final int NUM_COINS_EARNED = 10;
 
+    private final Color UIColor;
     private TextButton x2Button;
+    private TextButton shareButton;
+    private TextButton menuButton;
+    private TextButton tryAgainButton;
     private TextWithIcon coins;
     private final int levelNumber;
     private final boolean firstTime;
 
-    public VictoryScene(IEngine engine, int score, int levelNumber, boolean firstTime) {
+    public VictoryScene(IEngine engine, int score, int levelNumber, boolean firstTime, Color UIColor) {
         super(engine, 400, 600);
 
         this.levelNumber = levelNumber;
         this.firstTime = firstTime;
+        this.UIColor = UIColor;
 
         Text title = new Text(new Vector(this.worldWidth / 2f, this.worldHeight / 8f), "Victory!",
                 TITLE_FONT, TITLE_SIZE, false, false, BLACK_TEXT_COLOR);
@@ -79,7 +84,7 @@ public class VictoryScene extends Scene {
             }
 
             Vector shareButtonPos = new Vector(this.worldWidth / 2f, coinsPos.y + BUTTON_HEIGHT + BUTTON_OFFSET_Y);
-            TextButton shareButton = new TextButton(shareButtonPos,
+            this.shareButton = new TextButton(shareButtonPos,
                     BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, YELLOW_BUTTON_BASE_COLOR, YELLOW_BUTTON_OVER_COLOR,
                     "Share", BUTTON_FONT, BLACK_TEXT_COLOR, false, SHARE_IMAGE_PATH, BUTTON_SOUND,
                     () -> {
@@ -96,7 +101,7 @@ public class VictoryScene extends Scene {
 
                         mobile.shareAction(IMobile.ShareActionType.IMAGE, params);
                     });
-            addGameObject(shareButton);
+            addGameObject(this.shareButton);
         }
 
         if (this.firstTime) {
@@ -108,6 +113,10 @@ public class VictoryScene extends Scene {
         }
 
         setFade(Fade.OUT, 0.25);
+    }
+
+    public VictoryScene(IEngine engine, int score, int levelNumber, boolean firstTime) {
+        this(engine, score, levelNumber, firstTime, null);
     }
 
     @Override
@@ -122,7 +131,7 @@ public class VictoryScene extends Scene {
         }
 
         Vector tryAgainButtonPos = new Vector(this.worldWidth / 2f, 4.5f * this.worldHeight / 6f);
-        TextButton tryAgainButton = new TextButton(tryAgainButtonPos,
+        this.tryAgainButton = new TextButton(tryAgainButtonPos,
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BLACK_BUTTON_BASE_COLOR, BLACK_BUTTON_OVER_COLOR,
                 playButtonText, BUTTON_FONT, YELLOW_TEXT_COLOR, false, BUTTON_SOUND,
                 () -> {
@@ -140,11 +149,11 @@ public class VictoryScene extends Scene {
                         }
                     });
                 });
-        addGameObject(tryAgainButton);
+        addGameObject(this.tryAgainButton);
 
         Vector menuButtonPos = new Vector(tryAgainButtonPos);
         menuButtonPos.y += BUTTON_HEIGHT + BUTTON_OFFSET_Y;
-        TextButton menuButton = new TextButton(menuButtonPos,
+        this.menuButton = new TextButton(menuButtonPos,
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BLACK_BUTTON_BASE_COLOR, BLACK_BUTTON_OVER_COLOR,
                 "Menu", BUTTON_FONT, YELLOW_TEXT_COLOR, false, BUTTON_SOUND,
                 () -> {
@@ -155,9 +164,9 @@ public class VictoryScene extends Scene {
                     this.setFadeCallback(() -> {
                         Scene scene;
                         if (this.levelNumber <= 0) {
-                            scene = new TitleScene(this.engine);
+                            scene = new TitleScene(this.engine, this.UIColor);
                         } else {
-                            scene = new LevelsScene(this.engine);
+                            scene = new LevelsScene(this.engine, this.UIColor);
                         }
                         scene.setFade(Fade.OUT, 0.25);
                         this.engine.getAudio().stopSound(winSound);
@@ -166,21 +175,44 @@ public class VictoryScene extends Scene {
                         }
                     });
                 });
-        addGameObject(menuButton);
+        addGameObject(this.menuButton);
 
         if (this.gameManager != null && this.firstTime) {
             this.gameManager.increaseCoins(NUM_COINS_EARNED);
         }
 
+        setUIColor(this.UIColor);
+
         super.init();
     }
 
     private void onReward() {
-        this.x2Button.setAlive(false);
+        if (this.x2Button != null) {
+            this.x2Button.setAlive(false);
+        }
         this.coins.setText("+" + NUM_COINS_EARNED * 2);
         this.coins.setPos(this.worldWidth / 2f);
         if (this.gameManager != null) {
             this.gameManager.increaseCoins(NUM_COINS_EARNED);
+        }
+    }
+
+    public void setUIColor(Color color) {
+        super.setUIColor(color);
+
+        if (this.x2Button != null) {
+            this.x2Button.setBaseColor(this.UIColor, YELLOW_BUTTON_BASE_COLOR);
+            this.x2Button.setPointerOverColor(this.UIColor, YELLOW_BUTTON_OVER_COLOR);
+        }
+        if (this.shareButton != null) {
+            this.shareButton.setBaseColor(this.UIColor, YELLOW_BUTTON_BASE_COLOR);
+            this.shareButton.setPointerOverColor(this.UIColor, YELLOW_BUTTON_OVER_COLOR);
+        }
+        if (this.tryAgainButton != null) {
+            this.tryAgainButton.setFontColor(this.UIColor, YELLOW_BUTTON_BASE_COLOR);
+        }
+        if (this.menuButton != null) {
+            this.menuButton.setFontColor(this.UIColor, YELLOW_BUTTON_BASE_COLOR);
         }
     }
 }

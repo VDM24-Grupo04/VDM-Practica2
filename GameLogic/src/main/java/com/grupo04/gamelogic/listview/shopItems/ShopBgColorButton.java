@@ -19,7 +19,7 @@ public class ShopBgColorButton extends ShopItemButton {
 
         // Al deseleccionar el objeto, se pone el color del fondo en el gameManager a null
         super.onDeselect = () -> {
-            gameManager.setBgColor(null);
+            gameManager.setUIColor(null);
         };
 
         // El resto de la funcion de seleccion se establece desde fuera con el setOnSelect(),
@@ -27,7 +27,7 @@ public class ShopBgColorButton extends ShopItemButton {
         this.baseOnSelect = () -> {
             // Selecciona el objeto y cambia el color del fondo
             super.setSelected(true);
-            gameManager.setBgColor(this.color);
+            gameManager.setUIColor(this.color);
         };
     }
 

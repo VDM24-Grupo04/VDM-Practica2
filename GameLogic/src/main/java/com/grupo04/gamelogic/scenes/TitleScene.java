@@ -22,12 +22,16 @@ public class TitleScene extends Scene {
     private final Color BUTTON_OVER_COLOR = new Color(226, 205, 5);
     private final String BUTTON_FONT = "kimberley.ttf";
 
-    private final Color SHOP_BUTTON_BASE_COLOR = new Color(62, 62, 62);
+    private final Color SHOP_BUTTON_BASE_COLOR = new Color(10, 10, 10);
     private final Color SHOP_BUTTON_OVER_COLOR = new Color(0, 0, 0);
     private final Color SHOP_FONT_COLOR = new Color(252, 228, 5);
 
-    public TitleScene(IEngine engine) {
-        super(engine, 400, 600);
+    private final TextButton adventureButton;
+    private final TextButton quickPlayButton;
+    private final TextButton shopButton;
+
+    public TitleScene(IEngine engine, Color UIColor) {
+        super(engine, 400, 600, UIColor);
 
         // Texto de titulo
         Text title = new Text(new Vector(this.worldWidth / 2f, 2f * this.worldHeight / 7f), new String[]{"Puzzle", "Booble"},
@@ -36,7 +40,7 @@ public class TitleScene extends Scene {
         addGameObject(title);
 
         // Boton del modo aventura
-        TextButton adventure = new TextButton(new Vector(this.worldWidth / 2f, 2.5f * this.worldHeight / 5f),
+        this.adventureButton = new TextButton(new Vector(this.worldWidth / 2f, 2.5f * this.worldHeight / 5f),
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BUTTON_BASE_COLOR, BUTTON_OVER_COLOR,
                 "Adventure", BUTTON_FONT, BUTTON_SOUND,
                 () -> {
@@ -46,14 +50,14 @@ public class TitleScene extends Scene {
                     this.setFadeCallback(() -> {
                         if (this.gameManager != null) {
                             // Le pasamos el jsonObject del modo de Aventura
-                            this.gameManager.changeScene(new LevelsScene(this.engine));
+                            this.gameManager.changeScene(new LevelsScene(this.engine, this.UIColor));
                         }
                     });
                 });
-        addGameObject(adventure);
+        addGameObject(this.adventureButton);
 
         // Boton del modo juego rapido
-        TextButton quickPlay = new TextButton(new Vector(this.worldWidth / 2f, 3f * this.worldHeight / 5f),
+        this.quickPlayButton = new TextButton(new Vector(this.worldWidth / 2f, 3f * this.worldHeight / 5f),
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BUTTON_BASE_COLOR, BUTTON_OVER_COLOR,
                 "Quick play", BUTTON_FONT, BUTTON_SOUND,
                 () -> {
@@ -66,10 +70,10 @@ public class TitleScene extends Scene {
                         }
                     });
                 });
-        addGameObject(quickPlay);
+        addGameObject(this.quickPlayButton);
 
         // Boton de la tienda
-        TextButton shop = new TextButton(new Vector(this.worldWidth / 2f, 3.8f * this.worldHeight / 5f),
+        this.shopButton = new TextButton(new Vector(this.worldWidth / 2f, 3.8f * this.worldHeight / 5f),
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, SHOP_BUTTON_BASE_COLOR, SHOP_BUTTON_OVER_COLOR,
                 "Shop", BUTTON_FONT, SHOP_FONT_COLOR, true, BUTTON_SOUND,
                 () -> {
@@ -78,10 +82,34 @@ public class TitleScene extends Scene {
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
                         if (this.gameManager != null) {
-                            this.gameManager.changeScene(new ShopScene(this.engine));
+                            this.gameManager.changeScene(new ShopScene(this.engine, this.UIColor));
                         }
                     });
                 });
-        addGameObject(shop);
+        addGameObject(this.shopButton);
+
+        setUIColor(this.UIColor);
+    }
+
+    public TitleScene(IEngine engine) {
+        this(engine, null);
+    }
+
+    // Establece segun la tematica el color de los botones
+    @Override
+    public void setUIColor(Color color) {
+        super.setUIColor(color);
+
+        if (this.adventureButton != null) {
+            this.adventureButton.setBaseColor(this.UIColor, BUTTON_BASE_COLOR);
+            this.adventureButton.setPointerOverColor(this.UIColor, BUTTON_OVER_COLOR);
+        }
+        if (this.quickPlayButton != null) {
+            this.quickPlayButton.setBaseColor(this.UIColor, BUTTON_BASE_COLOR);
+            this.quickPlayButton.setPointerOverColor(this.UIColor, BUTTON_OVER_COLOR);
+        }
+        if (this.shopButton != null) {
+            this.shopButton.setFontColor(this.UIColor, SHOP_FONT_COLOR);
+        }
     }
 }

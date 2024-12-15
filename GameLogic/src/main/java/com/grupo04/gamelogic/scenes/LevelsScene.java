@@ -35,11 +35,15 @@ public class LevelsScene extends Scene {
 
     private final int TITLE_SIZE = HEADER_SIZE;
 
-    public LevelsScene(IEngine engine) {
-        super(engine, 400, 600);
+    public LevelsScene(IEngine engine, Color UIColor) {
+        super(engine, 400, 600, UIColor);
 
         // Al iniciar la escena se hace un fade out
         setFade(Fade.OUT, 0.25);
+    }
+
+    public LevelsScene(IEngine engine) {
+        this(engine, null);
     }
 
     @Override
@@ -80,7 +84,7 @@ public class LevelsScene extends Scene {
                     // con animacion de fade out
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
-                        TitleScene scene = new TitleScene(this.engine);
+                        TitleScene scene = new TitleScene(this.engine, this.UIColor);
                         scene.setFade(Fade.OUT, 0.25);
                         if (this.gameManager != null) {
                             this.gameManager.changeScene(scene);

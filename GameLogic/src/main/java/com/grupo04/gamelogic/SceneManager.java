@@ -4,6 +4,7 @@ import com.grupo04.engine.interfaces.IEngine;
 import com.grupo04.engine.interfaces.IGraphics;
 import com.grupo04.engine.interfaces.IScene;
 import com.grupo04.engine.interfaces.ITouchEvent;
+import com.grupo04.engine.utilities.Color;
 
 import java.util.List;
 import java.util.Stack;
@@ -37,7 +38,7 @@ public abstract class SceneManager implements IScene {
 
     public void pushScene(Scene newScene) {
         this.scenes.push(newScene);
-        initNewScene(newScene);
+        this.initNewScene(newScene);
     }
 
     public void changeScene(Scene newScene) {
@@ -47,7 +48,7 @@ public abstract class SceneManager implements IScene {
                 this.scenes.peek().setAlive(false);
                 // Se inserta la nueva escena
                 this.scenes.push(newScene);
-                initNewScene(newScene);
+                this.initNewScene(newScene);
             }
         }
     }

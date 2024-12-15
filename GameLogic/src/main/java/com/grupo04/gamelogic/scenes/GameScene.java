@@ -48,8 +48,8 @@ public class GameScene extends Scene {
     private final CurrentBubble currentBubble;
     boolean checkEnded;
 
-    public GameScene(IEngine engine, JSONObject json, int levelNumber) {
-        super(engine, 400, 600);
+    public GameScene(IEngine engine, JSONObject json, int levelNumber, Color UIColor) {
+        super(engine, 400, 600, UIColor);
 
         this.levelNumber = levelNumber;
 
@@ -74,9 +74,9 @@ public class GameScene extends Scene {
                     this.setFadeCallback(() -> {
                         Scene scene = null;
                         if (this.levelNumber == 0) {
-                            scene = new TitleScene(this.engine);
+                            scene = new TitleScene(this.engine, this.UIColor);
                         } else {
-                            scene = new LevelsScene(this.engine);
+                            scene = new LevelsScene(this.engine, this.UIColor);
                         }
                         scene.setFade(Fade.OUT, 0.25);
                         if (this.gameManager != null) {
@@ -117,6 +117,10 @@ public class GameScene extends Scene {
         addGameObject(this.currentBubble);
     }
 
+    public GameScene(IEngine engine, JSONObject json, int levelNumber) {
+        this(engine, json, levelNumber, null);
+    }
+
     @Override
     public void init() {
         super.bgImage = this.engine.getGraphics().newImage(this.gameManager.getBgImage());
@@ -149,7 +153,7 @@ public class GameScene extends Scene {
                             firstTime = levelProgress == this.levelNumber;
                             gameManager.setLevelProgress(this.levelNumber + 1);
                         }
-                        gameManager.changeScene(new VictoryScene(this.engine, this.grid.getScore(), this.levelNumber, firstTime));
+                        gameManager.changeScene(new VictoryScene(this.engine, this.grid.getScore(), this.levelNumber, firstTime, this.UIColor));
                     }
                 });
             } else {
@@ -158,7 +162,7 @@ public class GameScene extends Scene {
                 this.setFadeCallback(() -> {
                     GameManager gameManager = this.getGameManager();
                     if (gameManager != null) {
-                        gameManager.changeScene(new GameOverScene(this.engine, this.levelNumber));
+                        gameManager.changeScene(new GameOverScene(this.engine, this.levelNumber, this.UIColor));
                     }
                 });
             }

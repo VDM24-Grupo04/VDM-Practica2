@@ -42,7 +42,9 @@ public class GameManager extends SceneManager {
     private JSONObject progressJsonObject;
 
     // Cosmeticos
+    private float BG_COLOR_MULTIPLY_FACTOR = 0.60f;
     private Color bgColor;
+    private Color UIColor;
     private final IImage[] activeSkins;
     private final String DEFAULT_BG_IMAGE = "backgroundDefault.jpg";
     private String bgImage;
@@ -92,19 +94,22 @@ public class GameManager extends SceneManager {
     @Override
     public void init() {
         if (readInfo()) {
+
             applyShopProgress();
-            pushScene(new TitleScene(this.engine));
+
+            // Le pasamos buttonColor si queremos para cambiar la tematica
+            pushScene(new TitleScene(this.engine, this.UIColor));
             this.mobile = this.engine.getMobile();
-            if (mobile != null) {
+            if (this.mobile != null) {
                 // Las recompensas deben aplicarse siempre y cuando sea correcta la
                 // lectura del archivo de guardado
-                if (mobile.isNotification(REWARD_1)) {
+                if (this.mobile.isNotification(REWARD_1)) {
                     this.increaseCoins(1);
                 }
                 // ... (resto de recompensas)
             }
         } else {
-            pushScene(new CheaterScene(this.engine));
+            pushScene(new CheaterScene(this.engine, this.UIColor));
         }
     }
 
@@ -252,7 +257,7 @@ public class GameManager extends SceneManager {
             }
         }
 
-        this.changeScene(new GameScene(this.engine, json, levelNumber));
+        this.changeScene(new GameScene(this.engine, json, levelNumber, this.UIColor));
     }
 
     public void changeToQuickPlay() {
@@ -308,15 +313,11 @@ public class GameManager extends SceneManager {
     public void setAdventureJsonObject(JSONObject adventureJsonObject) {
         this.progressJsonObject.put(ADVENTURE_KEY, adventureJsonObject);
     }
-
-    public JSONObject getAdventureJSONObj() {
-        return getProgressJsonObject(ADVENTURE_KEY);
-    }
+    public JSONObject getAdventureJSONObj() { return getProgressJsonObject(ADVENTURE_KEY); }
 
     public void setQuickPlayJsonObject(JSONObject quickPlayJsonObject) {
         this.progressJsonObject.put(QUICK_PLAY_KEY, quickPlayJsonObject);
     }
-
     public JSONObject getQuickPlayJSONObj() {
         return getProgressJsonObject(QUICK_PLAY_KEY);
     }
@@ -326,14 +327,12 @@ public class GameManager extends SceneManager {
         currCoins += coins;
         this.progressJsonObject.put(COINS_KEY, currCoins);
     }
-
     public void decreaseCoins(int coins) {
         int currCoins = getCoins();
         currCoins -= coins;
         currCoins = Math.max(currCoins, 0);
         this.progressJsonObject.put(COINS_KEY, currCoins);
     }
-
     public int getCoins() {
         if (this.progressJsonObject.has(COINS_KEY)) {
             return this.progressJsonObject.getInt(COINS_KEY);
@@ -347,7 +346,6 @@ public class GameManager extends SceneManager {
             this.progressJsonObject.put(LEVEL_PROGRESS_KEY, levelNumber);
         }
     }
-
     public int getLevelProgress() {
         if (this.progressJsonObject.has(LEVEL_PROGRESS_KEY)) {
             return this.progressJsonObject.getInt(LEVEL_PROGRESS_KEY);
@@ -359,11 +357,9 @@ public class GameManager extends SceneManager {
     public int getTotalLevels() {
         return this.gameDataManager.getTotalLevels();
     }
-
     public int[] getWorlds() {
         return this.gameDataManager.getWorlds();
     }
-
     public Color[][] getLevelsStyle() {
         return this.gameDataManager.getLevelsStyle();
     }
@@ -372,7 +368,6 @@ public class GameManager extends SceneManager {
     public List<String> getShopItemsKeys() {
         return this.gameDataManager.getShopItemsKeys();
     }
-
     public HashMap<String, JSONObject> getShopItemsByKey() {
         return this.gameDataManager.getShopItemsByKey();
     }
@@ -381,20 +376,24 @@ public class GameManager extends SceneManager {
     public JSONObject getSavedShopJsonObject() {
         return getProgressJsonObject(SHOP_KEY);
     }
-
     public void setSavedShopJsonObject(JSONObject obj) {
         this.progressJsonObject.put(SHOP_KEY, obj);
     }
 
     public void setBgColor(Color c) {
-        Color col = c;
+        Color col;
         if (c == null) {
             col = DEFAULT_BG_COLOR;
+        } else {
+            // Calcula el color de fondo aplicando un factor
+            int newRed = Math.min(255, c.red + (int)(c.red * BG_COLOR_MULTIPLY_FACTOR));
+            int newGreen = Math.min(255, c.green + (int)(c.green * BG_COLOR_MULTIPLY_FACTOR));
+            int newBlue = Math.min(255, c.blue + (int)(c.blue * BG_COLOR_MULTIPLY_FACTOR));
+            col = new Color(newRed, newGreen, newBlue, c.alpha);
         }
         this.engine.getGraphics().setClearColor(col);
-        this.bgColor = c;
+        this.bgColor = col;
     }
-
     public Color getBgColor() {
         if (this.bgColor != null) {
             return this.bgColor;
@@ -405,7 +404,6 @@ public class GameManager extends SceneManager {
     public void setBgImage(String path) {
         this.bgImage = path.isBlank() ? DEFAULT_BG_IMAGE : path;
     }
-
     public String getBgImage() {
         return this.bgImage;
     }
@@ -413,8 +411,15 @@ public class GameManager extends SceneManager {
     public void setBallSkin(int i, IImage img) {
         this.activeSkins[i] = img;
     }
+    public IImage getBallSkin(int i) { return this.activeSkins[i]; }
 
-    public IImage getBallSkin(int i) {
-        return this.activeSkins[i];
+    // Para nuestras escenas del juego queremos modificar el color de fondo
+    // y el color de los botones, textos, etc.
+    public void setUIColor(Color c) {
+        this.setBgColor(c);
+        this.UIColor = c;
+        for (Scene scene : this.scenes) {
+            scene.setUIColor(this.UIColor);
+        }
     }
 }

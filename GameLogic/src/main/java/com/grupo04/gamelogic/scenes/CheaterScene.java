@@ -13,7 +13,7 @@ public class CheaterScene extends Scene {
     private final float[] TEXT_INDENTING = new float[]{3f, -10f};
     private final float TEXT_LINE_SPACING = -30f;
 
-    public CheaterScene(IEngine engine) {
+    public CheaterScene(IEngine engine, Color UIColor) {
         super(engine, 400, 600, new Color(255, 0, 0));
 
         Text title = new Text(new Vector(this.worldWidth / 2f, this.worldHeight / 2f), new String[]{"Cheater!"},
@@ -22,5 +22,9 @@ public class CheaterScene extends Scene {
         addGameObject(title);
 
         setFade(Fade.OUT, 0.0);
+    }
+
+    public CheaterScene(IEngine engine) {
+        this(engine, null);
     }
 }

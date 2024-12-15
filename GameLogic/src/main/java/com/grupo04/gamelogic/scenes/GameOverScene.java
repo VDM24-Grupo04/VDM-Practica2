@@ -19,17 +19,23 @@ public class GameOverScene extends Scene {
     private final float BUTTON_WIDTH = 205f;
     private final float BUTTON_HEIGHT = 55f;
     private final float BUTTON_ARC = 25f;
-    private final Color BUTTON_BASE_COLOR = new Color(237, 12, 46);
-    private final Color BUTTON_OVER_COLOR = new Color(203, 10, 38);
+    private final Color BUTTON_BASE_COLOR = new Color(10, 10, 10);
+    private final Color BUTTON_OVER_COLOR = new Color(0, 0, 0);
+    private final Color BUTTON_FONT_COLOR = new Color(237, 12, 46);
     private final String BUTTON_FONT = "kimberley.ttf";
     private final float BUTTON_OFFSET_Y = 25f;
 
     private final int levelNumber;
 
-    public GameOverScene(IEngine engine, int levelNumber) {
+    private final Color UIColor;
+    private final TextButton tryAgainButton;
+    private final TextButton menuButton;
+
+    public GameOverScene(IEngine engine, int levelNumber, Color UIColor) {
         super(engine, 400, 600);
 
         this.levelNumber = levelNumber;
+        this.UIColor = UIColor;
 
         Text title = new Text(new Vector(this.worldWidth / 2f, this.worldHeight / 4f), new String[]{"Game", "Over!"},
                 TEXT_FONT, TEXT_SIZE, false, false, TEXT_COLOR,
@@ -40,7 +46,7 @@ public class GameOverScene extends Scene {
         ISound loseSound = engine.getAudio().newSound("lose.wav", true);
 
         Vector tryAgainButtonPos = new Vector(this.worldWidth / 2f, 4f * this.worldHeight / 6f);
-        TextButton tryAgainButton = new TextButton(tryAgainButtonPos,
+        this.tryAgainButton = new TextButton(tryAgainButtonPos,
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BUTTON_BASE_COLOR, BUTTON_OVER_COLOR,
                 "Try again", BUTTON_FONT, BUTTON_SOUND,
                 () -> {
@@ -54,11 +60,11 @@ public class GameOverScene extends Scene {
                         }
                     });
                 });
-        addGameObject(tryAgainButton);
+        addGameObject(this.tryAgainButton);
 
         Vector menuButtonPos = new Vector(tryAgainButtonPos);
         menuButtonPos.y += BUTTON_HEIGHT + BUTTON_OFFSET_Y;
-        TextButton menuButton = new TextButton(menuButtonPos,
+        this.menuButton = new TextButton(menuButtonPos,
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ARC, BUTTON_BASE_COLOR, BUTTON_OVER_COLOR,
                 "Menu", BUTTON_FONT, BUTTON_SOUND,
                 () -> {
@@ -69,9 +75,9 @@ public class GameOverScene extends Scene {
                     this.setFadeCallback(() -> {
                         Scene scene;
                         if (this.levelNumber <= 0) {
-                            scene = new TitleScene(this.engine);
+                            scene = new TitleScene(this.engine, this.UIColor);
                         } else {
-                            scene = new LevelsScene(this.engine);
+                            scene = new LevelsScene(this.engine, this.UIColor);
                         }
                         scene.setFade(Fade.OUT, 0.25);
                         this.engine.getAudio().stopSound(loseSound);
@@ -80,8 +86,25 @@ public class GameOverScene extends Scene {
                         }
                     });
                 });
-        addGameObject(menuButton);
+        addGameObject(this.menuButton);
 
         setFade(Fade.OUT, 0.0);
+
+        setUIColor(this.UIColor);
+    }
+
+    public GameOverScene(IEngine engine, int levelNumber) {
+        this(engine, levelNumber, null);
+    }
+
+    public void setUIColor(Color color) {
+        super.setUIColor(color);
+
+        if (this.tryAgainButton != null) {
+            this.tryAgainButton.setFontColor(this.UIColor, BUTTON_FONT_COLOR);
+        }
+        if (this.menuButton != null) {
+            this.menuButton.setFontColor(this.UIColor, BUTTON_FONT_COLOR);
+        }
     }
 }

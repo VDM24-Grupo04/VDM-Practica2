@@ -51,20 +51,24 @@ public class ShopScene extends Scene {
     VerticalListview listview;
 
     private final HashMap<String, ShopItemButton> items;
-    private final List<ShopBgColorButton> bgColors;
+    private final List<ShopBgColorButton> themeColors;
     private final ArrayList<ShopBallSkinButton>[] ballSkins;
     private final List<ShopBgImageButton> bgImages;
 
-    public ShopScene(IEngine engine) {
-        super(engine, 400, 600);
+    public ShopScene(IEngine engine, Color UIColor) {
+        super(engine, 400, 600, UIColor);
 
         this.items = new HashMap<>();
-        this.bgColors = new ArrayList<>();
+        this.themeColors = new ArrayList<>();
         this.ballSkins = new ArrayList[BubbleColors.getTotalColors()];
         for(int i = 0; i < this.ballSkins.length; i++) {
             this.ballSkins[i] = new ArrayList<>();
         }
         this.bgImages = new ArrayList<>();
+    }
+
+    public ShopScene(IEngine engine) {
+        this(engine, null);
     }
 
     @Override
@@ -148,7 +152,6 @@ public class ShopScene extends Scene {
         this.gameManager.setSavedShopJsonObject(savedItems);
     }
 
-
     // Crea los elementos del header
     private void createHeader(IGraphics graphics) {
         // Se anade el boton de volver al menu inicial
@@ -164,7 +167,7 @@ public class ShopScene extends Scene {
                     // con animacion de fade out
                     this.setFade(Fade.IN, 0.25);
                     this.setFadeCallback(() -> {
-                        TitleScene scene = new TitleScene(this.engine);
+                        TitleScene scene = new TitleScene(this.engine, this.UIColor);
                         scene.setFade(Fade.OUT, 0.25);
                         if (this.gameManager != null) {
                             this.gameManager.changeScene(scene);
@@ -263,7 +266,7 @@ public class ShopScene extends Scene {
 
     // Crea un elemento de tipo color de fondo
     private ShopItemButton createBgColor(int price, int r, int g, int b, int a) {
-        if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255 && a >= 0 && a <= 255) {
+        if (Color.isValidColor(r, g, b, a)) {
             Color col = new Color(r, g, b, a);
 
             ShopBgColorButton color = new ShopBgColorButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
@@ -271,12 +274,12 @@ public class ShopScene extends Scene {
 
             // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
             color.setOnSelectExtra(() -> {
-                for (ShopBgColorButton c : this.bgColors) {
+                for (ShopBgColorButton c : this.themeColors) {
                     c.setSelected(false);
                 }
             });
             // Anade el color a los colores de fondo disponibles
-            this.bgColors.add(color);
+            this.themeColors.add(color);
 
             return color;
         }

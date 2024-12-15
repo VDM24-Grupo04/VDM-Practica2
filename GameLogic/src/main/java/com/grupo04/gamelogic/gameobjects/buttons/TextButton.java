@@ -12,15 +12,15 @@ import java.util.List;
 
 public class TextButton extends Button {
     private final float arc;
-    private final Color baseCol;
-    private final Color pointerOverCol;
+    private Color baseCol;
+    private Color pointerOverCol;
     private Color bgCol;
 
     private IFont font;
     private final String text;
     private final float fontSize;
     private final String fontName;
-    private final Color fontColor;
+    private Color fontColor;
     private final boolean bold;
 
     private IImage image;
@@ -135,5 +135,29 @@ public class TextButton extends Button {
         super.dereference();
 
         this.font = null;
+    }
+
+    public void setBaseColor(Color color, Color defaultColor) {
+        if (color == null) {
+            this.bgCol = this.baseCol = defaultColor;
+        } else {
+            this.bgCol = this.baseCol = color;
+        }
+    }
+
+    public void setPointerOverColor(Color color, Color defaultColor) {
+        if (color == null) {
+            this.pointerOverCol = defaultColor;
+        } else {
+            this.pointerOverCol = color;
+        }
+    }
+
+    public void setFontColor(Color color, Color defaultColor) {
+        if (color == null) {
+            this.fontColor = defaultColor;
+        } else {
+            this.fontColor = color;
+        }
     }
 }
