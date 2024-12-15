@@ -85,23 +85,28 @@ public class CurrentBubble extends GameObject {
         // Si es modo Juego rapido obtiene un int del ultimo color
         this.isAdventureMode = false;
         if (progressJson != null) {
-            // Si es modo Aventura coge el primer color que le corresponde del array
-            if (progressJson.has("colors")) {
-                this.isAdventureMode = true;
-                this.adventureModeColors = convertJSONArrayToLinkedList(progressJson.getJSONArray("colors"));
-                this.reset();
+            try {
+                // Si es modo Aventura coge el primer color que le corresponde del array
+                if (progressJson.has("colors")) {
+                    this.isAdventureMode = true;
+                    this.adventureModeColors = convertJSONArrayToLinkedList(progressJson.getJSONArray("colors"));
+                    this.reset();
+                }
+                // Si es modo Juego Rapido coge el color que le corresponde
+                else if (progressJson.has("color")) {
+                    // Coge el objeto con clave "quickPlay" del cual coge el int del color
+                    this.color = progressJson.getInt("color");
+                    this.resetPhysics();
+                }
+                // Por si acaso
+                else {
+                    this.reset();
+                }
+                return true;
+            } catch(Exception e) {
+                System.out.println("Invalid bubble colors format. No bubble colors were added");
+                return false;
             }
-            // Si es modo Juego Rapido coge el color que le corresponde
-            else if (progressJson.has("color")) {
-                // Coge el objeto con clave "quickPlay" del cual coge el int del color
-                this.color = progressJson.getInt("color");
-                this.resetPhysics();
-            }
-            // Por si acaso
-            else {
-                this.reset();
-            }
-            return true;
         }
         return false;
     }
