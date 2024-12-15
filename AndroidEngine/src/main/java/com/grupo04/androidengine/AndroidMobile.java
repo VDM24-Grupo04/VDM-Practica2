@@ -58,8 +58,8 @@ public class AndroidMobile implements Mobile {
     private RewardedAd rewardedAd;
 
     private SensorManager sensorManager;
-    private Sensor gyroscopeSensor;
     private SensorEventListener sensorEventListener;
+    private Sensor gyroscopeSensor; // Opcional: sensor de giroscopio
 
     public static String CHANNEL_ID = "Reward Channel ID";
     public static String CHANNEL_NAME = "Reward Channel";
@@ -362,12 +362,7 @@ public class AndroidMobile implements Mobile {
     @SuppressLint("DiscouragedApi")
     @Override
     public int getAsset(String fileName, String defType) {
-        try {
-            return this.mainActivity.getResources().getIdentifier(fileName, defType, this.mainActivity.getPackageName());
-        } catch (Resources.NotFoundException exception) {
-            System.err.println("Icon id was not found");
-            return -1;
-        }
+        return this.mainActivity.getResources().getIdentifier(fileName, defType, this.mainActivity.getPackageName());
     }
 
     @Override

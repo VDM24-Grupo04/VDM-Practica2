@@ -17,7 +17,6 @@ import com.grupo04.gamelogic.GameManager;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private AndroidEngine androidEngine;
-    private GameManager gameManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,11 +36,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String fileName = "game.json";
         String shopFileName = "shop.json";
         String notificationIconName = "ic_notification";
-        this.gameManager = new GameManager(this.androidEngine, fileName, shopFileName, notificationIconName);
-        this.androidEngine.setScene(this.gameManager);
+        GameManager gameManager = new GameManager(this.androidEngine, fileName, shopFileName, notificationIconName);
+        this.androidEngine.setScene(gameManager);
 
         // Bloquear la orientacion
-        // this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     @Override
@@ -70,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 androidEngine.sensorChanged(
                         new com.grupo04.engine.Sensor(ISensor.SensorType.GYROSCOPE, sensorEvent.values));
                 break;
+//            case Sensor.TYPE_...:
         }
     }
 

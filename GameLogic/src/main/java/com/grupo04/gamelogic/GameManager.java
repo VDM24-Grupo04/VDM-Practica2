@@ -34,7 +34,8 @@ public class GameManager extends SceneManager {
     private final String LEVEL_PROGRESS_KEY = "levelProgress";
     private final String SHOP_KEY = "shop";
 
-    private GameDataManager gameDataManager;
+    private final GameDataManager gameDataManager;
+    private IMobile mobile;
 
     // Progresion del juego
     private final String progressFileName;
@@ -53,6 +54,7 @@ public class GameManager extends SceneManager {
 
     private final String notificationIconFileName;
 
+    // Opcional: sensor de giroscopio
     private final float SHAKE_ACCELERATION = 1;
     private float acceleration;
     private float currentAcceleration;
@@ -92,7 +94,7 @@ public class GameManager extends SceneManager {
         if (readInfo()) {
             applyShopProgress();
             pushScene(new TitleScene(this.engine));
-            IMobile mobile = this.engine.getMobile();
+            this.mobile = this.engine.getMobile();
             if (mobile != null) {
                 // Las recompensas deben aplicarse siempre y cuando sea correcta la
                 // lectura del archivo de guardado
@@ -117,10 +119,9 @@ public class GameManager extends SceneManager {
 
         this.writeInfo();
 
-        IMobile mobile = this.engine.getMobile();
-        if (mobile != null) {
-            int icon = mobile.getAsset(this.notificationIconFileName);
-            mobile.programNotification(3, TimeUnit.SECONDS,
+        if (this.mobile != null) {
+            int icon = this.mobile.getAsset(this.notificationIconFileName);
+            this.mobile.programNotification(3, TimeUnit.SECONDS,
                     REWARD_1, REWARD_1_TITLE, REWARD_1_MESSAGE, icon,
                     IMobile.NotificationPriority.HIGH, IMobile.NotificationVisibility.PUBLIC);
         }
@@ -128,6 +129,7 @@ public class GameManager extends SceneManager {
 
     @Override
     public void sensorChanged(Sensor sensor) {
+        // Opcional: sensor de giroscopio
         if (sensor.getType() == ISensor.SensorType.GYROSCOPE) {
             float[] values = sensor.getValues();
             float x = values[0];

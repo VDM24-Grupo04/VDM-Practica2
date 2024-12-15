@@ -137,18 +137,6 @@ public class AndroidEngine extends Engine {
         }
     }
 
-    @Override
-    public void onResume() {
-        mobile.onResume();
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        mobile.onPause();
-        super.onPause();
-    }
-
     private native String hash(String data);
 
     @Override

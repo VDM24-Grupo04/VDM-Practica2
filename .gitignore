@@ -31,3 +31,6 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Ignore assets files in AndroidGame
+AndroidGame/src/main/assets/

@@ -20,7 +20,7 @@ public class GameDataManager {
     private int totalLevels;
     private int[] worlds;
 
-    private Color[][] styleColors;
+    private final Color[][] styleColors;
     private final int COLORS_PER_WORLD = 4;
     private final Color DEFAULT_UNLOCKED_COLOR = new Color(255, 255, 255);  // Blanco
     private final Color DEFAULT_PASSED_COLOR = new Color(128, 128, 128); // Gris medio
@@ -28,7 +28,6 @@ public class GameDataManager {
     private final Color DEFAULT_POINTER_OVER_COLOR = new Color(180, 180, 180); // Gris claro
 
     // Tienda dirigida por datos
-    private final String shopFileName;
     private final List<String> shopItemsKeys;
     private final HashMap<String, JSONObject> shopItemsByKey;
 
@@ -41,12 +40,11 @@ public class GameDataManager {
         styleColors = readLevelsStyle();
 
         // Tienda
-        this.shopFileName = shopFileName;
         this.shopItemsKeys = new ArrayList<>();
         this.shopItemsByKey = new HashMap<>();
 
         // Se intenta leer la tienda
-        InputStream shopFile = this.engine.getFileInputStream(this.shopFileName, IEngine.FileType.GAME_DATA);
+        InputStream shopFile = this.engine.getFileInputStream(shopFileName, IEngine.FileType.GAME_DATA);
         String shopStr = this.engine.readFile(shopFile);
         if (shopStr != null) {
             try {
@@ -56,7 +54,6 @@ public class GameDataManager {
             }
         }
     }
-
 
     // Mundos y niveles
     private void readLevelsData() {
@@ -184,7 +181,6 @@ public class GameDataManager {
         return levelWorld;
     }
 
-
     // Tienda
     private void readShop(JSONObject shopJson) {
         // Obtiene el array de objetos
@@ -250,7 +246,7 @@ public class GameDataManager {
 
     public Color[][] getLevelsStyle() { return this.styleColors; }
 
-    public List<String> getShopItemsKeys() { return this.shopItemsKeys; };
+    public List<String> getShopItemsKeys() { return this.shopItemsKeys; }
 
-    public HashMap<String, JSONObject> getShopItemsByKey() { return this.shopItemsByKey;};
+    public HashMap<String, JSONObject> getShopItemsByKey() { return this.shopItemsByKey;}
 }

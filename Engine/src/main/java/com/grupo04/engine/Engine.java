@@ -156,6 +156,9 @@ public abstract class Engine implements IEngine, Runnable {
     }
 
     public void onResume() {
+        if (this.mobile != null) {
+            this.mobile.onResume();
+        }
         if (!this.isRunning) {
             this.isRunning = true;
             // Se crea un nuevo hilo y se inicia
@@ -166,6 +169,9 @@ public abstract class Engine implements IEngine, Runnable {
     }
 
     public void onPause() {
+        if (this.mobile != null) {
+            this.mobile.onPause();
+        }
         if (this.isRunning) {
             // Se pone isRunning a false y se intenta esperar a que termine el hilo
             this.isRunning = false;
