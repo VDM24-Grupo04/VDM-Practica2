@@ -49,7 +49,7 @@ import java.io.OutputStream;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public class AndroidMobile implements Mobile {
+public class AndroidMobile extends Mobile {
     private final String REWARD_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
 
     private final Activity mainActivity;

@@ -2,7 +2,7 @@ package com.grupo04.engine;
 
 import com.grupo04.engine.interfaces.IMobile;
 
-public interface Mobile extends IMobile {
-    void onResume();
-    void onPause();
+public abstract class Mobile implements IMobile {
+    public abstract void onResume();
+    public abstract void onPause();
 }
