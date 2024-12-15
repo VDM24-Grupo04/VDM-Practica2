@@ -8,11 +8,11 @@ import com.grupo04.engine.utilities.Color;
 import com.grupo04.gamelogic.GameManager;
 import com.grupo04.gamelogic.listview.ShopItemButton;
 
-public class ShopBgColorButton extends ShopItemButton {
+public class ShopThemeColorButton extends ShopItemButton {
     private Color color;
 
-    public ShopBgColorButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
-                             Color selectedColor, ISound buttonClickSound, GameManager gameManager, Color color) {
+    public ShopThemeColorButton(int price, IFont priceFont, Color priceColor, IImage coinImage, int coinSize,
+                                Color selectedColor, ISound buttonClickSound, GameManager gameManager, Color color) {
         super(price, priceFont, priceColor, coinImage, coinSize, selectedColor, buttonClickSound, gameManager);
 
         this.color = color;

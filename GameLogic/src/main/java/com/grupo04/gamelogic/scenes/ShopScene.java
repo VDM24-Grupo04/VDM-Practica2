@@ -14,7 +14,7 @@ import com.grupo04.gamelogic.gameobjects.Text;
 import com.grupo04.gamelogic.listview.ShopItemButton;
 import com.grupo04.gamelogic.listview.VerticalListview;
 import com.grupo04.gamelogic.listview.shopItems.ShopBallSkinButton;
-import com.grupo04.gamelogic.listview.shopItems.ShopBgColorButton;
+import com.grupo04.gamelogic.listview.shopItems.ShopThemeColorButton;
 import com.grupo04.gamelogic.listview.shopItems.ShopBgImageButton;
 
 import org.json.JSONException;
@@ -51,7 +51,7 @@ public class ShopScene extends Scene {
     VerticalListview listview;
 
     private final HashMap<String, ShopItemButton> items;
-    private final List<ShopBgColorButton> themeColors;
+    private final List<ShopThemeColorButton> themeColors;
     private final ArrayList<ShopBallSkinButton>[] ballSkins;
     private final List<ShopBgImageButton> bgImages;
 
@@ -269,12 +269,12 @@ public class ShopScene extends Scene {
         if (Color.isValidColor(r, g, b, a)) {
             Color col = new Color(r, g, b, a);
 
-            ShopBgColorButton color = new ShopBgColorButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
+            ShopThemeColorButton color = new ShopThemeColorButton(price, this.pricesFont, TEXT_COLOR, this.coinImg, this.coinsImageSize,
                     SELECTED_COLOR, this.buttonSound, this.gameManager, col);
 
             // Anade la funcion para que al seleccionar el objeto se deseleccionen el resto
             color.setOnSelectExtra(() -> {
-                for (ShopBgColorButton c : this.themeColors) {
+                for (ShopThemeColorButton c : this.themeColors) {
                     c.setSelected(false);
                 }
             });
