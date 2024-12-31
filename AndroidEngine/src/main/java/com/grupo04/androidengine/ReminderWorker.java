@@ -40,7 +40,7 @@ public class ReminderWorker extends Worker {
         assert intent != null;
         intent.setData(Uri.parse(key));
 
-        PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), notifications_channel_id)
                 .setSmallIcon(icon)
                 .setContentTitle(title)
